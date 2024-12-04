@@ -51,6 +51,7 @@
 
 
 
+        /*　left or right */
         #togglePositionButton {
             background: none;
             border: none; /* 枠線 */
@@ -67,8 +68,16 @@
         #togglePositionButton i {
             font-size: 14px; /* アイコンをさらに小さくする */
         }
-      
-      
+
+        .dark-theme #togglePositionButton,
+        .satellite-theme #togglePositionButton {
+            color: #999;
+        }
+        /*　left or right */
+
+
+
+        /*　zoom button */
         .zoom-control-container {
             position: fixed; /* 画面全体に対する配置を固定 */
             bottom: 20px;    /* 下からの距離 */
@@ -91,6 +100,11 @@
             transform: scale(1.1);
         }
 
+        .dark-theme .zoom-control-container button,
+        .satellite-theme .zoom-control-container button {
+            color: #999;
+        }
+        /*　zoom button */
 
     </style>
 </head>
@@ -154,37 +168,38 @@
         const streetLayer = createLayer('street', mapTilerApiKey);
         const satelliteLayer = createLayer('satellite', mapTilerApiKey);
 
-        // Add default layer
-        darkLayer.addTo(map);
-
-        // Layer list and index
+        // レイヤーリストと現在のインデックス
         const layers = [darkLayer, streetLayer, satelliteLayer];
+        const themes = ['dark-theme', 'street-theme', 'satellite-theme'];
         let currentLayerIndex = 0;
 
-        // Toggle layer button
+        // 初期レイヤーを追加
+        darkLayer.addTo(map);
+        document.body.classList.add(themes[currentLayerIndex]);
+
+        // レイヤートグルボタン
         const layerToggle = document.getElementById('layerToggle');
-        const layerToggleIcon = layerToggle.querySelector('img');
+        const layerToggleIcon = document.getElementById('layerToggleIcon');
 
-        // Layer toggle event
         layerToggle.addEventListener('click', () => {
-            // Remove current layer
+            // 現在のレイヤーを削除
             map.removeLayer(layers[currentLayerIndex]);
+            document.body.classList.remove(themes[currentLayerIndex]);
 
-            // Increment layer index
+            // 次のレイヤーに切り替え
             currentLayerIndex = (currentLayerIndex + 1) % layers.length;
+            map.addLayer(layers[currentLayerIndex]);
+            document.body.classList.add(themes[currentLayerIndex]);
 
-            // Add new layer
-            layers[currentLayerIndex].addTo(map);
-
-            // Update icon based on the current layer
+            // アイコンを更新
             if (currentLayerIndex === 0) {
                 layerToggleIcon.src = "https://img.icons8.com/?size=100&id=2m4kkop8aUO5&format=png&color=000000";
                 layerToggleIcon.title = "Switch to Street View";
             } else if (currentLayerIndex === 1) {
-                layerToggleIcon.src = "https://img.icons8.com/?size=100&id=2m4kkop8aUO5&format=png&color=000000";
+                layerToggleIcon.src = "https://img.icons8.com/?size=100&id=NHtRhybXwxli&format=png&color=000000";
                 layerToggleIcon.title = "Switch to Satellite View";
             } else if (currentLayerIndex === 2) {
-                layerToggleIcon.src = "https://img.icons8.com/?size=100&id=NHtRhybXwxli&format=png&color=000000";
+                layerToggleIcon.src = "https://img.icons8.com/?size=100&id=2m4kkop8aUO5&format=png&color=000000";
                 layerToggleIcon.title = "Switch to Dark View";
             }
         });
