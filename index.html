@@ -1,0 +1,402 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>New Mapping system</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.5.1/nouislider.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            overflow: hidden;
+        }
+
+        #map {
+            position: absolute;
+            height: calc(100% + 12px); /* menu-container の高さ +margin を考慮 */
+            width: 100%;
+        }
+
+        #layerToggle {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 1000;
+            border-radius: 50%;
+            padding: 5px;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        #layerToggle:hover {
+            transform: scale(1.1);
+        }
+
+        #layerToggle img {
+            width: 30px;
+            height: 30px;
+        }
+
+        #togglePositionButton {
+            background: none;
+            border: none; /* 枠線 */
+            padding: 0px; /* 小さな内側の余白 */
+            width: 30px; /* ボタンの幅 */
+            height: 30px; /* ボタンの高さ */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 16px; /* アイコンのサイズ */
+            cursor: pointer;
+        }
+
+        #togglePositionButton i {
+            font-size: 14px; /* アイコンをさらに小さくする */
+        }
+      
+      
+        .zoom-control-container {
+            position: fixed; /* 画面全体に対する配置を固定 */
+            bottom: 20px;    /* 下からの距離 */
+            right: 12px;     /* 初期設定は右下 */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 1000;   /* 他の要素より上に表示 */
+            gap: 10px;       /* 子要素間の間隔 */
+        }
+
+        .zoom-control-container button {
+            color: #333;
+            opacity: 0.5;
+            border-radius: 50%;
+            background-color: none;
+        }
+
+        .zoom-control-container button:hover {
+            transform: scale(1.1);
+        }
+
+
+    </style>
+</head>
+<body>
+
+<div id="map"></div>
+<div id="layerToggle">
+    <img src="https://img.icons8.com/?size=100&id=2m4kkop8aUO5&format=png&color=000000" title="Switch Layer">
+</div>
+
+<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.5.1/nouislider.min.js"></script> <!-- for slider-->
+<script>
+
+    // --------------------------------------------------
+    //    ▼ sample ▼
+    // --------------------------------------------------
+
+        // code here
+
+    // --------------------------------------------------
+    //    ▲ sample ▲
+    // --------------------------------------------------
+
+
+
+    // --------------------------------------------------
+    //    ▼ create map and layers▼
+    // --------------------------------------------------
+
+        // MapTiler API Key
+        const mapTilerApiKey = 'Sv80uSRLZxFEwRiW17Cg';
+
+        // Function to create map layers
+        function createLayer(type, apiKey) {
+            const styles = {
+                dark: `https://api.maptiler.com/maps/darkmatter/{z}/{x}/{y}.png?key=${apiKey}`,
+                street: `https://api.maptiler.com/maps/basic/{z}/{x}/{y}.png?key=${apiKey}`,
+                satellite: `https://api.maptiler.com/maps/hybrid/{z}/{x}/{y}.jpg?key=${apiKey}`
+            };
+
+            return L.tileLayer(styles[type], {
+                attribution: '&copy; <a href="https://www.maptiler.com/copyright/">MapTiler</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+                maxZoom: 18
+            });
+        }
+        
+        // ユーザーがモバイルデバイスを使用しているかを判定
+        const isMobile = /Mobi|Android|iPhone|iPad|iPod/.test(navigator.userAgent);
+
+        // デバイスに応じた初期ズームレベルを設定
+        const initialZoom = isMobile ? 11 : 12;
+        
+        // 地図の初期化 デバイスに適したズームレベルで地図を初期化
+        const map = L.map('map', { 
+            zoomControl: false }).setView([21.03966820428092, 105.86461819490408], 
+            initialZoom);
+
+        // Create layers
+        const darkLayer = createLayer('dark', mapTilerApiKey);
+        const streetLayer = createLayer('street', mapTilerApiKey);
+        const satelliteLayer = createLayer('satellite', mapTilerApiKey);
+
+        // Add default layer
+        darkLayer.addTo(map);
+
+        // Layer list and index
+        const layers = [darkLayer, streetLayer, satelliteLayer];
+        let currentLayerIndex = 0;
+
+        // Toggle layer button
+        const layerToggle = document.getElementById('layerToggle');
+        const layerToggleIcon = layerToggle.querySelector('img');
+
+        // Layer toggle event
+        layerToggle.addEventListener('click', () => {
+            // Remove current layer
+            map.removeLayer(layers[currentLayerIndex]);
+
+            // Increment layer index
+            currentLayerIndex = (currentLayerIndex + 1) % layers.length;
+
+            // Add new layer
+            layers[currentLayerIndex].addTo(map);
+
+            // Update icon based on the current layer
+            if (currentLayerIndex === 0) {
+                layerToggleIcon.src = "https://img.icons8.com/?size=100&id=2m4kkop8aUO5&format=png&color=000000";
+                layerToggleIcon.title = "Switch to Street View";
+            } else if (currentLayerIndex === 1) {
+                layerToggleIcon.src = "https://img.icons8.com/?size=100&id=2m4kkop8aUO5&format=png&color=000000";
+                layerToggleIcon.title = "Switch to Satellite View";
+            } else if (currentLayerIndex === 2) {
+                layerToggleIcon.src = "https://img.icons8.com/?size=100&id=NHtRhybXwxli&format=png&color=000000";
+                layerToggleIcon.title = "Switch to Dark View";
+            }
+        });
+
+    // --------------------------------------------------
+    //    ▲ create map and layers ▲
+    // --------------------------------------------------    
+    
+
+
+
+
+    // --------------------------------------------------
+    //    ▼ zoom event and move center ▼
+    // --------------------------------------------------
+
+        // ズームボタン用のコンテナを作成 初期設定は右下
+        let isBottomRight = true;
+
+        // カスタムズームコントロールを右下に追加
+        const zoomControlContainer = L.control({ position: 'bottomright' });
+
+        zoomControlContainer.onAdd = function () {
+            const div = L.DomUtil.create('div', 'zoom-control-container');
+            div.innerHTML = `
+                <button id="togglePositionButton" style="margin-bottom: 10px;">
+                    <i class="fa-solid fa-angles-left"></i>
+                </button>
+                <div style="display: flex; flex-direction: column; align-items: center; gap: 10px;">
+                    <button id="zoomInIcon" style="background: none; border: none; cursor: pointer; font-size: 24px;">
+                        <i class="fa-solid fa-circle-plus"></i>
+                    </button>
+                    <button id="zoomOutIcon" style="background: none; border: none; cursor: pointer; font-size: 24px;">
+                        <i class="fa-solid fa-circle-minus"></i>
+                    </button>
+                </div>
+            `;
+
+            // 位置切り替えボタンの動作
+            div.querySelector('#togglePositionButton').addEventListener('click', () => {
+                const container = document.querySelector('.zoom-control-container');
+                const toggleIcon = document.querySelector('#togglePositionButton i');
+
+                // 確実に画面下に配置
+                container.style.position = 'fixed';
+                container.style.bottom = '20px';
+                if (isBottomRight) {
+                    container.style.left = '25px';
+                    container.style.right = 'auto';
+                    toggleIcon.className = 'fa-solid fa-angles-right';
+                } else {
+                    container.style.right = '12px';
+                    container.style.left = 'auto';
+                    toggleIcon.className = 'fa-solid fa-angles-left';
+                }
+                isBottomRight = !isBottomRight;
+            });
+
+            return div;
+        };
+
+        zoomControlContainer.addTo(map);
+
+        // ズームインイベント（スムーズ）
+        document.getElementById('zoomInIcon').addEventListener('click', function () {
+            map.flyTo(map.getCenter(), map.getZoom() + 1, { animate: true, duration: 0.7 });
+        });
+
+        // ズームアウトイベント（スムーズ）
+        document.getElementById('zoomOutIcon').addEventListener('click', function () {
+            map.flyTo(map.getCenter(), map.getZoom() - 1, { animate: true, duration: 0.7 });
+        });     
+        
+        // ダブルクリックズームを無効化
+        map.doubleClickZoom.disable();
+        
+        // ダブルクリックされた場所を地図の中心にスムーズに移動
+        map.on('dblclick', function(e) {
+            const latlng = e.latlng; // ダブルクリックされた位置の緯度経度
+            // アニメーション付きで移動
+            map.flyTo(latlng, map.getZoom(), {
+                animate: true,
+                duration: 0.7 // アニメーションの持続時間（秒）
+            });
+        });
+
+    // --------------------------------------------------
+    //    ▲ zoom event and move cneter ▲
+    // --------------------------------------------------
+
+
+
+
+
+    // --------------------------------------------------
+    //    ▼ add center circle and center marker ▼
+    // --------------------------------------------------
+
+        // add center circle
+        const centerCircle = L.circle(map.getCenter(), {
+            color: 'blue',         // 枠線の色
+            weight: 0.8,           // 枠線の太さ
+            opacity: 0.5,          // 枠線の透明度
+            fillColor: 'none',     // 塗りつぶしの色
+            fillOpacity: 0.1,      // 塗りつぶしの透明度
+            radius: 5000           // 半径 5000m（5km）
+        }).addTo(map);
+        
+        // 現在の円を保持する変数
+        let currentCircle = centerCircle;
+           
+        // add center marker
+        const centerMarker = L.marker(map.getCenter(), {
+            icon: L.divIcon({
+                className: 'fa-icon-marker',
+                html: '<i class="fa-solid fa-bullseye" style="color: blue; font-size: 10px; opacity: 0.5;"></i>',
+                iconAnchor: [6, 8.5]
+            })
+        }).addTo(map);
+
+        // 地図の移動やズーム後にアニメーション付きで円とマーカーを追従
+        map.on('moveend zoomend', function () { // "zoomed" を "zoomend" に修正
+            // 地図の中心座標を一度だけ取得
+            const newCenter = map.getCenter();
+
+            smoothlyMoveCircle(currentCircle, newCenter);
+            smoothlyMoveMarker(centerMarker, newCenter);    
+        });
+
+        // 滑らかに center circle を移動させる関数
+        function smoothlyMoveCircle(circle, newLatLng, duration = 700) {
+            const startLatLng = circle.getLatLng();
+            const startTime = performance.now();
+
+            function animateMove() {
+                const currentTime = performance.now();
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+
+                // イージングを適用
+                const easedProgress = easeInOutQuad(progress);
+
+                // 線形補間にイージングを適用して位置を計算
+                const interpolatedLat = startLatLng.lat + easedProgress * (newLatLng.lat - startLatLng.lat);
+                const interpolatedLng = startLatLng.lng + easedProgress * (newLatLng.lng - startLatLng.lng);
+
+                circle.setLatLng([interpolatedLat, interpolatedLng]);
+
+                if (progress < 1) {
+                    requestAnimationFrame(animateMove);
+                }
+            }
+            requestAnimationFrame(animateMove);
+        }
+        
+        // 滑らかに center maker を移動させる関数
+        function smoothlyMoveMarker(marker, newLatLng, duration = 700) {
+            const startLatLng = marker.getLatLng();
+            const startTime = performance.now();
+
+            function animateMove() {
+                const currentTime = performance.now();
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const easedProgress = easeInOutQuad(progress);
+                const interpolatedLat = startLatLng.lat + easedProgress * (newLatLng.lat - startLatLng.lat);
+                const interpolatedLng = startLatLng.lng + easedProgress * (newLatLng.lng - startLatLng.lng);
+
+                marker.setLatLng([interpolatedLat, interpolatedLng]);
+
+                if (progress < 1) {
+                    requestAnimationFrame(animateMove);
+                } else {
+                    // 最終的な位置を強制設定
+                    marker.setLatLng(newLatLng);
+                }
+            }
+
+            requestAnimationFrame(animateMove);
+        }
+
+        // イージング関数（既存）
+        function easeInOutQuad(t) {
+            return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+        }
+
+    // --------------------------------------------------
+    //    ▲ add center circle and center marker ▲
+    // --------------------------------------------------    
+        
+
+
+
+
+    
+    // --------------------------------------------------
+    //    ▼ 画面ローテーションでリロード ▼
+    // --------------------------------------------------
+        
+        function handleOrientationChange() {
+            if (window.matchMedia("(orientation: portait)").matches) {
+            document.body.style.width = "100%";
+            } else if (window.matchMedia("(orientation: landscape)").matches) {
+            document.body.style.width = "100vw";
+            }
+        }
+
+        window.addEventListener("orientationchange", handleOrientationChange);
+        window.addEventListener("resize", handleOrientationChange);
+        handleOrientationChange();
+
+    // --------------------------------------------------
+    //    ▲ 画面ローテーションでリロード ▲
+    // --------------------------------------------------
+    
+ 
+</script>
+</body>
+</html>
