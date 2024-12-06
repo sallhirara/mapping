@@ -112,8 +112,9 @@
 
 <div id="map"></div>
 <div id="layerToggle">
-    <img src="https://img.icons8.com/?size=100&id=2m4kkop8aUO5&format=png&color=000000" title="Switch Layer">
+    <img id="layerToggleIcon" src="https://img.icons8.com/?size=100&id=2m4kkop8aUO5&format=png&color=000000" title="Switch Layer">
 </div>
+
 
 <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.5.1/nouislider.min.js"></script> <!-- for slider-->
@@ -196,10 +197,10 @@
                 layerToggleIcon.src = "https://img.icons8.com/?size=100&id=2m4kkop8aUO5&format=png&color=000000";
                 layerToggleIcon.title = "Switch to Street View";
             } else if (currentLayerIndex === 1) {
-                layerToggleIcon.src = "https://img.icons8.com/?size=100&id=NHtRhybXwxli&format=png&color=000000";
+                layerToggleIcon.src = "https://img.icons8.com/?size=100&id=2m4kkop8aUO5&format=png&color=000000";
                 layerToggleIcon.title = "Switch to Satellite View";
             } else if (currentLayerIndex === 2) {
-                layerToggleIcon.src = "https://img.icons8.com/?size=100&id=2m4kkop8aUO5&format=png&color=000000";
+                layerToggleIcon.src = "https://img.icons8.com/?size=100&id=NHtRhybXwxli&format=png&color=000000";
                 layerToggleIcon.title = "Switch to Dark View";
             }
         });
