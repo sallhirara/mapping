@@ -182,6 +182,7 @@
         const layerToggle = document.getElementById('layerToggle');
         const layerToggleIcon = document.getElementById('layerToggleIcon');
 
+        // レイヤートグルボタンのイベントリスナー内でテーマに応じたセンターサークルとマーカーの色を変更
         layerToggle.addEventListener('click', () => {
             // 現在のレイヤーを削除
             map.removeLayer(layers[currentLayerIndex]);
@@ -193,17 +194,37 @@
             document.body.classList.add(themes[currentLayerIndex]);
 
             // アイコンを更新
+            let circleColor = '';
+            let markerColor = '';
+
             if (currentLayerIndex === 0) {
                 layerToggleIcon.src = "https://img.icons8.com/?size=100&id=2m4kkop8aUO5&format=png&color=000000";
                 layerToggleIcon.title = "Switch to Street View";
+                circleColor = 'white';
+                markerColor = 'white';
             } else if (currentLayerIndex === 1) {
                 layerToggleIcon.src = "https://img.icons8.com/?size=100&id=2m4kkop8aUO5&format=png&color=000000";
                 layerToggleIcon.title = "Switch to Satellite View";
+                circleColor = 'blue';
+                markerColor = 'blue';
             } else if (currentLayerIndex === 2) {
                 layerToggleIcon.src = "https://img.icons8.com/?size=100&id=NHtRhybXwxli&format=png&color=000000";
                 layerToggleIcon.title = "Switch to Dark View";
+                circleColor = 'red';
+                markerColor = 'red';
             }
+
+            // センターサークルの色を変更
+            currentCircle.setStyle({ color: circleColor });
+
+            // センターマーカーの色を変更
+            centerMarker.setIcon(L.divIcon({
+                className: 'fa-icon-marker',
+                html: `<i class="fa-solid fa-bullseye" style="color: ${markerColor}; font-size: 10px; opacity: 0.5;"></i>`,
+                iconAnchor: [6, 8.5]
+            }));
         });
+
 
     // --------------------------------------------------
     //    ▲ create map and layers ▲
@@ -301,7 +322,7 @@
 
         // add center circle
         const centerCircle = L.circle(map.getCenter(), {
-            color: 'blue',         // 枠線の色
+            color: 'white',         // 枠線の色
             weight: 0.8,           // 枠線の太さ
             opacity: 0.5,          // 枠線の透明度
             fillColor: 'none',     // 塗りつぶしの色
@@ -316,7 +337,7 @@
         const centerMarker = L.marker(map.getCenter(), {
             icon: L.divIcon({
                 className: 'fa-icon-marker',
-                html: '<i class="fa-solid fa-bullseye" style="color: blue; font-size: 10px; opacity: 0.5;"></i>',
+                html: '<i class="fa-solid fa-bullseye" style="color: white; font-size: 10px; opacity: 0.5;"></i>',
                 iconAnchor: [6, 8.5]
             })
         }).addTo(map);
