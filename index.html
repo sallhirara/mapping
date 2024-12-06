@@ -144,7 +144,7 @@
             const styles = {
                 dark: `https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png?key=${apiKey}`,
                 street: `https://api.maptiler.com/maps/basic/{z}/{x}/{y}.png?key=${apiKey}`,
-                satellite: `https://api.maptiler.com/maps/hybrid/{z}/{x}/{y}.jpg?key=${apiKey}`
+                satellite: `https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}?key=${apiKey}`
             };
 
             return L.tileLayer(styles[type], {
@@ -210,8 +210,8 @@
             } else if (currentLayerIndex === 2) {
                 layerToggleIcon.src = "https://img.icons8.com/?size=100&id=NHtRhybXwxli&format=png&color=000000";
                 layerToggleIcon.title = "Switch to Dark View";
-                circleColor = 'red';
-                markerColor = 'red';
+                circleColor = 'white';
+                markerColor = 'white';
             }
 
             // センターサークルの色を変更
