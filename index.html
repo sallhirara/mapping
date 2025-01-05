@@ -41,29 +41,50 @@
       z-index: 1000;
     }
 
-    /* モバイル用: 下からスライドアップ */
-    @media screen and (max-width: 768px) {
-      #menuContainer {
-        position: fixed;
-        bottom: 0px;
-        left: 0;
-        width: 100%;
-        height: 100%; /* 画面全体を覆う */
-        max-height: 70%; /* フルビュー時の高さ */
-        border-radius: 15px 15px 0 0;
-        background: rgba(255, 255, 255, 0.95);
-        transform: translateY(94%); /* 初期非表示 */
-        transition: transform 0.3s ease-out;
-        z-index: 1000;
-      }
+/* モバイル用: 下からスライドアップ */
+@media screen and (max-width: 768px) {
+  #menuContainer {
+    position: fixed;
+    bottom: -66%; /* 完全には隠れない */
+    left: 0;
+    width: 100%;
+    height: 70%;
+    border-radius: 15px 15px 0 0;
+    background: rgba(255, 255, 255, 0.95);
+    transition: transform 0.3s ease-out, bottom 0.3s ease-out;
+    z-index: 1000;
+  }
 
-      #menuContainer.half {
-        transform: translateY(30%); /* ハーフビュー */
-      }
+  #menuContainer.closed {
+    bottom: -60%; /* ハンドル部分が見える位置 */
+  }
 
-      #menuContainer.full {
-        transform: translateY(0); /* フルビュー */
-      }
+  #menuContainer.half {
+    bottom: -30%; /* ハーフビュー */
+  }
+
+  #menuContainer.full {
+    bottom: 0; /* フルビュー */
+  }
+
+  .menu-header {
+    width: 100%;
+    height: 30px; /* ハンドル部分の高さ */
+    background:rgba(255, 255, 255, 0.95);
+    border-radius: 15px 15px 0 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: grab;
+  }
+
+  .drag-handle {
+    width: 50px;
+    height: 5px;
+    background: #999;
+    border-radius: 2.5px;
+  }
+
       
       .menu-toggle {
         display: none !important; /* 確実に非表示 */
@@ -108,25 +129,6 @@
       }     
     }
 
-
-    .menu-header {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 10px;
-      cursor: grab;
-    }
-    .menu-header .drag-handle {
-      width: 50px;
-      height: 5px;
-      background: #ccc;
-      border-radius: 2.5px;
-      margin-bottom: 5px;
-    }
-    .menu-content {
-      padding: 10px;
-      overflow-y: auto;
-    }
 
 
 
@@ -312,9 +314,6 @@
 </head>
 
 <body>
-  <!-- Top bar: Geo Search + Excel input + Real-time tracking toggle -->
-
-
   <!-- The map occupies remaining space and add menu -->
   <div id="menuContainer" class="menu">
     <div class="menu-header" id="menuDragHandle">
@@ -328,10 +327,10 @@
           placeholder="Enter a place"
           style="width: 200px; font-size: 16px;"
         />
-    
+      
         <label for="fileInput" class="custom-file-input"><i class="fa-solid fa-file-arrow-down"></i></label>
         <input type="file" id="fileInput" accept=".xls,.xlsx,.xlsm" />    
-      </div>
+      </div>      
       <ul>
         <li><a href="#option1">Option 1</a></li>
         <li><a href="#option2">Option 2</a></li>
@@ -339,6 +338,7 @@
       </ul>
     </div>
   </div>
+  
   <button id="menuToggleBtn" class="menu-toggle">☰</button>
   
   <div id="map">
