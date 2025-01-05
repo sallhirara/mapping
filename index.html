@@ -274,11 +274,11 @@
     map.panInsideBounds(bounds, { animate: false });
     });
 
-    
+
 
     // レイヤー切り替え、改良の余地ありか。。。。
     // ベースレイヤーを定義
-    const streetLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    const streetLayer = L.tileLayer('https://api.maptiler.com/maps/basic/{z}/{x}/{y}.png?key=Sv80uSRLZxFEwRiW17Cg', {
     maxZoom: 19,
     attribution: '© OpenStreetMap contributors'
     });
