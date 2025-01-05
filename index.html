@@ -997,39 +997,69 @@
     // 12) Menu Container 改善の余地あり
     // -------------------------------------------------------
     document.addEventListener('DOMContentLoaded', () => {
-      const menuContainer = document.getElementById('menuContainer');
-      const menuDragHandle = document.getElementById('menuDragHandle');
-      let startY = 0;
-      let isDragging = false;
+  const menuContainer = document.getElementById('menuContainer');
+  const menuDragHandle = document.getElementById('menuDragHandle');
+  let startY = 0;
+  let isDragging = false;
+  let currentState = 'closed'; // 初期状態を'closed'に設定
 
-      const setMenuState = (state) => {
-        menuContainer.classList.remove('closed', 'half', 'full');
-        menuContainer.classList.add(state);
-      };
+  const setMenuState = (state) => {
+    menuContainer.classList.remove('closed', 'half', 'full');
+    menuContainer.classList.add(state);
+    currentState = state; // 現在の状態を更新
+  };
 
-      menuDragHandle.addEventListener('touchstart', (e) => {
-        startY = e.touches[0].clientY;
-        isDragging = true;
-      });
+  // タッチ開始時
+  menuDragHandle.addEventListener('touchstart', (e) => {
+    startY = e.touches[0].clientY;
+    isDragging = true;
+    menuContainer.style.transition = 'none'; // ドラッグ中はアニメーションを無効化
+  });
 
-      menuDragHandle.addEventListener('touchmove', (e) => {
-        if (!isDragging) return;
-        const currentY = e.touches[0].clientY;
-        const deltaY = currentY - startY;
+  // タッチ移動時
+  menuDragHandle.addEventListener('touchmove', (e) => {
+    if (!isDragging) return;
 
-        if (deltaY > 50) {
-          setMenuState('closed'); // 閉じる
-        } else if (deltaY > -50 && deltaY < 50) {
-          setMenuState('half'); // ハーフビュー
-        } else if (deltaY < -50) {
-          setMenuState('full'); // フルビュー
-        }
-      });
+    const currentY = e.touches[0].clientY;
+    const deltaY = currentY - startY;
+    const screenHeight = window.innerHeight;
 
-      menuDragHandle.addEventListener('touchend', () => {
-        isDragging = false;
-      });
-    });
+    // 現在の位置を計算（リアルタイムでメニューを移動）
+    let newBottom = 0;
+    if (currentState === 'closed') {
+      newBottom = -50 + deltaY;
+    } else if (currentState === 'half') {
+      newBottom = screenHeight * -0.35 + deltaY;
+    } else if (currentState === 'full') {
+      newBottom = 0 + deltaY;
+    }
+
+    // メニューが画面外に出ないよう制限
+    newBottom = Math.max(-screenHeight * 0.7, Math.min(newBottom, 0));
+    menuContainer.style.bottom = `${newBottom}px`;
+  });
+
+  // タッチ終了時
+  menuDragHandle.addEventListener('touchend', () => {
+    isDragging = false;
+    menuContainer.style.transition = 'bottom 0.3s ease-out'; // アニメーションを再有効化
+
+    // 現在のメニュー位置から状態を決定
+    const rect = menuContainer.getBoundingClientRect();
+    const screenHeight = window.innerHeight;
+
+    if (rect.bottom < screenHeight * 0.3) {
+      setMenuState('full');
+    } else if (rect.bottom < screenHeight * 0.7) {
+      setMenuState('half');
+    } else {
+      setMenuState('closed');
+    }
+  });
+
+  // 初期状態を設定
+  setMenuState('closed');
+});
 
 
 
