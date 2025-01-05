@@ -728,12 +728,16 @@
         // Just update position
         currentLocMarker.setLatLng([lat, lng]);
     }
+
+    // Smoothly move the map to the current location
+    map.flyTo([lat, lng], 16); // 第2引数はズームレベル、スムーズな移動を実現
     }
 
     function positionError(err) {
     console.error("Geolocation error:", err);
     alert("Failed to get current location: " + err.message);
     }
+
 
 
   </script>
