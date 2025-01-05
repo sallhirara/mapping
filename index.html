@@ -44,17 +44,21 @@
     /* モバイル用: 下からスライドアップ */
     @media screen and (max-width: 768px) {
       #menuContainer {
-        bottom: 40px;
+        position: fixed;
+        bottom: 0;
         left: 0;
         width: 100%;
-        height: 70%;
+        height: 100%; /* 画面全体を覆う */
+        max-height: 70%; /* フルビュー時の高さ */
         border-radius: 15px 15px 0 0;
-        transform: translateY(100%);
-        transition: transform 0.3s ease-out; /* スムーズなトランジション */
+        background: rgba(255, 255, 255, 0.95);
+        transform: translateY(100%); /* 初期非表示 */
+        transition: transform 0.3s ease-out;
+        z-index: 1000;
       }
 
       #menuContainer.half {
-        transform: translateY(50%); /* ハーフビュー */
+        transform: translateY(30%); /* ハーフビュー */
       }
 
       #menuContainer.full {
