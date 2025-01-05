@@ -313,32 +313,6 @@
 
 <body>
   <!-- The map occupies remaining space and add menu -->
-  <div id="menuContainer" class="menu">
-    <div class="menu-header" id="menuDragHandle">
-      <div class="drag-handle"></div>
-    </div>
-    <div class="menu-content">
-      <div id="top-bar">
-        <input
-          type="text"
-          id="geoSearchBox"
-          placeholder="Enter a place"
-          style="width: 200px; font-size: 16px;"
-        />
-      
-        <label for="fileInput" class="custom-file-input"><i class="fa-solid fa-file-arrow-down"></i></label>
-        <input type="file" id="fileInput" accept=".xls,.xlsx,.xlsm" />    
-      </div>      
-      <ul>
-        <li><a href="#option1">Option 1</a></li>
-        <li><a href="#option2">Option 2</a></li>
-        <li><a href="#option3">Option 3</a></li>
-      </ul>
-    </div>
-  </div>
-  
-  <button id="menuToggleBtn" class="menu-toggle">☰</button>
-  
   <div id="map">
     <!-- Real-time tracking toggle -->
     <button id="currentLocationBtn" onclick="toggleCurrentLocation()" style="background: none; border: none; cursor: pointer; border-radius: 50%; padding: 0px;">
@@ -366,6 +340,32 @@
         <img src="https://img.icons8.com/?size=100&id=2m4kkop8aUO5&format=png&color=000000" alt="Toggle Icon" />
     </div>
   </div>
+
+  <div id="menuContainer" class="menu">
+    <div class="menu-header" id="menuDragHandle">
+      <div class="drag-handle"></div>
+    </div>
+    <div class="menu-content">
+      <div id="top-bar">
+        <input
+          type="text"
+          id="geoSearchBox"
+          placeholder="Enter a place"
+          style="width: 200px; font-size: 16px;"
+        />
+      
+        <label for="fileInput" class="custom-file-input"><i class="fa-solid fa-file-arrow-down"></i></label>
+        <input type="file" id="fileInput" accept=".xls,.xlsx,.xlsm" />    
+      </div>      
+      <ul>
+        <li><a href="#option1">Option 1</a></li>
+        <li><a href="#option2">Option 2</a></li>
+        <li><a href="#option3">Option 3</a></li>
+      </ul>
+    </div>
+  </div>
+  
+  <button id="menuToggleBtn" class="menu-toggle">☰</button>
 
   <script>
     // --------------------------------------------------
