@@ -33,7 +33,7 @@
     }
     #top-bar {
       background: #f8f9fa;
-      padding: 10px;
+      padding: 5px 15px;
       display: flex;
       gap: 10px;
       align-items: center;
@@ -71,11 +71,35 @@
       width: 100%;
     }
 
+    #layerToggleBtn {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        z-index: 1000;
+        cursor: pointer;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s;
+    }
+
+    #layerToggleBtn:hover {
+        transform: scale(1.2);
+    }
+
+    #layerToggleBtn img {
+        width: 30px;
+        height: 30px;
+    }    
+
     /* propertyContainer for the search panel + list */
     #propertyContainer {
       position: absolute;
       top: 15px; 
-      right: 15px;
+      left: 15px;
       width: 320px;
       max-height: 70vh; 
       background-color: transparent;
@@ -174,8 +198,8 @@
     <input type="file" id="fileInput" accept=".xls,.xlsx,.xlsm" />
 
     <!-- Real-time tracking toggle -->
-    <button id="currentLocationBtn" onclick="toggleCurrentLocation()" style="background: none; border: none; cursor: pointer; border-radius: 50%; padding: 5px;">
-        <img src="https://img.icons8.com/?size=100&id=ziC1TV1ikKi9&format=png&color=004ACD4D" alt="Show Location" style="width: 30px; height: 30px;">
+    <button id="currentLocationBtn" onclick="toggleCurrentLocation()" style="background: none; border: none; cursor: pointer; border-radius: 50%; padding: 0px;">
+        <img src="https://img.icons8.com/?size=100&id=ziC1TV1ikKi9&format=png&color=004ACD4D" alt="Show Location" style="width: 25px; height: 25px;">
     </button>
     
   </div>
@@ -199,6 +223,9 @@
         <ul id="propertyResultUl"></ul>
       </div>
     </div>
+    <div id="layerToggleBtn">
+        <img src="https://img.icons8.com/?size=100&id=2m4kkop8aUO5&format=png&color=000000" alt="Toggle Icon" />
+    </div>
   </div>
 
   <script>
@@ -216,7 +243,9 @@
     // -------------------------------------------------------
     // 1) Initialize Leaflet map
     // -------------------------------------------------------
-    const map = L.map('map').setView([20, 0], 2);
+    const map = L.map('map', {
+        zoomControl: false // ズームボタンを非表示にする
+    }).setView([20, 0], 2);
 
     // 1-A) We disable doubleClickZoom so it doesn't zoom on dblclick
     map.doubleClickZoom.disable();
@@ -226,12 +255,49 @@
       // Pan smoothly to e.latlng
       map.panTo(e.latlng, { animate: true });
     });
+
     L.tileLayer('https://api.maptiler.com/maps/basic/{z}/{x}/{y}.png?key=Sv80uSRLZxFEwRiW17Cg', {
       maxZoom: 18,
       attribution: '&copy; MapTiler &copy; OpenStreetMap contributors',
       detectRetina: true
     }).addTo(map);
 
+
+
+    // レイヤー切り替え、改良の余地ありか。。。。
+    // ベースレイヤーを定義
+    const streetLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '© OpenStreetMap contributors'
+    });
+
+    const satelliteLayer = L.tileLayer('https://api.maptiler.com/maps/satellite/{z}/{x}/{y}.jpg?key=Sv80uSRLZxFEwRiW17Cg', {
+    maxZoom: 18,
+    attribution: '&copy; MapTiler & OpenStreetMap contributors'
+    });
+
+    // 初期レイヤーを地図に追加
+    map.addLayer(streetLayer);
+
+    let isSatellite = false; // 現在のレイヤーフラグ
+
+    // トグルボタンのクリックイベント
+    const toggleBtn = document.getElementById('layerToggleBtn');
+    toggleBtn.addEventListener('click', () => {
+    if (isSatellite) {
+        map.removeLayer(satelliteLayer);
+        map.addLayer(streetLayer);
+        toggleBtn.querySelector('img').src = "https://img.icons8.com/?size=100&id=2m4kkop8aUO5&format=png&color=000000";
+    } else {
+        map.removeLayer(streetLayer);
+        map.addLayer(satelliteLayer);
+        toggleBtn.querySelector('img').src = "https://img.icons8.com/?size=100&id=NHtRhybXwxli&format=png&color=000000";
+    }
+    isSatellite = !isSatellite; // 状態を切り替える
+    });
+    // 改良の余地ありか。。。ここまで
+
+    
 
     map.dragging.enable();
     map.scrollWheelZoom.enable();
