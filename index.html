@@ -93,6 +93,11 @@
         font-size: 16px;
         z-index: 1001;
       }
+
+      /* PCではメニューヘッダーを非表示 */
+      .menu-header {
+        display: none !important; /* 確実に非表示 */
+      }     
     }
 
 
@@ -297,25 +302,25 @@
 
 <body>
   <!-- Top bar: Geo Search + Excel input + Real-time tracking toggle -->
-  <div id="top-bar">
-    <input
-      type="text"
-      id="geoSearchBox"
-      placeholder="Enter a place"
-      style="width: 200px; font-size: 16px;"
-    />
 
-    <label for="fileInput" class="custom-file-input"><i class="fa-solid fa-file-arrow-down"></i></label>
-    <input type="file" id="fileInput" accept=".xls,.xlsx,.xlsm" />    
-  </div>
 
   <!-- The map occupies remaining space and add menu -->
   <div id="menuContainer" class="menu">
     <div class="menu-header" id="menuDragHandle">
       <div class="drag-handle"></div>
-      <span>Menu</span>
     </div>
     <div class="menu-content">
+      <div id="top-bar">
+        <input
+          type="text"
+          id="geoSearchBox"
+          placeholder="Enter a place"
+          style="width: 200px; font-size: 16px;"
+        />
+    
+        <label for="fileInput" class="custom-file-input"><i class="fa-solid fa-file-arrow-down"></i></label>
+        <input type="file" id="fileInput" accept=".xls,.xlsx,.xlsm" />    
+      </div>
       <ul>
         <li><a href="#option1">Option 1</a></li>
         <li><a href="#option2">Option 2</a></li>
