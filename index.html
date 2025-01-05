@@ -39,6 +39,12 @@
       align-items: center;
     }
 
+    #top-bar input {
+        border: 1px solid grey;
+        border-radius: 15px;
+        padding: 5px 10px;
+    }
+
     .custom-file-input {
         color: #333;
         font-size: 20px;
@@ -72,9 +78,10 @@
       right: 15px;
       width: 320px;
       max-height: 70vh; 
-      background: #eee;
+      background-color: transparent;
       z-index: 999;
-      border: 1px solid #ccc;
+      border: 0px solid #ccc;
+      border-radius: 15px;
       display: flex;
       flex-direction: column;
       pointer-events: auto;
@@ -83,17 +90,20 @@
     }
 
     #propertySearchHeader {
-      background: #ddd;
+      background: transparent;
       padding: 5px;
       display: flex;
       gap: 5px;
       flex-wrap: wrap;
       align-items: center;
     }
+
     #propertySearchHeader input {
       flex: 1;
       min-width: 0;
-      padding: 5px;
+      padding: 5px 10px;
+      border: 1px solid grey;
+      border-radius: 15px;
     }
     #propertySearchHeader button {
       padding: 5px 10px;
@@ -102,7 +112,11 @@
     #propertyListArea {
       flex: 1;
       overflow-y: auto;
-      padding: 5px;
+      padding: 10px;
+      border: none;
+      border-radius: 15px;
+      background: rgba(255, 255, 255, 0.3); /* 半透明 */
+      backdrop-filter: blur(5px);
       transition: all 0.3s ease;
     }
     #propertyListArea.hidden {
@@ -152,7 +166,7 @@
     <input
       type="text"
       id="geoSearchBox"
-      placeholder="Enter a place (Geo Search)"
+      placeholder="Enter a place"
       style="width: 200px; font-size: 16px;"
     />
 
@@ -174,8 +188,8 @@
         <input
           type="text"
           id="propertySearchBox"
-          placeholder='Property search (simple or complex)'
-          style="font-size: 14px;"
+          placeholder='Property search'
+          style="font-size: 16px;"
         />
         <button onclick="toggleList()">Hide List</button>
       </div>
