@@ -38,6 +38,26 @@
       gap: 10px;
       align-items: center;
     }
+
+    .custom-file-input {
+        color: #333;
+        font-size: 20px;
+        margin-right: 10px;
+        display: inline-block;
+        padding: 4px 12px;
+        cursor: pointer;
+        border-radius: 8px;
+        transition: background-color 0.3s;
+    }
+
+    .custom-file-input:hover {
+        background-color: #ddd;
+    }
+
+    #fileInput {
+        display: none;
+    }    
+
     #map {
       flex: 1;
       position: relative;
@@ -135,14 +155,15 @@
       placeholder="Enter a place (Geo Search)"
       style="width: 200px;"
     />
-    <button onclick="handleGeoSearch()">Geo Search</button>
 
-    <input type="file" id="fileInput" accept=".xls,.xlsx,.xlsm"/>
+    <label for="fileInput" class="custom-file-input"><i class="fa-solid fa-file-arrow-down"></i></label>
+    <input type="file" id="fileInput" accept=".xls,.xlsx,.xlsm" />
 
     <!-- Real-time tracking toggle -->
-    <button id="currentLocationBtn" onclick="toggleCurrentLocation()">
-      Show Current Location
+    <button id="currentLocationBtn" onclick="toggleCurrentLocation()" style="background: none; border: none; cursor: pointer; border-radius: 50%; padding: 5px;">
+        <img src="https://img.icons8.com/?size=100&id=ziC1TV1ikKi9&format=png&color=004ACD4D" alt="Show Location" style="width: 30px; height: 30px;">
     </button>
+    
   </div>
 
   <!-- The map occupies remaining space -->
@@ -155,7 +176,6 @@
           id="propertySearchBox"
           placeholder='Property search (simple or complex)'
         />
-        <button onclick="handlePropertySearch()">Search</button>
         <button onclick="toggleList()">Hide List</button>
       </div>
       <div id="propertyListArea">
@@ -191,7 +211,8 @@
     });
     L.tileLayer('https://api.maptiler.com/maps/basic/{z}/{x}/{y}.png?key=Sv80uSRLZxFEwRiW17Cg', {
       maxZoom: 18,
-      attribution: '&copy; MapTiler &copy; OpenStreetMap contributors'
+      attribution: '&copy; MapTiler &copy; OpenStreetMap contributors',
+      detectRetina: true
     }).addTo(map);
 
 
@@ -216,6 +237,22 @@
       map.dragging.enable();
       map.scrollWheelZoom.enable();
     });
+
+    // -------------------------------------------------------
+    // 地域検索: Enterキーで検索
+    document.getElementById('geoSearchBox').addEventListener('keydown', (event) => {
+        if (event.key === 'Enter') {
+        handleGeoSearch();
+        }
+    });
+
+    // 物件検索: Enterキーで検索
+    document.getElementById('propertySearchBox').addEventListener('keydown', (event) => {
+        if (event.key === 'Enter') {
+        handlePropertySearch();
+        }
+    });    
+
 
     // -------------------------------------------------------
     // 2) Excel reading (all columns)
@@ -643,61 +680,61 @@
     let trackingActive = false;
 
     function toggleCurrentLocation() {
-      const btn = document.getElementById('currentLocationBtn');
-      if (!trackingActive) {
+    const btnIcon = document.querySelector('#currentLocationBtn img'); // ボタン内のアイコン画像を取得
+
+    if (!trackingActive) {
         // Start real-time tracking
         if (!navigator.geolocation) {
-          alert("Geolocation is not supported by this browser.");
-          return;
+        alert("Geolocation is not supported by this browser.");
+        return;
         }
         watchID = navigator.geolocation.watchPosition(
-          positionSuccess,
-          positionError,
-          { enableHighAccuracy: true }
+        positionSuccess,
+        positionError,
+        { enableHighAccuracy: true }
         );
-        btn.textContent = "Hide Current Location";
+        btnIcon.src = "https://img.icons8.com/?size=100&id=ziC1TV1ikKi9&format=png&color=004ACD99"; // 追跡中のアイコン
         trackingActive = true;
-      } else {
+    } else {
         // Stop real-time tracking
         if (watchID !== null) {
-          navigator.geolocation.clearWatch(watchID);
-          watchID = null;
+        navigator.geolocation.clearWatch(watchID);
+        watchID = null;
         }
         if (currentLocMarker) {
-          map.removeLayer(currentLocMarker);
-          currentLocMarker = null;
+        map.removeLayer(currentLocMarker);
+        currentLocMarker = null;
         }
-        btn.textContent = "Show Current Location";
+        btnIcon.src = "https://img.icons8.com/?size=100&id=ziC1TV1ikKi9&format=png&color=004ACD63"; // 停止中のアイコン
         trackingActive = false;
-      }
+    }
     }
 
     function positionSuccess(pos) {
-      const lat = pos.coords.latitude;
-      const lng = pos.coords.longitude;
-      console.log("Current position:", lat, lng);
+    const lat = pos.coords.latitude;
+    const lng = pos.coords.longitude;
+    console.log("Current position:", lat, lng);
 
-      // If marker not created yet, create it
-      if (!currentLocMarker) {
-        const divIcon = L.divIcon({
-          html: '<div class="blinking-marker"></div>',
-          className: '',
-          iconSize: [18, 18], 
-          iconAnchor: [9, 9]
+    // If marker not created yet, create it
+    if (!currentLocMarker) {
+        const locationIcon = L.icon({
+        iconUrl: 'https://img.icons8.com/?size=100&id=ziC1TV1ikKi9&format=png&color=004ACD99',
+        iconSize: [30, 30], // アイコンのサイズ
+        iconAnchor: [15, 15] // アイコンの中心をアンカーに設定
         });
-        currentLocMarker = L.marker([lat, lng], { icon: divIcon }).addTo(map);
-      } else {
+        currentLocMarker = L.marker([lat, lng], { icon: locationIcon }).addTo(map);
+    } else {
         // Just update position
         currentLocMarker.setLatLng([lat, lng]);
-      }
-      // If we want to auto-pan:
-      // map.panTo([lat, lng], { animate: true });
+    }
     }
 
     function positionError(err) {
-      console.error("Geolocation error:", err);
-      alert("Failed to get current location: " + err.message);
+    console.error("Geolocation error:", err);
+    alert("Failed to get current location: " + err.message);
     }
+
+
   </script>
 </body>
 </html>
