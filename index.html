@@ -1,125 +1,170 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>New Mapping system</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"/>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.5.1/nouislider.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>Project Map</title>
 
-        body {
-            overflow: hidden;
-        }
+  <!-- fontawsan CSS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
-        #map {
-            position: absolute;
-            height: calc(100% + 0px); /* menu-container の高さ +margin を考慮 */
-            width: 100%;
-        }
+  <!-- Leaflet CSS / JS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-        /* layerToggle */
-        #layerToggle {
-            position: absolute;
-            top: 10px;
-            right: 17px;
-            z-index: 1000;
-            border-radius: 50%;
-            padding: 5px;
-            cursor: pointer;
-            transition: transform 0.3s ease;
-        }
+  <!-- XLSX for reading .xls / .xlsx / .xlsm -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
-        #layerToggle:hover {
-            transform: scale(1.1);
-        }
+  <style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
 
-        #layerToggle img {
-            width: 30px;
-            height: 30px;
-        }
-        /* layerToggle */
+    /* Overall layout: top bar for geo search + excel, then map filling the rest */
+    body {
+      font-family: Arial, sans-serif;
+      height: 100vh;
+      overflow: hidden; 
+      display: flex;
+      flex-direction: column;
+    }
+    #top-bar {
+      background: #f8f9fa;
+      padding: 10px;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+    #map {
+      flex: 1;
+      position: relative;
+      height: calc(100% + 0px); /* menu-container の高さ +margin を考慮 */
+      width: 100%;
+    }
 
+    /* propertyContainer for the search panel + list */
+    #propertyContainer {
+      position: absolute;
+      top: 15px; 
+      right: 15px;
+      width: 320px;
+      max-height: 70vh; 
+      background: #eee;
+      z-index: 999;
+      border: 1px solid #ccc;
+      display: flex;
+      flex-direction: column;
+      pointer-events: auto;
+      touch-action: pan-y; 
+      overscroll-behavior: contain;
+    }
 
+    #propertySearchHeader {
+      background: #ddd;
+      padding: 5px;
+      display: flex;
+      gap: 5px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    #propertySearchHeader input {
+      flex: 1;
+      min-width: 0;
+      padding: 5px;
+    }
+    #propertySearchHeader button {
+      padding: 5px 10px;
+      cursor: pointer;
+    }
+    #propertyListArea {
+      flex: 1;
+      overflow-y: auto;
+      padding: 5px;
+      transition: all 0.3s ease;
+    }
+    #propertyListArea.hidden {
+      display: none;
+    }
+    ul {
+      list-style: none; 
+      margin: 0; 
+      padding: 0;
+    }
+    li {
+      border-bottom: 1px solid #ccc;
+      padding: 3px 0;
+    }
+    li:last-child {
+      border-bottom: none;
+    }
+    .property-name {
+      color: #007bff;
+      text-decoration: underline;
+      cursor: pointer;
+    }
+    .property-name:hover {
+      color: #0056b3;
+    }
 
-        /*　left or right */
-        #togglePositionButton {
-            background: none;
-            border: none; /* 枠線 */
-            padding: 0px; /* 小さな内側の余白 */
-            width: 30px; /* ボタンの幅 */
-            height: 30px; /* ボタンの高さ */
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 16px; /* アイコンのサイズ */
-            cursor: pointer;
-        }
-
-        #togglePositionButton i {
-            font-size: 14px; /* アイコンをさらに小さくする */
-        }
-
-        .dark-theme #togglePositionButton,
-        .satellite-theme #togglePositionButton {
-            color: #999;
-        }
-        /*　left or right */
-
-
-
-        /*　zoom button */
-        .zoom-control-container {
-            position: fixed; /* 画面全体に対する配置を固定 */
-            bottom: 20px;    /* 下からの距離 */
-            right: 12px;     /* 初期設定は右下 */
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            z-index: 1000;   /* 他の要素より上に表示 */
-            gap: 10px;       /* 子要素間の間隔 */
-        }
-
-        .zoom-control-container button {
-            color: #333;
-            opacity: 0.5;
-            border-radius: 50%;
-            background-color: none;
-        }
-
-        .zoom-control-container button:hover {
-            transform: scale(1.1);
-        }
-
-        .dark-theme .zoom-control-container button,
-        .satellite-theme .zoom-control-container button {
-            color: #999;
-        }
-        /*　zoom button */
-
-    </style>
+    /* Blinking marker with CSS animation for current location (if real-time track used) */
+    @keyframes blink {
+      0%   { opacity:1; }
+      50%  { opacity:0; }
+      100% { opacity:1; }
+    }
+    .blinking-marker {
+      width: 14px;
+      height: 14px;
+      background-color: magenta;
+      border: 2px solid white;
+      border-radius: 50%;
+      animation: blink 1s infinite;
+    }
+  </style>
 </head>
+
 <body>
+  <!-- Top bar: Geo Search + Excel input + Real-time tracking toggle -->
+  <div id="top-bar">
+    <input
+      type="text"
+      id="geoSearchBox"
+      placeholder="Enter a place (Geo Search)"
+      style="width: 200px;"
+    />
+    <button onclick="handleGeoSearch()">Geo Search</button>
 
-<div id="map"></div>
-<div id="layerToggle">
-    <img id="layerToggleIcon" src="https://img.icons8.com/?size=100&id=2m4kkop8aUO5&format=png&color=000000" title="Switch Layer">
-</div>
+    <input type="file" id="fileInput" accept=".xls,.xlsx,.xlsm"/>
 
+    <!-- Real-time tracking toggle -->
+    <button id="currentLocationBtn" onclick="toggleCurrentLocation()">
+      Show Current Location
+    </button>
+  </div>
 
-<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.5.1/nouislider.min.js"></script> <!-- for slider-->
-<script>
+  <!-- The map occupies remaining space -->
+  <div id="map">
+    <!-- propertyContainer: search + hide/show + list -->
+    <div id="propertyContainer">
+      <div id="propertySearchHeader">
+        <input
+          type="text"
+          id="propertySearchBox"
+          placeholder='Property search (simple or complex)'
+        />
+        <button onclick="handlePropertySearch()">Search</button>
+        <button onclick="toggleList()">Hide List</button>
+      </div>
+      <div id="propertyListArea">
+        <ul id="propertyResultUl"></ul>
+      </div>
+    </div>
+  </div>
 
+  <script>
     // --------------------------------------------------
     //    ▼ sample ▼
     // --------------------------------------------------
@@ -131,313 +176,528 @@
     // --------------------------------------------------
 
 
+    // -------------------------------------------------------
+    // 1) Initialize Leaflet map
+    // -------------------------------------------------------
+    const map = L.map('map').setView([20, 0], 2);
 
-    // --------------------------------------------------
-    //    ▼ create map and layers▼
-    // --------------------------------------------------
+    // 1-A) We disable doubleClickZoom so it doesn't zoom on dblclick
+    map.doubleClickZoom.disable();
 
-        // MapTiler API Key
-        const mapTilerApiKey = 'Sv80uSRLZxFEwRiW17Cg';
+    // 1-B) Then we handle dblclick => pan to that point
+    map.on('dblclick', (e) => {
+      // Pan smoothly to e.latlng
+      map.panTo(e.latlng, { animate: true });
+    });
+    L.tileLayer('https://api.maptiler.com/maps/basic/{z}/{x}/{y}.png?key=Sv80uSRLZxFEwRiW17Cg', {
+      maxZoom: 18,
+      attribution: '&copy; MapTiler &copy; OpenStreetMap contributors'
+    }).addTo(map);
 
-        // Function to create map layers
-        function createLayer(type, apiKey) {
-            const styles = {
-                dark: `https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png?key=${apiKey}`,
-                street: `https://api.maptiler.com/maps/basic/{z}/{x}/{y}.png?key=${apiKey}`,
-                satellite: `https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}?key=${apiKey}`
-            };
 
-            return L.tileLayer(styles[type], {
-                attribution: '&copy; <a href="https://www.maptiler.com/copyright/">MapTiler</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-                maxZoom: 18
-            });
+    map.dragging.enable();
+    map.scrollWheelZoom.enable();
+
+    // If pointer/touch in propertyContainer => disable map drag
+    const propertyPanel = document.getElementById('propertyContainer');
+    propertyPanel.addEventListener('pointerenter', () => {
+      map.dragging.disable();
+      map.scrollWheelZoom.disable();
+    });
+    propertyPanel.addEventListener('pointerleave', () => {
+      map.dragging.enable();
+      map.scrollWheelZoom.enable();
+    });
+    propertyPanel.addEventListener('touchstart', () => {
+      map.dragging.disable();
+      map.scrollWheelZoom.disable();
+    });
+    propertyPanel.addEventListener('touchend', () => {
+      map.dragging.enable();
+      map.scrollWheelZoom.enable();
+    });
+
+    // -------------------------------------------------------
+    // 2) Excel reading (all columns)
+    // -------------------------------------------------------
+    let propertyData = [];
+    document.getElementById('fileInput').addEventListener('change', event => {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, { type: 'array' });
+        const sheetName = workbook.SheetNames[0];
+        const jsonData = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
+
+        propertyData = jsonData.map(row => ({
+          pjName:       row["PJ name"]        || "",
+          address:      row["Address"]        || "",
+          category1:    row["Category 1"]     || "",
+          category2:    row["Category 2"]     || "",
+          developer:    row["Developer"]      || "",
+          architect:    row["Architect"]      || "",
+          contractor:   row["Contractor"]     || "",
+          salesCompany: row["Sales Company"]  || "",
+          status:       row["Status"]         || "",
+          siteArea:     row["Site Area"]      || "",
+          latitude:     parseFloat(row["Latitude"]   || "NaN"),
+          longitude:    parseFloat(row["Longitude"]  || "NaN"),
+        }));
+
+        console.log("Excel loaded:", propertyData.length, "rows");
+        alert("Excel loaded: " + propertyData.length + " properties found.");
+      };
+      reader.readAsArrayBuffer(file);
+    });
+
+    // -------------------------------------------------------
+    // 3) Arrays for markers & polygons
+    // -------------------------------------------------------
+    const propertyMarkers = [];
+    const propertyPolygons = [];
+
+    // -------------------------------------------------------
+    // 4) handlePropertySearch
+    // -------------------------------------------------------
+    function handlePropertySearch() {
+      const query = document.getElementById('propertySearchBox').value.trim();
+      if (!query) {
+        alert("Please enter a property search query.");
+        return;
+      }
+      propertyMarkers.forEach(m => map.removeLayer(m));
+      propertyMarkers.length = 0;
+      propertyPolygons.forEach(p => map.removeLayer(p));
+      propertyPolygons.length = 0;
+
+      const ul = document.getElementById('propertyResultUl');
+      ul.innerHTML = "";
+
+      let results = [];
+      const complexPattern = /[:=()><]|(AND\b)|(OR\b)|(NOT\b)/i;
+      if (complexPattern.test(query)) {
+        results = parseComplexQuery(query, propertyData);
+      } else {
+        results = simpleSearch(propertyData, query);
+      }
+      if (results.length === 0) {
+        alert("No matching properties found.");
+        return;
+      }
+
+      const searchBounds = L.latLngBounds();
+
+      results.forEach((item, idx) => {
+        const li = document.createElement('li');
+        const nameSpan = document.createElement('span');
+        nameSpan.className = "property-name";
+        nameSpan.textContent = item.pjName || "(No Name)";
+        nameSpan.onclick = () => zoomToItem(item);
+        li.appendChild(nameSpan);
+        ul.appendChild(li);
+
+        if (!isNaN(item.latitude) && !isNaN(item.longitude)) {
+          const marker = createMarkerWithCategoryStyle(item);
+          propertyMarkers.push(marker);
+          searchBounds.extend(marker.getLatLng());
         }
-        
-        // ユーザーがモバイルデバイスを使用しているかを判定
-        const isMobile = /Mobi|Android|iPhone|iPad|iPod/.test(navigator.userAgent);
-
-        // デバイスに応じた初期ズームレベルを設定
-        const initialZoom = isMobile ? 11 : 12;
-        
-        // 地図の初期化 デバイスに適したズームレベルで地図を初期化
-        const map = L.map('map', { 
-            zoomControl: false }).setView([21.03966820428092, 105.86461819490408], 
-            initialZoom);
-
-        // Create layers
-        const darkLayer = createLayer('dark', mapTilerApiKey);
-        const streetLayer = createLayer('street', mapTilerApiKey);
-        const satelliteLayer = createLayer('satellite', mapTilerApiKey);
-
-        // レイヤーリストと現在のインデックス
-        const layers = [darkLayer, streetLayer, satelliteLayer];
-        const themes = ['dark-theme', 'street-theme', 'satellite-theme'];
-        let currentLayerIndex = 0;
-
-        // 初期レイヤーを追加
-        darkLayer.addTo(map);
-        document.body.classList.add(themes[currentLayerIndex]);
-
-        // レイヤートグルボタン
-        const layerToggle = document.getElementById('layerToggle');
-        const layerToggleIcon = document.getElementById('layerToggleIcon');
-
-        // レイヤートグルボタンのイベントリスナー内でテーマに応じたセンターサークルとマーカーの色を変更
-        layerToggle.addEventListener('click', () => {
-            // 現在のレイヤーを削除
-            map.removeLayer(layers[currentLayerIndex]);
-            document.body.classList.remove(themes[currentLayerIndex]);
-
-            // 次のレイヤーに切り替え
-            currentLayerIndex = (currentLayerIndex + 1) % layers.length;
-            map.addLayer(layers[currentLayerIndex]);
-            document.body.classList.add(themes[currentLayerIndex]);
-
-            // アイコンを更新
-            let circleColor = '';
-            let markerColor = '';
-
-            if (currentLayerIndex === 0) {
-                layerToggleIcon.src = "https://img.icons8.com/?size=100&id=2m4kkop8aUO5&format=png&color=000000";
-                layerToggleIcon.title = "Switch to Street View";
-                circleColor = 'white';
-                markerColor = 'white';
-            } else if (currentLayerIndex === 1) {
-                layerToggleIcon.src = "https://img.icons8.com/?size=100&id=2m4kkop8aUO5&format=png&color=000000";
-                layerToggleIcon.title = "Switch to Satellite View";
-                circleColor = 'blue';
-                markerColor = 'blue';
-            } else if (currentLayerIndex === 2) {
-                layerToggleIcon.src = "https://img.icons8.com/?size=100&id=NHtRhybXwxli&format=png&color=000000";
-                layerToggleIcon.title = "Switch to Dark View";
-                circleColor = 'white';
-                markerColor = 'white';
+        if (item.siteArea) {
+          try {
+            const coords = JSON.parse(item.siteArea);
+            if (Array.isArray(coords) && coords.length >= 3) {
+              const polygon = createPolygonWithCategoryStyle(item, coords);
+              propertyPolygons.push(polygon);
+              searchBounds.extend(polygon.getBounds());
             }
-
-            // センターサークルの色を変更
-            currentCircle.setStyle({ color: circleColor });
-
-            // センターマーカーの色を変更
-            centerMarker.setIcon(L.divIcon({
-                className: 'fa-icon-marker',
-                html: `<i class="fa-solid fa-bullseye" style="color: ${markerColor}; font-size: 10px; opacity: 0.5;"></i>`,
-                iconAnchor: [6, 8.5]
-            }));
-        });
-
-
-    // --------------------------------------------------
-    //    ▲ create map and layers ▲
-    // --------------------------------------------------    
-    
-
-
-
-
-    // --------------------------------------------------
-    //    ▼ zoom event and move center ▼
-    // --------------------------------------------------
-
-        // ズームボタン用のコンテナを作成 初期設定は右下
-        let isBottomRight = true;
-
-        // カスタムズームコントロールを右下に追加
-        const zoomControlContainer = L.control({ position: 'bottomright' });
-
-        zoomControlContainer.onAdd = function () {
-            const div = L.DomUtil.create('div', 'zoom-control-container');
-            div.innerHTML = `
-                <button id="togglePositionButton" style="margin-bottom: 10px;">
-                    <i class="fa-solid fa-angles-left"></i>
-                </button>
-                <div style="display: flex; flex-direction: column; align-items: center; gap: 10px;">
-                    <button id="zoomInIcon" style="background: none; border: none; cursor: pointer; font-size: 24px;">
-                        <i class="fa-solid fa-circle-plus"></i>
-                    </button>
-                    <button id="zoomOutIcon" style="background: none; border: none; cursor: pointer; font-size: 24px;">
-                        <i class="fa-solid fa-circle-minus"></i>
-                    </button>
-                </div>
-            `;
-
-            // 位置切り替えボタンの動作
-            div.querySelector('#togglePositionButton').addEventListener('click', () => {
-                const container = document.querySelector('.zoom-control-container');
-                const toggleIcon = document.querySelector('#togglePositionButton i');
-
-                // 確実に画面下に配置
-                container.style.position = 'fixed';
-                container.style.bottom = '20px';
-                if (isBottomRight) {
-                    container.style.left = '25px';
-                    container.style.right = 'auto';
-                    toggleIcon.className = 'fa-solid fa-angles-right';
-                } else {
-                    container.style.right = '12px';
-                    container.style.left = 'auto';
-                    toggleIcon.className = 'fa-solid fa-angles-left';
-                }
-                isBottomRight = !isBottomRight;
-            });
-
-            return div;
-        };
-
-        zoomControlContainer.addTo(map);
-
-        // ズームインイベント（スムーズ）
-        document.getElementById('zoomInIcon').addEventListener('click', function () {
-            map.flyTo(map.getCenter(), map.getZoom() + 1, { animate: true, duration: 0.7 });
-        });
-
-        // ズームアウトイベント（スムーズ）
-        document.getElementById('zoomOutIcon').addEventListener('click', function () {
-            map.flyTo(map.getCenter(), map.getZoom() - 1, { animate: true, duration: 0.7 });
-        });     
-        
-        // ダブルクリックズームを無効化
-        map.doubleClickZoom.disable();
-        
-        // ダブルクリックされた場所を地図の中心にスムーズに移動
-        map.on('dblclick', function(e) {
-            const latlng = e.latlng; // ダブルクリックされた位置の緯度経度
-            // アニメーション付きで移動
-            map.flyTo(latlng, map.getZoom(), {
-                animate: true,
-                duration: 0.7 // アニメーションの持続時間（秒）
-            });
-        });
-
-    // --------------------------------------------------
-    //    ▲ zoom event and move cneter ▲
-    // --------------------------------------------------
-
-
-
-
-
-    // --------------------------------------------------
-    //    ▼ add center circle and center marker ▼
-    // --------------------------------------------------
-
-        // add center circle
-        const centerCircle = L.circle(map.getCenter(), {
-            color: 'white',         // 枠線の色
-            weight: 0.8,           // 枠線の太さ
-            opacity: 0.5,          // 枠線の透明度
-            fillColor: 'none',     // 塗りつぶしの色
-            fillOpacity: 0.1,      // 塗りつぶしの透明度
-            radius: 5000           // 半径 5000m（5km）
-        }).addTo(map);
-        
-        // 現在の円を保持する変数
-        let currentCircle = centerCircle;
-           
-        // add center marker
-        const centerMarker = L.marker(map.getCenter(), {
-            icon: L.divIcon({
-                className: 'fa-icon-marker',
-                html: '<i class="fa-solid fa-bullseye" style="color: white; font-size: 10px; opacity: 0.5;"></i>',
-                iconAnchor: [6, 8.5]
-            })
-        }).addTo(map);
-
-        // 地図の移動やズーム後にアニメーション付きで円とマーカーを追従
-        map.on('moveend zoomend', function () { // "zoomed" を "zoomend" に修正
-            // 地図の中心座標を一度だけ取得
-            const newCenter = map.getCenter();
-
-            smoothlyMoveCircle(currentCircle, newCenter);
-            smoothlyMoveMarker(centerMarker, newCenter);    
-        });
-
-        // 滑らかに center circle を移動させる関数
-        function smoothlyMoveCircle(circle, newLatLng, duration = 700) {
-            const startLatLng = circle.getLatLng();
-            const startTime = performance.now();
-
-            function animateMove() {
-                const currentTime = performance.now();
-                const elapsed = currentTime - startTime;
-                const progress = Math.min(elapsed / duration, 1);
-
-                // イージングを適用
-                const easedProgress = easeInOutQuad(progress);
-
-                // 線形補間にイージングを適用して位置を計算
-                const interpolatedLat = startLatLng.lat + easedProgress * (newLatLng.lat - startLatLng.lat);
-                const interpolatedLng = startLatLng.lng + easedProgress * (newLatLng.lng - startLatLng.lng);
-
-                circle.setLatLng([interpolatedLat, interpolatedLng]);
-
-                if (progress < 1) {
-                    requestAnimationFrame(animateMove);
-                }
-            }
-            requestAnimationFrame(animateMove);
+          } catch(e) {
+            console.warn("Invalid siteArea for", item.pjName, e);
+          }
         }
-        
-        // 滑らかに center maker を移動させる関数
-        function smoothlyMoveMarker(marker, newLatLng, duration = 700) {
-            const startLatLng = marker.getLatLng();
-            const startTime = performance.now();
+      });
 
-            function animateMove() {
-                const currentTime = performance.now();
-                const elapsed = currentTime - startTime;
-                const progress = Math.min(elapsed / duration, 1);
-                const easedProgress = easeInOutQuad(progress);
-                const interpolatedLat = startLatLng.lat + easedProgress * (newLatLng.lat - startLatLng.lat);
-                const interpolatedLng = startLatLng.lng + easedProgress * (newLatLng.lng - startLatLng.lng);
+      if (searchBounds.isValid()) {
+        map.fitBounds(searchBounds, { padding: [20, 20] });
+      }
+    }
 
-                marker.setLatLng([interpolatedLat, interpolatedLng]);
+    function createMarkerWithCategoryStyle(item) {
+      const latLng = [item.latitude, item.longitude];
+      let customIcon = getCategoryIcon(item.category1);
 
-                if (progress < 1) {
-                    requestAnimationFrame(animateMove);
-                } else {
-                    // 最終的な位置を強制設定
-                    marker.setLatLng(newLatLng);
-                }
-            }
+      const marker = L.marker(latLng, { icon: customIcon }).addTo(map);
+      marker.bindPopup(buildPopup(item));
+      return marker;
+    }
 
-            requestAnimationFrame(animateMove);
+    function getCategoryIcon(cat) {
+      return L.icon({
+        iconUrl: chooseCategoryIconUrl(cat),
+        iconSize: [20, 20], 
+        iconAnchor: [10, 10],
+        popupAnchor: [0, -10]
+        //shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',//
+        //shadowSize: [41, 41],//
+        //shadowAnchor: [12, 41]//
+      });
+    }
+
+    function chooseCategoryIconUrl(cat) {
+      switch (cat.toLowerCase()) {
+        case 'primary':      return 'https://img.icons8.com/?size=100&id=bnfp2fmtrh0g&format=png&color=571601B8';
+        case 'area':         return 'https://img.icons8.com/?size=100&id=bnfp2fmtrh0g&format=png&color=05227AA8';
+        case 'haseko':       return 'https://img.icons8.com/?size=100&id=uRRFz0DH6uYw&format=png&color=000000';
+        case 'ecoba':        return 'https://img.icons8.com/?size=100&id=59830&format=png&color=4BAA8EA8';
+        case 'condominium':  return 'https://img.icons8.com/?size=100&id=24801&format=png&color=FF2E1754';
+        case 'others':       return 'https://img.icons8.com/?size=100&id=bnfp2fmtrh0g&format=png&color=0046b099';
+        case 'pj site':      return 'https://img.icons8.com/?size=100&id=ipgAkdE46kxu&format=png&color=000000';
+        default:             return 'https://maps.google.com/mapfiles/ms/icons/black-dot.png';
+      }
+    }
+
+    function createPolygonWithCategoryStyle(item, coords) {
+      const polygonStyle = getCategoryPolygonStyle(item.category1);
+      const polygon = L.polygon(coords, polygonStyle).addTo(map);
+      polygon.bindPopup(buildPopup(item));
+      polygon.on('click', () => polygon.openPopup());
+      return polygon;
+    }
+
+    function getCategoryPolygonStyle(cat) {
+      switch (cat.toLowerCase()) {
+        case 'primary':      return { color: 'none',   fillColor: 'blue',   fillOpacity: 0.2 };
+        case 'area':         return { color: 'none',  fillColor: 'gold',  fillOpacity: 0.2 };
+        case 'haseko':       return { color: 'none', fillColor: 'orange', fillOpacity: 0.2 };
+        case 'ecoba':        return { color: 'none', fillColor: 'purple', fillOpacity: 0.2 };
+        case 'condominium':  return { color: 'none',    fillColor: 'red',    fillOpacity: 0.2 };
+        case 'others':       return { color: 'none', fillColor: 'yellow', fillOpacity: 0.2 };
+        case 'pj site':      return { color: 'none',   fillColor: 'grey',   fillOpacity: 0.2 };
+        default:             return { color: 'none',  fillColor: 'black',  fillOpacity: 0.2 };
+      }
+    }
+
+    function zoomToItem(item) {
+      if (item.siteArea) {
+        try {
+          const coords = JSON.parse(item.siteArea);
+          if (Array.isArray(coords) && coords.length >= 3) {
+            const tempPoly = L.polygon(coords);
+            map.fitBounds(tempPoly.getBounds());
+            return;
+          }
+        } catch(e) {
+          // fallback
         }
+      }
+      if (!isNaN(item.latitude) && !isNaN(item.longitude)) {
+        map.setView([item.latitude, item.longitude], 12);
+      }
+    }
 
-        // イージング関数（既存）
-        function easeInOutQuad(t) {
-            return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+    function buildPopup(item) {
+      return `
+        <strong>${item.pjName}</strong><br>
+        Address: ${item.address}<br>
+        Category1: ${item.category1}<br>
+        Category2: ${item.category2}<br>
+        Developer: ${item.developer}<br>
+        Architect: ${item.architect}<br>
+        Contractor: ${item.contractor}<br>
+        Sales Company: ${item.salesCompany}<br>
+        Status: ${item.status}<br>
+        Site Area: ${item.siteArea || "N/A"}<br>
+        Latitude: ${isNaN(item.latitude) ? "N/A" : item.latitude}<br>
+        Longitude: ${isNaN(item.longitude) ? "N/A" : item.longitude}
+      `;
+    }
+
+    // -------------------------------------------------------
+    // 5) Show/Hide List
+    // -------------------------------------------------------
+    function toggleList() {
+      const listArea = document.getElementById('propertyListArea');
+      const btn = document.querySelector('#propertySearchHeader button[onclick="toggleList()"]');
+      if (listArea.classList.contains('hidden')) {
+        listArea.classList.remove('hidden');
+        btn.textContent = "Hide List";
+      } else {
+        listArea.classList.add('hidden');
+        btn.textContent = "Show List";
+      }
+    }
+
+    // -------------------------------------------------------
+    // 6) Simple Search
+    // -------------------------------------------------------
+    function simpleSearch(data, rawQuery) {
+      const tokens = rawQuery.toLowerCase().split(/\s+/);
+      const notWords = tokens.filter(t => t.startsWith("-")).map(t => t.slice(1));
+      const andWords = tokens.filter(t => !t.startsWith("-") && t !== "and" && t !== "or");
+
+      function buildText(item) {
+        const combined = [
+          item.pjName,
+          item.address,
+          item.category1,
+          item.category2,
+          item.developer,
+          item.architect,
+          item.contractor,
+          item.salesCompany,
+          item.status,
+          item.siteArea
+        ].join(" ").toLowerCase().replace(/\s+/g, "");
+        return combined;
+      }
+
+      let idxSet = new Set(data.map((_, i) => i));
+      // AND
+      andWords.forEach(w => {
+        idxSet = new Set([...idxSet].filter(idx => {
+          const txt = buildText(data[idx]);
+          return txt.includes(w);
+        }));
+      });
+      // NOT
+      notWords.forEach(n => {
+        idxSet.forEach(idx => {
+          const txt = buildText(data[idx]);
+          if (txt.includes(n)) {
+            idxSet.delete(idx);
+          }
+        });
+      });
+      return [...idxSet].map(i => data[i]);
+    }
+
+    // -------------------------------------------------------
+    // 7) Complex Search (parentheses, AND/OR/NOT, : = > >=)
+    // -------------------------------------------------------
+    function parseComplexQuery(query, data) {
+      const tokens = tokenizeComplex(query);
+      const ast = parseExpression(tokens);
+      if (tokens.length > 0) {
+        throw new Error("Extra tokens remain. Check parentheses or operators.");
+      }
+      return data.filter(item => evaluateAST(ast, item));
+    }
+
+    function tokenizeComplex(q) {
+      const pattern = /\(|\)|\bAND\b|\bOR\b|\bNOT\b|>=|>|=|:|"[^"]*"|\S+/gi;
+      const raw = q.match(pattern) || [];
+      const tokens = [];
+      raw.forEach(t => {
+        const upper = t.toUpperCase();
+        if (upper === 'AND' || upper === 'OR' || upper === 'NOT'
+         || t === '(' || t === ')' || t === '>' || t === '>='
+         || t === '=' || t === ':') {
+          tokens.push({ type: upper, text: t });
+        } else if (t.startsWith('"') && t.endsWith('"')) {
+          tokens.push({ type: 'STRING', text: t.slice(1, -1) });
+        } else {
+          tokens.push({ type: 'WORD', text: t });
         }
+      });
+      return tokens;
+    }
+    function parseExpression(tokens) {
+      let left = parseTerm(tokens);
+      while (peek(tokens, 'OR')) {
+        consume(tokens, 'OR');
+        const right = parseTerm(tokens);
+        left = { type: 'OR', left, right };
+      }
+      return left;
+    }
+    function parseTerm(tokens) {
+      let left = parseFactor(tokens);
+      while (peek(tokens, 'AND')) {
+        consume(tokens, 'AND');
+        const right = parseFactor(tokens);
+        left = { type: 'AND', left, right };
+      }
+      return left;
+    }
+    function parseFactor(tokens) {
+      let isNot = false;
+      if (peek(tokens, 'NOT')) {
+        consume(tokens, 'NOT');
+        isNot = true;
+      }
+      let node;
+      if (peek(tokens, '(')) {
+        consume(tokens, '(');
+        node = parseExpression(tokens);
+        consume(tokens, ')');
+      } else {
+        node = parseCondition(tokens);
+      }
+      if (isNot) {
+        node = { type: 'NOT', expr: node };
+      }
+      return node;
+    }
+    function parseCondition(tokens) {
+      const colToken = consumeType(tokens, ['WORD']);
+      const opToken = nextToken(tokens);
+      if (![':', '=', '>', '>='].includes(opToken.text)) {
+        throw new Error(`Invalid operator: ${opToken.text}`);
+      }
+      const valToken = consumeType(tokens, ['WORD','STRING']);
+      return {
+        type: 'COND',
+        column: colToken.text,
+        op: opToken.text,
+        value: valToken.text
+      };
+    }
+    function peek(tokens, text) {
+      return tokens[0] && tokens[0].text.toUpperCase() === text.toUpperCase();
+    }
+    function consume(tokens, text) {
+      if (!peek(tokens, text)) {
+        throw new Error(`Expected "${text}" but got "${tokens[0]?.text}"`);
+      }
+      return tokens.shift();
+    }
+    function consumeType(tokens, types) {
+      if (!tokens[0] || !types.includes(tokens[0].type)) {
+        throw new Error(`Expected one of [${types.join(', ')}], got ${tokens[0]?.type}`);
+      }
+      return tokens.shift();
+    }
+    function nextToken(tokens) {
+      if (!tokens.length) throw new Error("Unexpected end of tokens.");
+      return tokens.shift();
+    }
+    function evaluateAST(ast, item) {
+      switch (ast.type) {
+        case 'OR':
+          return evaluateAST(ast.left, item) || evaluateAST(ast.right, item);
+        case 'AND':
+          return evaluateAST(ast.left, item) && evaluateAST(ast.right, item);
+        case 'NOT':
+          return !evaluateAST(ast.expr, item);
+        case 'COND':
+          return evaluateCondition(ast, item);
+        default:
+          throw new Error("Unknown AST node type: " + ast.type);
+      }
+    }
+    function evaluateCondition(cond, item) {
+      const col = cond.column.toLowerCase();
+      const op  = cond.op;
+      const val = cond.value;
+      let fieldVal = (item[col] || "").toString().toLowerCase();
+      let fieldNum = parseFloat(item[col]);
 
-    // --------------------------------------------------
-    //    ▲ add center circle and center marker ▲
-    // --------------------------------------------------    
-        
-
-
-
-
-    
-    // --------------------------------------------------
-    //    ▼ 画面ローテーションでリロード ▼
-    // --------------------------------------------------
-        
-        function handleOrientationChange() {
-            if (window.matchMedia("(orientation: portait)").matches) {
-            document.body.style.width = "100%";
-            } else if (window.matchMedia("(orientation: landscape)").matches) {
-            document.body.style.width = "100vw";
-            }
+      switch (op) {
+        case ':':
+          return fieldVal.includes(val.toLowerCase());
+        case '=':
+          return fieldVal === val.toLowerCase();
+        case '>':
+        case '>=': {
+          if (isNaN(fieldNum)) return false;
+          const cmp = parseFloat(val);
+          if (isNaN(cmp)) return false;
+          return (op === '>') ? (fieldNum > cmp) : (fieldNum >= cmp);
         }
+        default:
+          return false;
+      }
+    }
 
-        window.addEventListener("orientationchange", handleOrientationChange);
-        window.addEventListener("resize", handleOrientationChange);
-        handleOrientationChange();
+    // -------------------------------------------------------
+    // 9) handleGeoSearch (Nominatim)
+    // -------------------------------------------------------
+    async function handleGeoSearch() {
+      const q = document.getElementById('geoSearchBox').value.trim();
+      if (!q) {
+        alert("Please enter a place name.");
+        return;
+      }
+      try {
+        const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q)}`;
+        const res = await fetch(url);
+        const data = await res.json();
+        if (!data.length) {
+          alert("No matching location found.");
+          return;
+        }
+        const { lat, lon } = data[0];
+        map.setView([lat, lon], 12);
+      } catch(e) {
+        console.error(e);
+        alert("Geo search failed: " + e.message);
+      }
+    }
 
-    // --------------------------------------------------
-    //    ▲ 画面ローテーションでリロード ▲
-    // --------------------------------------------------
-    
- 
-</script>
+    // -------------------------------------------------------
+    // 10) Real-time Current Location
+    // -------------------------------------------------------
+    let currentLocMarker = null;
+    let watchID = null;
+    let trackingActive = false;
+
+    function toggleCurrentLocation() {
+      const btn = document.getElementById('currentLocationBtn');
+      if (!trackingActive) {
+        // Start real-time tracking
+        if (!navigator.geolocation) {
+          alert("Geolocation is not supported by this browser.");
+          return;
+        }
+        watchID = navigator.geolocation.watchPosition(
+          positionSuccess,
+          positionError,
+          { enableHighAccuracy: true }
+        );
+        btn.textContent = "Hide Current Location";
+        trackingActive = true;
+      } else {
+        // Stop real-time tracking
+        if (watchID !== null) {
+          navigator.geolocation.clearWatch(watchID);
+          watchID = null;
+        }
+        if (currentLocMarker) {
+          map.removeLayer(currentLocMarker);
+          currentLocMarker = null;
+        }
+        btn.textContent = "Show Current Location";
+        trackingActive = false;
+      }
+    }
+
+    function positionSuccess(pos) {
+      const lat = pos.coords.latitude;
+      const lng = pos.coords.longitude;
+      console.log("Current position:", lat, lng);
+
+      // If marker not created yet, create it
+      if (!currentLocMarker) {
+        const divIcon = L.divIcon({
+          html: '<div class="blinking-marker"></div>',
+          className: '',
+          iconSize: [18, 18], 
+          iconAnchor: [9, 9]
+        });
+        currentLocMarker = L.marker([lat, lng], { icon: divIcon }).addTo(map);
+      } else {
+        // Just update position
+        currentLocMarker.setLatLng([lat, lng]);
+      }
+      // If we want to auto-pan:
+      // map.panTo([lat, lng], { animate: true });
+    }
+
+    function positionError(err) {
+      console.error("Geolocation error:", err);
+      alert("Failed to get current location: " + err.message);
+    }
+  </script>
 </body>
 </html>
