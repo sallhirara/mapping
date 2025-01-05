@@ -18,7 +18,1003 @@
 
   <style>
     * {
+        margin: 0;<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>Project Map</title>
+
+  <!-- fontawsan CSS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+  <!-- Leaflet CSS / JS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <!-- XLSX for reading .xls / .xlsx / .xlsm -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+  <style>
+    * {
         margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    /* Overall layout: top bar for geo search + excel, then map filling the rest */
+    html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+  font-family: Arial, sans-serif;
+  overscroll-behavior: none;
+}
+
+
+    /* 共通 */
+    #menuContainer,
+    #sideMenu {
+      transition: all 0.3s ease-in-out;
+      z-index: 9999;
+    }
+
+    /* 携帯用: 下から引き上げるメニュー */
+    #menuContainer {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 50px; /* 初期表示の高さ */
+      background-color: white;
+      border-top-left-radius: 15px;
+      border-top-right-radius: 15px;
+      box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    #menuContainer.expanded {
+      height: 70%; /* 展開時の高さ */
+    }
+
+    #menuHeader {
+      height: 50px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+    }
+
+    #menuContent {
+      display: none;
+      overflow-y: auto;
+      padding: 10px;
+    }
+
+    #menuContainer.expanded #menuContent {
+      display: block;
+    }
+
+    /* PC/タブレット用: 左から出てくるメニュー */
+    #sideMenu {
+      position: absolute;
+      top: 0;
+      left: -300px; /* 初期位置は画面外 */
+      width: 300px;
+      height: 100%;
+      background-color: white;
+      box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    #sideMenu.open {
+      left: 0;
+    }
+
+    #sideMenuHeader {
+      height: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 10px;
+    }
+
+    #sideMenuContent {
+      padding: 10px;
+    }
+
+    /* メディアクエリで表示切り替え */
+    @media (min-width: 768px) {
+      #menuContainer {
+        display: none; /* PC/タブレットでは非表示 */
+      }
+    }
+
+    @media (max-width: 767px) {
+      #sideMenu {
+        display: none; /* 携帯では非表示 */
+      }
+    }
+
+    
+    #top-bar {
+      background: #f8f9fa;
+      margin-left: 5px;
+      padding: 5px 15px;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    #top-bar input {
+        border: 1px solid grey;
+        border-radius: 15px;
+        padding: 5px 10px;
+    }
+
+    .custom-file-input {
+        color: #333;
+        font-size: 20px;
+        margin-right: 0px;
+        display: inline-block;
+        padding: 4px 12px;
+        cursor: pointer;
+        border-radius: 8px;
+        transition: background-color 0.3s;
+    }
+
+    .custom-file-input:hover {
+        background-color: #ddd;
+    }
+
+    #fileInput {
+        display: none;
+    }    
+
+    #map {
+  position: absolute;
+  top: env(safe-area-inset-top, 0); /* iPhoneの上部safe-areaを考慮 */
+  bottom: env(safe-area-inset-bottom, 0); /* iPhoneの下部safe-areaを考慮 */
+  left: env(safe-area-inset-left, 0); /* iPhoneの左側safe-area */
+  right: env(safe-area-inset-right, 0); /* iPhoneの右側safe-area */
+  width: calc(100% - env(safe-area-inset-left, 0) - env(safe-area-inset-right, 0));
+  height: calc(100% - env(safe-area-inset-top, 0) - env(safe-area-inset-bottom, 0));
+}
+
+    #layerToggleBtn {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        z-index: 1000;
+        cursor: pointer;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s;
+    }
+
+    #layerToggleBtn:hover {
+        transform: scale(1.2);
+    }
+
+    #layerToggleBtn img {
+        width: 30px;
+        height: 30px;
+    }    
+
+    /* propertyContainer for the search panel + list */
+    #propertyContainer {
+      position: absolute;
+      top: 15px; 
+      left: 15px;
+      width: 320px;
+      max-height: 70vh; 
+      background-color: transparent;
+      z-index: 999;
+      border: 0px solid #ccc;
+      border-radius: 15px;
+      display: flex;
+      flex-direction: column;
+      pointer-events: auto;
+      touch-action: pan-y; 
+      overscroll-behavior: contain;
+    }
+
+    #propertySearchHeader {
+      background: transparent;
+      padding: 5px;
+      display: flex;
+      gap: 5px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    #propertySearchHeader input {
+      flex: 1;
+      min-width: 0;
+      padding: 5px 10px;
+      border: 1px solid grey;
+      border-radius: 15px;
+    }
+    #propertySearchHeader button {
+      padding: 5px 10px;
+      cursor: pointer;
+    }
+    #propertyListArea {
+      flex: 1;
+      overflow-y: auto;
+      padding: 5px 10px;
+      border: none;
+      border-radius: 15px;
+      background: rgba(255, 255, 255, 0.3); /* 半透明 */
+      backdrop-filter: blur(5px);
+      transition: all 0.3s ease;
+    }
+    #propertyListArea.hidden {
+      display: none;
+    }
+    ul {
+      list-style: none; 
+      margin: 0; 
+      padding: 0;
+    }
+    li {
+      border-bottom: 1px solid #ccc;
+      padding: 3px 0;
+    }
+    li:last-child {
+      border-bottom: none;
+    }
+    .property-name {
+      color: #007bff;
+      text-decoration: underline;
+      cursor: pointer;
+    }
+    .property-name:hover {
+      color: #0056b3;
+    }
+
+    /* Blinking marker with CSS animation for current location (if real-time track used) */
+    @keyframes blink {
+      0%   { opacity:1; }
+      50%  { opacity:0; }
+      100% { opacity:1; }
+    }
+    .blinking-marker {
+      width: 14px;
+      height: 14px;
+      background-color: magenta;
+      border: 2px solid white;
+      border-radius: 50%;
+      animation: blink 1s infinite;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Top bar: Geo Search + Excel input + Real-time tracking toggle -->
+  <div id="top-bar">
+    <input
+      type="text"
+      id="geoSearchBox"
+      placeholder="Enter a place"
+      style="width: 200px; font-size: 16px;"
+    />
+
+    <label for="fileInput" class="custom-file-input"><i class="fa-solid fa-file-arrow-down"></i></label>
+    <input type="file" id="fileInput" accept=".xls,.xlsx,.xlsm" />
+
+    <!-- Real-time tracking toggle -->
+    <button id="currentLocationBtn" onclick="toggleCurrentLocation()" style="background: none; border: none; cursor: pointer; border-radius: 50%; padding: 0px;">
+        <img src="https://img.icons8.com/?size=100&id=ziC1TV1ikKi9&format=png&color=004ACD4D" alt="Show Location" style="width: 25px; height: 25px;">
+    </button>
+    
+  </div>
+
+  <!-- The map occupies remaining space -->
+  <div id="map">
+    <!-- propertyContainer: search + hide/show + list -->
+    <div id="propertyContainer">
+      <div id="propertySearchHeader">
+        <input
+          type="text"
+          id="propertySearchBox"
+          placeholder='Property search'
+          style="font-size: 16px;"
+        />
+        <button onclick="toggleList()" style="background: none; border: none; cursor: pointer; border-radius: 50%; padding: 5px;">
+            <i id="toggleIcon" class="fa-solid fa-angles-up" style="font-size: 18px; color: #555"></i>
+        </button>        
+      </div>
+      <div id="propertyListArea">
+        <ul id="propertyResultUl"></ul>
+      </div>
+    </div>
+    <div id="layerToggleBtn">
+        <img src="https://img.icons8.com/?size=100&id=2m4kkop8aUO5&format=png&color=000000" alt="Toggle Icon" />
+    </div>
+  </div>
+
+  <!-- Menu Container -->
+  <div id="menuContainer">
+    <div id="menuHeader" onclick="toggleMobileMenu()">
+      <span id="menuToggleIcon">▲</span>
+    </div>
+    <div id="menuContent">
+      <p>携帯メニューの内容</p>
+    </div>
+  </div>
+
+  <!-- PC/タブレット用メニュー -->
+  <div id="sideMenu">
+    <div id="sideMenuHeader" onclick="toggleSideMenu()">
+      <button id="hamburgerButton">
+        <i class="fa fa-bars" style="font-size: 24px;"></i>
+      </button>
+    </div>
+    <div id="sideMenuContent">
+      <p>PC/タブレットメニューの内容</p>
+    </div>
+  </div>
+  
+
+  <script>
+    // --------------------------------------------------
+    //    ▼ sample ▼
+    // --------------------------------------------------
+
+        // code here
+
+    // --------------------------------------------------
+    //    ▲ sample ▲
+    // --------------------------------------------------
+
+
+    // -------------------------------------------------------
+    // 1) Initialize Leaflet map
+    // -------------------------------------------------------
+    const map = L.map('map', {
+        zoomControl: false, // ズームボタンを非表示にする
+        minZoom: 3, // 最小ズームレベルを制限
+        maxZoom: 18 // 最大ズームレベルを制限        
+    }).setView([20, 0], 2);
+
+    // 1-A) We disable doubleClickZoom so it doesn't zoom on dblclick
+    map.doubleClickZoom.disable();
+
+    // 1-B) Then we handle dblclick => pan to that point
+    map.on('dblclick', (e) => {
+      // Pan smoothly to e.latlng
+      map.panTo(e.latlng, { animate: true });
+    });
+
+    L.tileLayer('https://api.maptiler.com/maps/basic/{z}/{x}/{y}.png?key=Sv80uSRLZxFEwRiW17Cg', {
+      maxZoom: 19,
+      attribution: '&copy; MapTiler &copy; OpenStreetMap contributors',
+      detectRetina: true
+    }).addTo(map);
+
+    // 地図の最大表示範囲を設定（余白ができないようにする）
+    const bounds = L.latLngBounds(
+        L.latLng(-85, -180), // 南西端
+        L.latLng(85, 180)    // 北東端
+    );
+    map.setMaxBounds(bounds);
+    map.on('drag', function () {
+    map.panInsideBounds(bounds, { animate: false });
+    });
+
+
+
+    // レイヤー切り替え、改良の余地ありか。。。。
+    // ベースレイヤーを定義
+    const streetLayer = L.tileLayer('https://api.maptiler.com/maps/basic/{z}/{x}/{y}.png?key=Sv80uSRLZxFEwRiW17Cg', {
+    maxZoom: 19,
+    attribution: '© OpenStreetMap contributors'
+    });
+
+    const satelliteLayer = L.tileLayer('https://api.maptiler.com/maps/satellite/{z}/{x}/{y}.jpg?key=Sv80uSRLZxFEwRiW17Cg', {
+    maxZoom: 18,
+    attribution: '&copy; MapTiler & OpenStreetMap contributors'
+    });
+
+    // 初期レイヤーを地図に追加
+    map.addLayer(streetLayer);
+
+    let isSatellite = false; // 現在のレイヤーフラグ
+
+    // トグルボタンのクリックイベント
+    const toggleBtn = document.getElementById('layerToggleBtn');
+    toggleBtn.addEventListener('click', () => {
+    if (isSatellite) {
+        map.removeLayer(satelliteLayer);
+        map.addLayer(streetLayer);
+        toggleBtn.querySelector('img').src = "https://img.icons8.com/?size=100&id=2m4kkop8aUO5&format=png&color=000000";
+    } else {
+        map.removeLayer(streetLayer);
+        map.addLayer(satelliteLayer);
+        toggleBtn.querySelector('img').src = "https://img.icons8.com/?size=100&id=NHtRhybXwxli&format=png&color=000000";
+    }
+    isSatellite = !isSatellite; // 状態を切り替える
+    });
+    // 改良の余地ありか。。。ここまで
+
+    
+
+    map.dragging.enable();
+    map.scrollWheelZoom.enable();
+
+    // If pointer/touch in propertyContainer => disable map drag
+    const propertyPanel = document.getElementById('propertyContainer');
+    propertyPanel.addEventListener('pointerenter', () => {
+      map.dragging.disable();
+      map.scrollWheelZoom.disable();
+    });
+    propertyPanel.addEventListener('pointerleave', () => {
+      map.dragging.enable();
+      map.scrollWheelZoom.enable();
+    });
+    propertyPanel.addEventListener('touchstart', () => {
+      map.dragging.disable();
+      map.scrollWheelZoom.disable();
+    });
+    propertyPanel.addEventListener('touchend', () => {
+      map.dragging.enable();
+      map.scrollWheelZoom.enable();
+    });
+
+    // -------------------------------------------------------
+    // 地域検索: Enterキーで検索
+    document.getElementById('geoSearchBox').addEventListener('keydown', (event) => {
+        if (event.key === 'Enter') {
+        handleGeoSearch();
+        }
+    });
+
+    // 物件検索: Enterキーで検索
+    document.getElementById('propertySearchBox').addEventListener('keydown', (event) => {
+        if (event.key === 'Enter') {
+        handlePropertySearch();
+        }
+    });    
+
+
+    // -------------------------------------------------------
+    // 2) Excel reading (all columns)
+    // -------------------------------------------------------
+    let propertyData = [];
+    document.getElementById('fileInput').addEventListener('change', event => {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, { type: 'array' });
+        const sheetName = workbook.SheetNames[0];
+        const jsonData = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
+
+        propertyData = jsonData.map(row => ({
+          pjName:       row["PJ name"]        || "",
+          address:      row["Address"]        || "",
+          category1:    row["Category 1"]     || "",
+          category2:    row["Category 2"]     || "",
+          developer:    row["Developer"]      || "",
+          architect:    row["Architect"]      || "",
+          contractor:   row["Contractor"]     || "",
+          salesCompany: row["Sales Company"]  || "",
+          status:       row["Status"]         || "",
+          siteArea:     row["Site Area"]      || "",
+          latitude:     parseFloat(row["Latitude"]   || "NaN"),
+          longitude:    parseFloat(row["Longitude"]  || "NaN"),
+        }));
+
+        console.log("Excel loaded:", propertyData.length, "rows");
+        alert("Excel loaded: " + propertyData.length + " properties found.");
+      };
+      reader.readAsArrayBuffer(file);
+    });
+
+    // -------------------------------------------------------
+    // 3) Arrays for markers & polygons
+    // -------------------------------------------------------
+    const propertyMarkers = [];
+    const propertyPolygons = [];
+
+    // -------------------------------------------------------
+    // 4) handlePropertySearch
+    // -------------------------------------------------------
+    function handlePropertySearch() {
+      const query = document.getElementById('propertySearchBox').value.trim();
+      if (!query) {
+        alert("Please enter a property search query.");
+        return;
+      }
+      propertyMarkers.forEach(m => map.removeLayer(m));
+      propertyMarkers.length = 0;
+      propertyPolygons.forEach(p => map.removeLayer(p));
+      propertyPolygons.length = 0;
+
+      const ul = document.getElementById('propertyResultUl');
+      ul.innerHTML = "";
+
+      let results = [];
+      const complexPattern = /[:=()><]|(AND\b)|(OR\b)|(NOT\b)/i;
+      if (complexPattern.test(query)) {
+        results = parseComplexQuery(query, propertyData);
+      } else {
+        results = simpleSearch(propertyData, query);
+      }
+      if (results.length === 0) {
+        alert("No matching properties found.");
+        return;
+      }
+
+      const searchBounds = L.latLngBounds();
+
+      results.forEach((item, idx) => {
+        const li = document.createElement('li');
+        const nameSpan = document.createElement('span');
+        nameSpan.className = "property-name";
+        nameSpan.textContent = item.pjName || "(No Name)";
+        nameSpan.onclick = () => zoomToItem(item);
+        li.appendChild(nameSpan);
+        ul.appendChild(li);
+
+        if (!isNaN(item.latitude) && !isNaN(item.longitude)) {
+          const marker = createMarkerWithCategoryStyle(item);
+          propertyMarkers.push(marker);
+          searchBounds.extend(marker.getLatLng());
+        }
+        if (item.siteArea) {
+          try {
+            const coords = JSON.parse(item.siteArea);
+            if (Array.isArray(coords) && coords.length >= 3) {
+              const polygon = createPolygonWithCategoryStyle(item, coords);
+              propertyPolygons.push(polygon);
+              searchBounds.extend(polygon.getBounds());
+            }
+          } catch(e) {
+            console.warn("Invalid siteArea for", item.pjName, e);
+          }
+        }
+      });
+
+      if (searchBounds.isValid()) {
+        map.fitBounds(searchBounds, { padding: [20, 20] });
+      }
+    }
+
+    function createMarkerWithCategoryStyle(item) {
+      const latLng = [item.latitude, item.longitude];
+      let customIcon = getCategoryIcon(item.category1);
+
+      const marker = L.marker(latLng, { icon: customIcon }).addTo(map);
+      marker.bindPopup(buildPopup(item));
+      return marker;
+    }
+
+    function getCategoryIcon(cat) {
+      return L.icon({
+        iconUrl: chooseCategoryIconUrl(cat),
+        iconSize: [20, 20], 
+        iconAnchor: [10, 10],
+        popupAnchor: [0, -10]
+        //shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',//
+        //shadowSize: [41, 41],//
+        //shadowAnchor: [12, 41]//
+      });
+    }
+
+    function chooseCategoryIconUrl(cat) {
+      switch (cat.toLowerCase()) {
+        case 'primary':      return 'https://img.icons8.com/?size=100&id=bnfp2fmtrh0g&format=png&color=571601B8';
+        case 'area':         return 'https://img.icons8.com/?size=100&id=bnfp2fmtrh0g&format=png&color=05227AA8';
+        case 'haseko':       return 'https://img.icons8.com/?size=100&id=uRRFz0DH6uYw&format=png&color=000000';
+        case 'ecoba':        return 'https://img.icons8.com/?size=100&id=59830&format=png&color=4BAA8EA8';
+        case 'condominium':  return 'https://img.icons8.com/?size=100&id=24801&format=png&color=FF2E1754';
+        case 'others':       return 'https://img.icons8.com/?size=100&id=bnfp2fmtrh0g&format=png&color=0046b099';
+        case 'pj site':      return 'https://img.icons8.com/?size=100&id=ipgAkdE46kxu&format=png&color=000000';
+        default:             return 'https://maps.google.com/mapfiles/ms/icons/black-dot.png';
+      }
+    }
+
+    function createPolygonWithCategoryStyle(item, coords) {
+      const polygonStyle = getCategoryPolygonStyle(item.category1);
+      const polygon = L.polygon(coords, polygonStyle).addTo(map);
+      polygon.bindPopup(buildPopup(item));
+      polygon.on('click', () => polygon.openPopup());
+      return polygon;
+    }
+
+    function getCategoryPolygonStyle(cat) {
+      switch (cat.toLowerCase()) {
+        case 'primary':      return { color: 'none',   fillColor: 'blue',   fillOpacity: 0.2 };
+        case 'area':         return { color: 'none',  fillColor: 'gold',  fillOpacity: 0.2 };
+        case 'haseko':       return { color: 'none', fillColor: 'orange', fillOpacity: 0.2 };
+        case 'ecoba':        return { color: 'none', fillColor: 'purple', fillOpacity: 0.2 };
+        case 'condominium':  return { color: 'none',    fillColor: 'red',    fillOpacity: 0.2 };
+        case 'others':       return { color: 'none', fillColor: 'yellow', fillOpacity: 0.2 };
+        case 'pj site':      return { color: 'none',   fillColor: 'grey',   fillOpacity: 0.2 };
+        default:             return { color: 'none',  fillColor: 'black',  fillOpacity: 0.2 };
+      }
+    }
+
+    function zoomToItem(item) {
+      if (item.siteArea) {
+        try {
+          const coords = JSON.parse(item.siteArea);
+          if (Array.isArray(coords) && coords.length >= 3) {
+            const tempPoly = L.polygon(coords);
+            map.fitBounds(tempPoly.getBounds());
+            return;
+          }
+        } catch(e) {
+          // fallback
+        }
+      }
+      if (!isNaN(item.latitude) && !isNaN(item.longitude)) {
+        map.setView([item.latitude, item.longitude], 12);
+      }
+    }
+
+    function buildPopup(item) {
+      return `
+        <strong>${item.pjName}</strong><br>
+        Address: ${item.address}<br>
+        Category1: ${item.category1}<br>
+        Category2: ${item.category2}<br>
+        Developer: ${item.developer}<br>
+        Architect: ${item.architect}<br>
+        Contractor: ${item.contractor}<br>
+        Sales Company: ${item.salesCompany}<br>
+        Status: ${item.status}<br>
+        Site Area: ${item.siteArea || "N/A"}<br>
+        Latitude: ${isNaN(item.latitude) ? "N/A" : item.latitude}<br>
+        Longitude: ${isNaN(item.longitude) ? "N/A" : item.longitude}
+      `;
+    }
+
+    // -------------------------------------------------------
+    // 5) Show/Hide List
+    // -------------------------------------------------------
+    function toggleList() {
+      const listArea = document.getElementById('propertyListArea');
+      const btn = document.querySelector('#propertySearchHeader button[onclick="toggleList()"]');
+      if (listArea.classList.contains('hidden')) {
+        listArea.classList.remove('hidden');
+        btn.textContent = "Hide List";
+      } else {
+        listArea.classList.add('hidden');
+        btn.textContent = "Show List";
+      }
+    }
+
+    // -------------------------------------------------------
+    // 6) Simple Search
+    // -------------------------------------------------------
+    function simpleSearch(data, rawQuery) {
+      const tokens = rawQuery.toLowerCase().split(/\s+/);
+      const notWords = tokens.filter(t => t.startsWith("-")).map(t => t.slice(1));
+      const andWords = tokens.filter(t => !t.startsWith("-") && t !== "and" && t !== "or");
+
+      function buildText(item) {
+        const combined = [
+          item.pjName,
+          item.address,
+          item.category1,
+          item.category2,
+          item.developer,
+          item.architect,
+          item.contractor,
+          item.salesCompany,
+          item.status,
+          item.siteArea
+        ].join(" ").toLowerCase().replace(/\s+/g, "");
+        return combined;
+      }
+
+      let idxSet = new Set(data.map((_, i) => i));
+      // AND
+      andWords.forEach(w => {
+        idxSet = new Set([...idxSet].filter(idx => {
+          const txt = buildText(data[idx]);
+          return txt.includes(w);
+        }));
+      });
+      // NOT
+      notWords.forEach(n => {
+        idxSet.forEach(idx => {
+          const txt = buildText(data[idx]);
+          if (txt.includes(n)) {
+            idxSet.delete(idx);
+          }
+        });
+      });
+      return [...idxSet].map(i => data[i]);
+    }
+
+    // -------------------------------------------------------
+    // 7) Complex Search (parentheses, AND/OR/NOT, : = > >=)
+    // -------------------------------------------------------
+    function parseComplexQuery(query, data) {
+      const tokens = tokenizeComplex(query);
+      const ast = parseExpression(tokens);
+      if (tokens.length > 0) {
+        throw new Error("Extra tokens remain. Check parentheses or operators.");
+      }
+      return data.filter(item => evaluateAST(ast, item));
+    }
+
+    function tokenizeComplex(q) {
+      const pattern = /\(|\)|\bAND\b|\bOR\b|\bNOT\b|>=|>|=|:|"[^"]*"|\S+/gi;
+      const raw = q.match(pattern) || [];
+      const tokens = [];
+      raw.forEach(t => {
+        const upper = t.toUpperCase();
+        if (upper === 'AND' || upper === 'OR' || upper === 'NOT'
+         || t === '(' || t === ')' || t === '>' || t === '>='
+         || t === '=' || t === ':') {
+          tokens.push({ type: upper, text: t });
+        } else if (t.startsWith('"') && t.endsWith('"')) {
+          tokens.push({ type: 'STRING', text: t.slice(1, -1) });
+        } else {
+          tokens.push({ type: 'WORD', text: t });
+        }
+      });
+      return tokens;
+    }
+    function parseExpression(tokens) {
+      let left = parseTerm(tokens);
+      while (peek(tokens, 'OR')) {
+        consume(tokens, 'OR');
+        const right = parseTerm(tokens);
+        left = { type: 'OR', left, right };
+      }
+      return left;
+    }
+    function parseTerm(tokens) {
+      let left = parseFactor(tokens);
+      while (peek(tokens, 'AND')) {
+        consume(tokens, 'AND');
+        const right = parseFactor(tokens);
+        left = { type: 'AND', left, right };
+      }
+      return left;
+    }
+    function parseFactor(tokens) {
+      let isNot = false;
+      if (peek(tokens, 'NOT')) {
+        consume(tokens, 'NOT');
+        isNot = true;
+      }
+      let node;
+      if (peek(tokens, '(')) {
+        consume(tokens, '(');
+        node = parseExpression(tokens);
+        consume(tokens, ')');
+      } else {
+        node = parseCondition(tokens);
+      }
+      if (isNot) {
+        node = { type: 'NOT', expr: node };
+      }
+      return node;
+    }
+    function parseCondition(tokens) {
+      const colToken = consumeType(tokens, ['WORD']);
+      const opToken = nextToken(tokens);
+      if (![':', '=', '>', '>='].includes(opToken.text)) {
+        throw new Error(`Invalid operator: ${opToken.text}`);
+      }
+      const valToken = consumeType(tokens, ['WORD','STRING']);
+      return {
+        type: 'COND',
+        column: colToken.text,
+        op: opToken.text,
+        value: valToken.text
+      };
+    }
+    function peek(tokens, text) {
+      return tokens[0] && tokens[0].text.toUpperCase() === text.toUpperCase();
+    }
+    function consume(tokens, text) {
+      if (!peek(tokens, text)) {
+        throw new Error(`Expected "${text}" but got "${tokens[0]?.text}"`);
+      }
+      return tokens.shift();
+    }
+    function consumeType(tokens, types) {
+      if (!tokens[0] || !types.includes(tokens[0].type)) {
+        throw new Error(`Expected one of [${types.join(', ')}], got ${tokens[0]?.type}`);
+      }
+      return tokens.shift();
+    }
+    function nextToken(tokens) {
+      if (!tokens.length) throw new Error("Unexpected end of tokens.");
+      return tokens.shift();
+    }
+    function evaluateAST(ast, item) {
+      switch (ast.type) {
+        case 'OR':
+          return evaluateAST(ast.left, item) || evaluateAST(ast.right, item);
+        case 'AND':
+          return evaluateAST(ast.left, item) && evaluateAST(ast.right, item);
+        case 'NOT':
+          return !evaluateAST(ast.expr, item);
+        case 'COND':
+          return evaluateCondition(ast, item);
+        default:
+          throw new Error("Unknown AST node type: " + ast.type);
+      }
+    }
+    function evaluateCondition(cond, item) {
+      const col = cond.column.toLowerCase();
+      const op  = cond.op;
+      const val = cond.value;
+      let fieldVal = (item[col] || "").toString().toLowerCase();
+      let fieldNum = parseFloat(item[col]);
+
+      switch (op) {
+        case ':':
+          return fieldVal.includes(val.toLowerCase());
+        case '=':
+          return fieldVal === val.toLowerCase();
+        case '>':
+        case '>=': {
+          if (isNaN(fieldNum)) return false;
+          const cmp = parseFloat(val);
+          if (isNaN(cmp)) return false;
+          return (op === '>') ? (fieldNum > cmp) : (fieldNum >= cmp);
+        }
+        default:
+          return false;
+      }
+    }
+
+    // -------------------------------------------------------
+    // 9) handleGeoSearch (Nominatim)
+    // -------------------------------------------------------
+    async function handleGeoSearch() {
+      const q = document.getElementById('geoSearchBox').value.trim();
+      if (!q) {
+        alert("Please enter a place name.");
+        return;
+      }
+      try {
+        const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q)}`;
+        const res = await fetch(url);
+        const data = await res.json();
+        if (!data.length) {
+          alert("No matching location found.");
+          return;
+        }
+        const { lat, lon } = data[0];
+        map.setView([lat, lon], 12);
+      } catch(e) {
+        console.error(e);
+        alert("Geo search failed: " + e.message);
+      }
+    }
+
+    // -------------------------------------------------------
+    // 10) Real-time Current Location
+    // -------------------------------------------------------
+    let currentLocMarker = null;
+    let watchID = null;
+    let trackingActive = false;
+
+    function toggleCurrentLocation() {
+    const btnIcon = document.querySelector('#currentLocationBtn img'); // ボタン内のアイコン画像を取得
+
+    if (!trackingActive) {
+        // Start real-time tracking
+        if (!navigator.geolocation) {
+        alert("Geolocation is not supported by this browser.");
+        return;
+        }
+        watchID = navigator.geolocation.watchPosition(
+        positionSuccess,
+        positionError,
+        { enableHighAccuracy: true }
+        );
+        btnIcon.src = "https://img.icons8.com/?size=100&id=ziC1TV1ikKi9&format=png&color=004ACD99"; // 追跡中のアイコン
+        trackingActive = true;
+    } else {
+        // Stop real-time tracking
+        if (watchID !== null) {
+        navigator.geolocation.clearWatch(watchID);
+        watchID = null;
+        }
+        if (currentLocMarker) {
+        map.removeLayer(currentLocMarker);
+        currentLocMarker = null;
+        }
+        btnIcon.src = "https://img.icons8.com/?size=100&id=ziC1TV1ikKi9&format=png&color=004ACD63"; // 停止中のアイコン
+        trackingActive = false;
+    }
+    }
+
+    function positionSuccess(pos) {
+    const lat = pos.coords.latitude;
+    const lng = pos.coords.longitude;
+    console.log("Current position:", lat, lng);
+
+    // If marker not created yet, create it
+    if (!currentLocMarker) {
+        const divIcon = L.divIcon({
+        html: '<div class="blinking-marker"></div>',
+        className: '',
+        iconSize: [18, 18],
+        iconAnchor: [9, 9]
+        });
+        currentLocMarker = L.marker([lat, lng], { icon: divIcon }).addTo(map);
+    } else {
+        // Just update position
+        currentLocMarker.setLatLng([lat, lng]);
+    }
+
+    // Smoothly move the map to the current location
+    map.flyTo([lat, lng], 16); // 第2引数はズームレベル、スムーズな移動を実現
+    }
+
+    // -------------------------------------------------------
+    // 11) PJ list toggle
+    // -------------------------------------------------------
+    function positionError(err) {
+    console.error("Geolocation error:", err);
+    alert("Failed to get current location: " + err.message);
+    }
+
+    function toggleList() {
+        const listArea = document.getElementById('propertyListArea');
+        const toggleIcon = document.getElementById('toggleIcon');  // Access the icon
+
+        if (listArea.classList.contains('hidden')) {
+            listArea.classList.remove('hidden');
+            toggleIcon.classList.remove('fa-angles-down');  // Remove "up" icon
+            toggleIcon.classList.add('fa-angles-up');   // Add "down" icon
+        } else {
+            listArea.classList.add('hidden');
+            toggleIcon.classList.remove('fa-angles-up');  // Remove "down" icon
+            toggleIcon.classList.add('fa-angles-down');       // Add "up" icon
+        }
+    }
+
+    // -------------------------------------------------------
+    // 11) PJ list toggle
+    // -------------------------------------------------------    
+    // 携帯メニューの開閉
+    function toggleMobileMenu() {
+      const menu = document.getElementById('menuContainer');
+      const icon = document.getElementById('menuToggleIcon');
+      if (menu.classList.contains('expanded')) {
+        menu.classList.remove('expanded');
+        icon.textContent = '▲';
+      } else {
+        menu.classList.add('expanded');
+        icon.textContent = '▼';
+      }
+    }
+
+    // PC/タブレットメニューの開閉
+    function toggleSideMenu() {
+      const sideMenu = document.getElementById('sideMenu');
+      if (sideMenu.classList.contains('open')) {
+        sideMenu.classList.remove('open');
+      } else {
+        sideMenu.classList.add('open');
+      }
+    }
+
+
+
+  </script>
+</body>
+</html>
         padding: 0;
         box-sizing: border-box;
     }
