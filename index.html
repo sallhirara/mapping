@@ -717,12 +717,13 @@
 
     // If marker not created yet, create it
     if (!currentLocMarker) {
-        const locationIcon = L.icon({
-        iconUrl: 'https://img.icons8.com/?size=100&id=ziC1TV1ikKi9&format=png&color=004ACD99',
-        iconSize: [30, 30], // アイコンのサイズ
-        iconAnchor: [15, 15] // アイコンの中心をアンカーに設定
+        const divIcon = L.divIcon({
+        html: '<div class="blinking-marker"></div>',
+        className: '',
+        iconSize: [18, 18],
+        iconAnchor: [9, 9]
         });
-        currentLocMarker = L.marker([lat, lng], { icon: locationIcon }).addTo(map);
+        currentLocMarker = L.marker([lat, lng], { icon: divIcon }).addTo(map);
     } else {
         // Just update position
         currentLocMarker.setLatLng([lat, lng]);
