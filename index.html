@@ -24,99 +24,13 @@
     }
 
     /* Overall layout: top bar for geo search + excel, then map filling the rest */
-    html, body {
-  margin: 0;
-  padding: 0;
-  height: 100%;
-  width: 100%;
-  font-family: Arial, sans-serif;
-  overscroll-behavior: none;
-}
-
-
-    /* 共通 */
-    #menuContainer,
-    #sideMenu {
-      transition: all 0.3s ease-in-out;
-      z-index: 9999;
-    }
-
-    /* 携帯用: 下から引き上げるメニュー */
-    #menuContainer {
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      width: 100%;
-      height: 50px; /* 初期表示の高さ */
-      background-color: white;
-      border-top-left-radius: 15px;
-      border-top-right-radius: 15px;
-      box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
-    }
-
-    #menuContainer.expanded {
-      height: 70%; /* 展開時の高さ */
-    }
-
-    #menuHeader {
-      height: 50px;
+    body {
+      font-family: Arial, sans-serif;
+      height: 100vh;
+      overflow: hidden; 
       display: flex;
-      justify-content: center;
-      align-items: center;
-      cursor: pointer;
+      flex-direction: column;
     }
-
-    #menuContent {
-      display: none;
-      overflow-y: auto;
-      padding: 10px;
-    }
-
-    #menuContainer.expanded #menuContent {
-      display: block;
-    }
-
-    /* PC/タブレット用: 左から出てくるメニュー */
-    #sideMenu {
-      position: absolute;
-      top: 0;
-      left: -300px; /* 初期位置は画面外 */
-      width: 300px;
-      height: 100%;
-      background-color: white;
-      box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
-    }
-
-    #sideMenu.open {
-      left: 0;
-    }
-
-    #sideMenuHeader {
-      height: 50px;
-      display: flex;
-      align-items: center;
-      justify-content: flex-start;
-      padding: 10px;
-    }
-
-    #sideMenuContent {
-      padding: 10px;
-    }
-
-    /* メディアクエリで表示切り替え */
-    @media (min-width: 768px) {
-      #menuContainer {
-        display: none; /* PC/タブレットでは非表示 */
-      }
-    }
-
-    @media (max-width: 767px) {
-      #sideMenu {
-        display: none; /* 携帯では非表示 */
-      }
-    }
-
-    
     #top-bar {
       background: #f8f9fa;
       margin-left: 5px;
@@ -151,18 +65,36 @@
         display: none;
     }    
 
-    @supports (padding: env(safe-area-inset-top)) {
-      #map {
-        position: absolute;
-        top: env(safe-area-inset-top, 0); /* iPhoneの上部safe-areaを考慮 */
-        bottom: env(safe-area-inset-bottom, 0); /* iPhoneの下部safe-areaを考慮 */
-        left: env(safe-area-inset-left, 0); /* iPhoneの左側safe-area */
-        right: env(safe-area-inset-right, 0); /* iPhoneの右側safe-area */
-        width: calc(100% - env(safe-area-inset-left, 0) - env(safe-area-inset-right, 0));
-        height: calc(100% - env(safe-area-inset-top, 0) - env(safe-area-inset-bottom, 0));
-      }
+    #map {
+      flex: 1;
+      position: relative;
+      height: calc(100% + 0px); /* menu-container の高さ +margin を考慮 */
+      width: 100%;
     }
 
+    #currentLocationBtn {
+        position: absolute;
+        top: 15px;
+        left: 15px;
+        z-index: 1000;
+        cursor: pointer;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s;
+    }
+
+    #lcurrentLocationBtn:hover {
+        transform: scale(1.2);
+    }
+
+    #currentLocationBtn img {
+        width: 30px;
+        height: 30px;
+    } 
 
     #layerToggleBtn {
         position: absolute;
@@ -192,7 +124,7 @@
     #propertyContainer {
       position: absolute;
       top: 15px; 
-      left: 15px;
+      left: 60px;
       width: 320px;
       max-height: 70vh; 
       background-color: transparent;
@@ -288,17 +220,16 @@
     />
 
     <label for="fileInput" class="custom-file-input"><i class="fa-solid fa-file-arrow-down"></i></label>
-    <input type="file" id="fileInput" accept=".xls,.xlsx,.xlsm" />
-
-    <!-- Real-time tracking toggle -->
-    <button id="currentLocationBtn" onclick="toggleCurrentLocation()" style="background: none; border: none; cursor: pointer; border-radius: 50%; padding: 0px;">
-        <img src="https://img.icons8.com/?size=100&id=ziC1TV1ikKi9&format=png&color=004ACD4D" alt="Show Location" style="width: 25px; height: 25px;">
-    </button>
-    
+    <input type="file" id="fileInput" accept=".xls,.xlsx,.xlsm" />    
   </div>
 
   <!-- The map occupies remaining space -->
   <div id="map">
+    <!-- Real-time tracking toggle -->
+    <button id="currentLocationBtn" onclick="toggleCurrentLocation()" style="background: none; border: none; cursor: pointer; border-radius: 50%; padding: 0px;">
+        <img src="https://img.icons8.com/?size=100&id=ziC1TV1ikKi9&format=png&color=004ACD4D" alt="Show Location" style="width: 25px; height: 25px;">
+    </button>
+
     <!-- propertyContainer: search + hide/show + list -->
     <div id="propertyContainer">
       <div id="propertySearchHeader">
@@ -320,29 +251,6 @@
         <img src="https://img.icons8.com/?size=100&id=2m4kkop8aUO5&format=png&color=000000" alt="Toggle Icon" />
     </div>
   </div>
-
-  <!-- Menu Container -->
-  <div id="menuContainer">
-    <div id="menuHeader" onclick="toggleMobileMenu()">
-      <span id="menuToggleIcon">▲</span>
-    </div>
-    <div id="menuContent">
-      <p>携帯メニューの内容</p>
-    </div>
-  </div>
-
-  <!-- PC/タブレット用メニュー -->
-  <div id="sideMenu">
-    <div id="sideMenuHeader" onclick="toggleSideMenu()">
-      <button id="hamburgerButton">
-        <i class="fa fa-bars" style="font-size: 24px;"></i>
-      </button>
-    </div>
-    <div id="sideMenuContent">
-      <p>PC/タブレットメニューの内容</p>
-    </div>
-  </div>
-  
 
   <script>
     // --------------------------------------------------
@@ -966,33 +874,6 @@
             toggleIcon.classList.add('fa-angles-down');       // Add "up" icon
         }
     }
-
-    // -------------------------------------------------------
-    // 11) PJ list toggle
-    // -------------------------------------------------------    
-    // 携帯メニューの開閉
-    function toggleMobileMenu() {
-      const menu = document.getElementById('menuContainer');
-      const icon = document.getElementById('menuToggleIcon');
-      if (menu.classList.contains('expanded')) {
-        menu.classList.remove('expanded');
-        icon.textContent = '▲';
-      } else {
-        menu.classList.add('expanded');
-        icon.textContent = '▼';
-      }
-    }
-
-    // PC/タブレットメニューの開閉
-    function toggleSideMenu() {
-      const sideMenu = document.getElementById('sideMenu');
-      if (sideMenu.classList.contains('open')) {
-        sideMenu.classList.remove('open');
-      } else {
-        sideMenu.classList.add('open');
-      }
-    }
-
 
 
   </script>
