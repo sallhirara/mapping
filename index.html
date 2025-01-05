@@ -45,26 +45,24 @@
     @media screen and (max-width: 768px) {
       #menuContainer {
         position: fixed;
-        bottom: 40px;
+        bottom: 0px;
         left: 0;
         width: 100%;
         height: 100%; /* 画面全体を覆う */
         max-height: 70%; /* フルビュー時の高さ */
         border-radius: 15px 15px 0 0;
         background: rgba(255, 255, 255, 0.95);
-        transform: translateY(100%); /* 初期非表示 */
+        transform: translateY(94%); /* 初期非表示 */
         transition: transform 0.3s ease-out;
         z-index: 1000;
       }
 
       #menuContainer.half {
         transform: translateY(30%); /* ハーフビュー */
-        bottom: 0;
       }
 
       #menuContainer.full {
         transform: translateY(0); /* フルビュー */
-        bottom: 0;
       }
       
       .menu-toggle {
