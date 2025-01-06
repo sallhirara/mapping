@@ -188,7 +188,20 @@
       height: calc(100% + 0px); /* menu-container の高さ +margin を考慮 */
       width: 100%;
       z-index: 0; 
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+      touch-action: none;       
     }
+    
+    .leaflet-container {
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+        touch-action: none;
+    }    
 
     #currentLocationBtn {
         position: fixed;
@@ -416,7 +429,10 @@
         maxZoom: 18, // 最大ズームレベルを制限  
         worldCopyJump: true,
         tapHold: true,
-        tap: true 
+        tap: true,
+        tapTolerance: 15,
+        touchZoom: true,
+        bounceAtZoomLimits: false
     }).setView([20, 0], 2);
 
     // 1-A) We disable doubleClickZoom so it doesn't zoom on dblclick
