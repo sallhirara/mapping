@@ -921,25 +921,75 @@
     // -------------------------------------------------------
     // 9) handleGeoSearch (Nominatim)
     // -------------------------------------------------------
+    let boundaryLayer = null;
+    let maskLayer = null;
+
     async function handleGeoSearch() {
       const q = document.getElementById('geoSearchBox').value.trim();
       if (!q) {
         alert("Please enter a place name.");
         return;
       }
+
+      // 既存のレイヤーを削除
+      if (boundaryLayer) map.removeLayer(boundaryLayer);
+      if (maskLayer) map.removeLayer(maskLayer);
+
       try {
-        const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q)}`;
+        // シンプルな検索URLで行政区域データを取得
+        const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q)}&polygon_geojson=1`;
         const res = await fetch(url);
         const data = await res.json();
+
         if (!data.length) {
           alert("No matching location found.");
           return;
         }
-        const { lat, lon } = data[0];
-        map.setView([lat, lon], 12);
+
+        const result = data[0];
+
+        if (result.geojson) {
+          // 境界線を描画
+          boundaryLayer = L.geoJSON(result.geojson, {
+            style: {
+              color: '#000',
+              weight: 1.7,
+              opacity: 1,
+              fillOpacity: 0,
+              dashArray: '2, 3'
+            }
+          }).addTo(map);
+
+          // マスクレイヤーを作成
+          const worldBounds = [
+            [[-90, -180], [90, -180], [90, 180], [-90, 180], [-90, -180]]
+          ];
+
+          if (result.geojson.type === 'Polygon') {
+            worldBounds.push(result.geojson.coordinates[0].map(p => [p[1], p[0]]).reverse());
+          } else if (result.geojson.type === 'MultiPolygon') {
+            result.geojson.coordinates.forEach(poly => {
+              worldBounds.push(poly[0].map(p => [p[1], p[0]]).reverse());
+            });
+          }
+
+          maskLayer = L.polygon(worldBounds, {
+            color: 'none',
+            fillColor: '#FF000DA8',
+            fillOpacity: 0.1
+          }).addTo(map);
+          maskLayer.bringToBack();
+
+          // 地図を境界に合わせる
+          map.fitBounds(boundaryLayer.getBounds(), { padding: [20, 20] });
+        } else {
+          // 境界がない場合は中心点に移動
+          map.setView([result.lat, result.lon], 13);
+        }
+
       } catch(e) {
         console.error(e);
-        alert("Geo search failed: " + e.message);
+        alert("Search failed. Please try again.");
       }
     }
 
