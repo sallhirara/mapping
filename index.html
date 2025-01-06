@@ -952,7 +952,7 @@
           // 境界線を描画
           boundaryLayer = L.geoJSON(result.geojson, {
             style: {
-              color: '#000',
+              color: '#FF000DA8',
               weight: 1.7,
               opacity: 1,
               fillOpacity: 0,
@@ -975,7 +975,7 @@
 
           maskLayer = L.polygon(worldBounds, {
             color: 'none',
-            fillColor: '#FF000DA8',
+            fillColor: '#000',
             fillOpacity: 0.1
           }).addTo(map);
           maskLayer.bringToBack();
