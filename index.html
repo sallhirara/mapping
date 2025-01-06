@@ -679,22 +679,54 @@
     }
 
     function zoomToItem(item) {
-      if (item.siteArea) {
-        try {
-          const coords = JSON.parse(item.siteArea);
-          if (Array.isArray(coords) && coords.length >= 3) {
-            const tempPoly = L.polygon(coords);
-            map.fitBounds(tempPoly.getBounds());
-            return;
-          }
-        } catch(e) {
-          // fallback
+        // ポリゴン（siteArea）がある場合
+        if (item.siteArea) {
+            try {
+                const coords = JSON.parse(item.siteArea);
+                if (Array.isArray(coords) && coords.length >= 3) {
+                    const tempPoly = L.polygon(coords);
+                    map.fitBounds(tempPoly.getBounds(), { padding: [20, 20] }); // ポリゴン領域にズーム
+
+                    // ポリゴン中央にポップアップを表示
+                    const center = tempPoly.getBounds().getCenter(); // ポリゴンの中心座標
+                    const popupContent = `
+                        <strong>${item.pjName || "Unknown Property"}</strong><br>
+                        Address: ${item.address || "No Address Provided"}
+                    `;
+                    L.popup()
+                        .setLatLng(center)
+                        .setContent(popupContent)
+                        .openOn(map);
+
+                    return; // ポリゴンの処理が終わったら関数終了
+                }
+            } catch (e) {
+                console.warn("Invalid siteArea format:", e);
+            }
         }
-      }
-      if (!isNaN(item.latitude) && !isNaN(item.longitude)) {
-        map.setView([item.latitude, item.longitude], 12);
-      }
+
+        // 緯度・経度が有効な場合
+        if (!isNaN(item.latitude) && !isNaN(item.longitude)) {
+            const targetLatLng = [item.latitude, item.longitude];
+            const zoomLevel = 14; // カスタマイズ可能なズームレベル
+
+            // アニメーション付きズーム
+            map.flyTo(targetLatLng, zoomLevel);
+
+            // ポップアップを表示
+            const popupContent = `
+                <strong>${item.pjName || "Unknown Property"}</strong><br>
+                Address: ${item.address || "No Address Provided"}
+            `;
+            L.popup()
+                .setLatLng(targetLatLng)
+                .setContent(popupContent)
+                .openOn(map);
+        } else {
+            console.warn("Invalid coordinates for item:", item);
+        }
     }
+
 
     function buildPopup(item) {
       return `
