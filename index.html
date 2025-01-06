@@ -724,6 +724,9 @@
         alert("Please enter a property search query.");
         return;
       }
+
+      closeUIElements();
+
       propertyMarkers.forEach(m => map.removeLayer(m));
       propertyMarkers.length = 0;
       propertyPolygons.forEach(p => map.removeLayer(p));
@@ -1087,6 +1090,8 @@
         return;
       }
 
+      closeUIElements();
+
       // 既存のレイヤーを削除
       if (boundaryLayer) map.removeLayer(boundaryLayer);
       if (maskLayer) map.removeLayer(maskLayer);
@@ -1149,7 +1154,31 @@
       }
     }
 
+    // -------------------------------------------------------
+    // **) Close UI Elements
+    // -------------------------------------------------------
+    // UI要素を閉じる共通関数を定義
+    function closeUIElements() {
+        // 物件リストを非表示にする
+        const listArea = document.getElementById('propertyListArea');
+        listArea.classList.add('hidden');
 
+        // メニューコンテナを閉じる
+        const menuContainer = document.getElementById('menuContainer');
+        if (menuContainer) {
+            menuContainer.style.transform = 'translateX(-280px)'; // PC用
+            menuContainer.classList.add('closed'); // モバイル用
+        }
+
+        // モバイルキーボードを閉じる
+        document.activeElement.blur();
+
+        // 地図のみにフォーカスを移動
+        const mapElement = document.getElementById('map');
+        if (mapElement) {
+            mapElement.focus();
+        }
+    }
 
     // -------------------------------------------------------
     // 10) Real-time Current Location
