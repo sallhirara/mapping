@@ -696,7 +696,7 @@
         // 緯度・経度が有効な場合の処理
         if (!isNaN(item.latitude) && !isNaN(item.longitude)) {
             const targetLatLng = [item.latitude, item.longitude];
-            const zoomLevel = 18; // ズームレベルを変更可能
+            const zoomLevel = 17; // ズームレベルを変更可能
 
             // アニメーション付きズーム（flyToを利用）
             map.flyTo(targetLatLng, zoomLevel);
