@@ -6,7 +6,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <title>Project Map</title>
 
-  <!-- fontawsan CSS -->
+  <!-- FontAwesome CSS -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
   <!-- Leaflet CSS / JS -->
@@ -18,7 +18,6 @@
 
   <!-- Hammer.js の導入 -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.8/hammer.min.js"></script>
-  
 
   <style>
     * {
@@ -80,16 +79,17 @@
         justify-content: center;
         align-items: center;
         cursor: grab;
+        pointer-events: none; /* 全体を無効化 */
       }
 
-      .drag-handle {
+      .menu-header .drag-handle {
         width: 50px;
         height: 5px;
         background: #999;
         border-radius: 2.5px;
+        pointer-events: auto; /* ドラッグハンドルのみ有効化 */
       }
 
-      
       .menu-toggle {
         display: none !important; /* 確実に非表示 */
       }
@@ -151,7 +151,6 @@
 
 
 
-
     #top-bar {
       background: #f8f9fa;
       margin-left: 5px;
@@ -199,7 +198,7 @@
       height: calc(100% + 0px); /* menu-container の高さ +margin を考慮 */
       width: 100%;
       z-index: 0;
-      touch-action: manipulation; /* Hammer.js がタッチイベントを管理 */
+      touch-action: none; /* Hammer.js がタッチイベントを管理 */
       -webkit-tap-highlight-color: transparent; /* タップ時のハイライトを無効化 */   
     }
 
@@ -218,7 +217,7 @@
         transition: all 0.3s;
     }
 
-    #lcurrentLocationBtn:hover {
+    #currentLocationBtn:hover {
         transform: scale(1.2);
     }
 
@@ -300,6 +299,13 @@
     #propertySearchHeader button {
       padding: 5px 10px;
       cursor: pointer;
+      background: none;
+      border: none;
+      border-radius: 50%;
+      transition: transform 0.3s;
+    }
+    #propertySearchHeader button:hover {
+      transform: scale(1.2);
     }
     #propertyListArea {
       flex: 1;
@@ -410,21 +416,10 @@
 
   <script>
     // --------------------------------------------------
-    //    ▼ sample ▼
+    //    ▼ Leafletマップの初期化 ▼
     // --------------------------------------------------
 
-        // code here
-
-    // --------------------------------------------------
-    //    ▲ sample ▲
-    // --------------------------------------------------
-
-
-    
-
-    // -------------------------------------------------------
-    // 1) Initialize Leaflet map
-    // -------------------------------------------------------
+    // マップの初期化は1回のみ
     const map = L.map('map', {
         zoomControl: false, // ズームボタンを非表示にする
         minZoom: 2, // 最小ズームレベルを制限
@@ -432,38 +427,8 @@
         worldCopyJump: true
     }).setView([20, 0], 2);
 
-    // 1-A) We disable doubleClickZoom so it doesn't zoom on dblclick
+    // Leaflet のデフォルトのダブルクリックズームを無効化
     map.doubleClickZoom.disable();
-
-    
-    // -------------------------------------------------------
-    // 既存の Leaflet の dblclick イベントとの競合を避ける
-    // -------------------------------------------------------
-    // Leaflet の dblclick イベントは Hammer.js が handle するため、以下のコードは不要。
-    // ただし、念のため以下のコードをコメントアウトまたは削除。 
-    
-    /*
-    // 1-B) Then we handle dblclick => pan to that point
-    map.on('dblclick', (e) => {
-      // Pan smoothly to e.latlng
-      map.panTo(e.latlng, { animate: true });
-    });
-    */
-
-    L.tileLayer('https://api.maptiler.com/maps/basic/{z}/{x}/{y}.png?key=Sv80uSRLZxFEwRiW17Cg', {
-      maxZoom: 19,
-      attribution: '&copy; MapTiler &copy; OpenStreetMap contributors',
-      detectRetina: true
-    }).addTo(map);
-
-    // 地図の最大表示範囲を設定（余白ができないようにする）
-    const bounds = L.latLngBounds(
-        L.latLng(-85, -Infinity), // 南西端
-        L.latLng(85, Infinity)    // 北東端
-    );
-    map.on('drag', function () {
-        map.panInsideBounds(bounds, { animate: false });
-    });
 
     // -------------------------------------------------------
     // Hammer.js の設定
@@ -472,11 +437,21 @@
     const hammer = new Hammer.Manager(mapElement);
 
     // ダブルタップジェスチャーの追加
-    const doubleTap = new Hammer.Tap({ event: 'doubletap', taps: 2, interval: 300, threshold: 10, posThreshold: 30 });
+    const doubleTap = new Hammer.Tap({ 
+      event: 'doubletap', 
+      taps: 2, 
+      interval: 300, // ダブルタップの最大間隔（ミリ秒）
+      threshold: 10, // タップの移動許容範囲（ピクセル）
+      posThreshold: 30 // タップ位置の許容範囲（ピクセル）
+    });
     hammer.add(doubleTap);
 
     // プレス（ホールド）ジェスチャーの追加
-    const press = new Hammer.Press({ event: 'press', time: 500, threshold: 5 });
+    const press = new Hammer.Press({ 
+      event: 'press', 
+      time: 500, // ホールドの必要時間（ミリ秒）
+      threshold: 5 // ホールド中の移動許容範囲（ピクセル）
+    });
     hammer.add(press);
 
     // 状態管理用フラグ
@@ -487,6 +462,7 @@
     hammer.on('doubletap', (ev) => {
       ev.preventDefault(); // デフォルト動作を防止
       ev.srcEvent.stopPropagation(); // イベントの伝播を停止
+      ev.srcEvent.stopImmediatePropagation(); // さらなる伝播を停止
 
       isDoubleTap = true;
 
@@ -502,7 +478,7 @@
 
           isDoubleTap = false; // フラグリセット
         }
-      }, 500); // プレスの時間と一致させる
+      }, press.options.time); // プレスの時間と一致させる
     });
 
     // プレス（ホールド）イベントのリスナー
@@ -510,9 +486,10 @@
       if (isDoubleTap) {
         ev.preventDefault(); // デフォルト動作を防止
         ev.srcEvent.stopPropagation(); // イベントの伝播を停止
+        ev.srcEvent.stopImmediatePropagation(); // さらなる伝播を停止
 
         // ズームインまたはズームアウトのロジック
-        map.zoomIn(); // または map.zoomOut() に変更可能
+        map.zoomIn(); // 必要に応じて map.zoomOut() に変更可能
 
         clearTimeout(holdTimeout); // タイムアウトをクリア
         isDoubleTap = false; // フラグリセット
@@ -524,21 +501,27 @@
       if (isDoubleTap) {
         ev.preventDefault(); // デフォルト動作を防止
         ev.srcEvent.stopPropagation(); // イベントの伝播を停止
+        ev.srcEvent.stopImmediatePropagation(); // さらなる伝播を停止
         // ダブルタップだけが行われた場合の地図中心移動は上記のタイムアウト内で処理済み
       }
     });
 
+    // -------------------------------------------------------
+    //    ▲ Hammer.js の設定 ▲
+    // -------------------------------------------------------
 
-    // レイヤー切り替え、改良の余地ありか。。。。
+    // -------------------------------------------------------
+    //    ▼ レイヤー切り替え ▼
+    // -------------------------------------------------------
     // ベースレイヤーを定義
     const streetLayer = L.tileLayer('https://api.maptiler.com/maps/basic/{z}/{x}/{y}.png?key=Sv80uSRLZxFEwRiW17Cg', {
-    maxZoom: 19,
-    attribution: '© OpenStreetMap contributors'
+      maxZoom: 19,
+      attribution: '© OpenStreetMap contributors'
     });
 
     const satelliteLayer = L.tileLayer('https://api.maptiler.com/maps/satellite/{z}/{x}/{y}.jpg?key=Sv80uSRLZxFEwRiW17Cg', {
-    maxZoom: 18,
-    attribution: '&copy; MapTiler & OpenStreetMap contributors'
+      maxZoom: 18,
+      attribution: '&copy; MapTiler & OpenStreetMap contributors'
     });
 
     // 初期レイヤーを地図に追加
@@ -549,20 +532,21 @@
     // トグルボタンのクリックイベント
     const toggleBtn = document.getElementById('layerToggleBtn');
     toggleBtn.addEventListener('click', () => {
-    if (isSatellite) {
-        map.removeLayer(satelliteLayer);
-        map.addLayer(streetLayer);
-        toggleBtn.querySelector('img').src = "https://img.icons8.com/?size=100&id=2m4kkop8aUO5&format=png&color=000000";
-    } else {
-        map.removeLayer(streetLayer);
-        map.addLayer(satelliteLayer);
-        toggleBtn.querySelector('img').src = "https://img.icons8.com/?size=100&id=NHtRhybXwxli&format=png&color=000000";
-    }
-    isSatellite = !isSatellite; // 状態を切り替える
+      if (isSatellite) {
+          map.removeLayer(satelliteLayer);
+          map.addLayer(streetLayer);
+          toggleBtn.querySelector('img').src = "https://img.icons8.com/?size=100&id=2m4kkop8aUO5&format=png&color=000000";
+      } else {
+          map.removeLayer(streetLayer);
+          map.addLayer(satelliteLayer);
+          toggleBtn.querySelector('img').src = "https://img.icons8.com/?size=100&id=NHtRhybXwxli&format=png&color=000000";
+      }
+      isSatellite = !isSatellite; // 状態を切り替える
     });
-    // 改良の余地ありか。。。ここまで
+    // -------------------------------------------------------
+    //    ▲ レイヤー切り替え ▲
+    // -------------------------------------------------------
 
-    
 
     map.dragging.enable();
     map.scrollWheelZoom.enable();
@@ -723,9 +707,6 @@
         iconSize: [20, 20], 
         iconAnchor: [10, 10],
         popupAnchor: [0, -10]
-        //shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',//
-        //shadowSize: [41, 41],//
-        //shadowAnchor: [12, 41]//
       });
     }
 
@@ -790,8 +771,6 @@
         }
     }
 
-
-
     function buildPopup(item) {
       return `
         <strong>${item.pjName}</strong><br>
@@ -811,13 +790,16 @@
     // -------------------------------------------------------
     function toggleList() {
       const listArea = document.getElementById('propertyListArea');
-      const btn = document.querySelector('#propertySearchHeader button[onclick="toggleList()"]');
+      const toggleIcon = document.getElementById('toggleIcon');  // Access the icon
+
       if (listArea.classList.contains('hidden')) {
-        listArea.classList.remove('hidden');
-        btn.textContent = "Hide List";
+          listArea.classList.remove('hidden');
+          toggleIcon.classList.remove('fa-angles-down');  // Remove "down" icon
+          toggleIcon.classList.add('fa-angles-up');   // Add "up" icon
       } else {
-        listArea.classList.add('hidden');
-        btn.textContent = "Show List";
+          listArea.classList.add('hidden');
+          toggleIcon.classList.remove('fa-angles-up');  // Remove "up" icon
+          toggleIcon.classList.add('fa-angles-down');       // Add "down" icon
       }
     }
 
@@ -1088,84 +1070,66 @@
     let trackingActive = false;
 
     function toggleCurrentLocation() {
-    const btnIcon = document.querySelector('#currentLocationBtn img'); // ボタン内のアイコン画像を取得
+      const btnIcon = document.querySelector('#currentLocationBtn img'); // ボタン内のアイコン画像を取得
 
-    if (!trackingActive) {
-        // Start real-time tracking
-        if (!navigator.geolocation) {
-        alert("Geolocation is not supported by this browser.");
-        return;
-        }
-        watchID = navigator.geolocation.watchPosition(
-        positionSuccess,
-        positionError,
-        { enableHighAccuracy: true }
-        );
-        btnIcon.src = "https://img.icons8.com/?size=100&id=ziC1TV1ikKi9&format=png&color=004ACD99"; // 追跡中のアイコン
-        trackingActive = true;
-    } else {
-        // Stop real-time tracking
-        if (watchID !== null) {
-        navigator.geolocation.clearWatch(watchID);
-        watchID = null;
-        }
-        if (currentLocMarker) {
-        map.removeLayer(currentLocMarker);
-        currentLocMarker = null;
-        }
-        btnIcon.src = "https://img.icons8.com/?size=100&id=ziC1TV1ikKi9&format=png&color=004ACD63"; // 停止中のアイコン
-        trackingActive = false;
-    }
+      if (!trackingActive) {
+          // Start real-time tracking
+          if (!navigator.geolocation) {
+          alert("Geolocation is not supported by this browser.");
+          return;
+          }
+          watchID = navigator.geolocation.watchPosition(
+          positionSuccess,
+          positionError,
+          { enableHighAccuracy: true }
+          );
+          btnIcon.src = "https://img.icons8.com/?size=100&id=ziC1TV1ikKi9&format=png&color=004ACD99"; // 追跡中のアイコン
+          trackingActive = true;
+      } else {
+          // Stop real-time tracking
+          if (watchID !== null) {
+          navigator.geolocation.clearWatch(watchID);
+          watchID = null;
+          }
+          if (currentLocMarker) {
+          map.removeLayer(currentLocMarker);
+          currentLocMarker = null;
+          }
+          btnIcon.src = "https://img.icons8.com/?size=100&id=ziC1TV1ikKi9&format=png&color=004ACD63"; // 停止中のアイコン
+          trackingActive = false;
+      }
     }
 
     function positionSuccess(pos) {
-    const lat = pos.coords.latitude;
-    const lng = pos.coords.longitude;
-    console.log("Current position:", lat, lng);
+      const lat = pos.coords.latitude;
+      const lng = pos.coords.longitude;
+      console.log("Current position:", lat, lng);
 
-    // If marker not created yet, create it
-    if (!currentLocMarker) {
-        const divIcon = L.divIcon({
-        html: '<div class="blinking-marker"></div>',
-        className: '',
-        iconSize: [18, 18],
-        iconAnchor: [9, 9]
-        });
-        currentLocMarker = L.marker([lat, lng], { icon: divIcon }).addTo(map);
-    } else {
-        // Just update position
-        currentLocMarker.setLatLng([lat, lng]);
-    }
+      // If marker not created yet, create it
+      if (!currentLocMarker) {
+          const divIcon = L.divIcon({
+          html: '<div class="blinking-marker"></div>',
+          className: '',
+          iconSize: [18, 18],
+          iconAnchor: [9, 9]
+          });
+          currentLocMarker = L.marker([lat, lng], { icon: divIcon }).addTo(map);
+      } else {
+          // Just update position
+          currentLocMarker.setLatLng([lat, lng]);
+      }
 
-    // Smoothly move the map to the current location
-    map.flyTo([lat, lng], 16); // 第2引数はズームレベル、スムーズな移動を実現
+      // Smoothly move the map to the current location
+      map.flyTo([lat, lng], 16); // 第2引数はズームレベル、スムーズな移動を実現
     }
 
     // -------------------------------------------------------
     // 11) PJ list toggle
     // -------------------------------------------------------
     function positionError(err) {
-    console.error("Geolocation error:", err);
-    alert("Failed to get current location: " + err.message);
+      console.error("Geolocation error:", err);
+      alert("Failed to get current location: " + err.message);
     }
-
-    function toggleList() {
-        const listArea = document.getElementById('propertyListArea');
-        const toggleIcon = document.getElementById('toggleIcon');  // Access the icon
-
-        if (listArea.classList.contains('hidden')) {
-            listArea.classList.remove('hidden');
-            toggleIcon.classList.remove('fa-angles-down');  // Remove "up" icon
-            toggleIcon.classList.add('fa-angles-up');   // Add "down" icon
-        } else {
-            listArea.classList.add('hidden');
-            toggleIcon.classList.remove('fa-angles-up');  // Remove "down" icon
-            toggleIcon.classList.add('fa-angles-down');       // Add "up" icon
-        }
-    }
-
-
-
 
     // -------------------------------------------------------
     // 12) Menu Container 改善の余地あり
@@ -1293,6 +1257,17 @@
       });
     });
 
+    // -------------------------------------------------------
+    //    ▲ Menu Container 改善の余地あり ▲
+    // -------------------------------------------------------
+
+    // -------------------------------------------------------
+    //    ▼ その他の既存のスクリプトやイベントハンドラ ▼
+    // -------------------------------------------------------
+    // ...（既存のコード）
+    // -------------------------------------------------------
+    //    ▲ その他の既存のスクリプトやイベントハンドラ ▲
+    // -------------------------------------------------------
   </script>
 </body>
 </html>
