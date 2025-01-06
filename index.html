@@ -162,6 +162,41 @@
         border-radius: 15px;
         padding: 5px 10px;
     }
+    
+    /* 検索コンテナのスタイリング */
+    .search-container {
+      position: relative;
+      display: inline-block; /* 必要に応じて調整 */
+    }
+
+    /* 検索入力フィールドのパディングを右側に追加 */
+    .search-container input {
+      padding-right: 30px; /* クリアアイコンのスペース確保 */
+    }
+
+    /* クリアアイコンのスタイリング */
+    .clear-icon {
+      position: absolute;
+      right: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 20px; /* 必要に応じてサイズ調整 */
+      height: 20px;
+      cursor: pointer;
+      display: none; /* 初期状態では非表示 */
+      opacity: 0.7;
+      transition: opacity 0.3s;
+    }
+
+    .clear-icon:hover {
+      opacity: 1;
+    }
+
+    /* 入力フィールドに値がある場合にクリアアイコンを表示 */
+    .search-container input:not(:placeholder-shown) + .clear-icon {
+      display: block;
+    }
+    
 
     .custom-file-input {
         color: #333;
@@ -375,13 +410,23 @@
     </div>
     <div class="menu-content">
       <div id="top-bar">
-        <input
-          type="text"
-          id="geoSearchBox"
-          placeholder="Enter a place"
-          style="width: 200px; font-size: 16px;"
-        />
-      
+        <!-- ここから検索コンテナの追加 -->
+        <div class="search-container">
+          <input
+            type="text"
+            id="geoSearchBox"
+            placeholder="Enter a place"
+            style="width: 200px; font-size: 16px;"
+          />
+          <img
+            src="https://img.icons8.com/?size=100&id=121477&format=png&color=75750357"
+            alt="Clear"
+            class="clear-icon"
+            onclick="clearGeoSearch()"
+          />
+        </div>
+        <!-- 検索コンテナの追加ここまで -->
+
         <label for="fileInput" class="custom-file-input"><i class="fa-solid fa-file-arrow-down"></i></label>
         <input type="file" id="fileInput" accept=".xls,.xlsx,.xlsm" />    
       </div>      
@@ -392,6 +437,7 @@
       </ul>
     </div>
   </div>
+
   
   <button id="menuToggleBtn" class="menu-toggle">☰</button>
 
@@ -440,8 +486,6 @@
     map.on('drag', function () {
         map.panInsideBounds(bounds, { animate: false });
     });
-
-
 
 
     // レイヤー切り替え、改良の余地ありか。。。。
@@ -516,6 +560,52 @@
         }
     });    
 
+
+    // -------------------------------------------------------  
+    // geoSearchBoxをクリアする関数
+    function clearGeoSearch() {
+      const geoSearchBox = document.getElementById('geoSearchBox');
+      geoSearchBox.value = '';
+
+      // 検索結果をクリアする（既存の地理検索結果レイヤーを削除）
+      if (boundaryLayer) {
+        map.removeLayer(boundaryLayer);
+        boundaryLayer = null;
+      }
+      if (maskLayer) {
+        map.removeLayer(maskLayer);
+        maskLayer = null;
+      }
+
+      /*
+      // 地図を初期ビューにリセット（必要に応じて調整）
+      map.setView([20, 0], 2);
+
+      // クリア操作をユーザーに通知（オプション）
+      alert("地域検索の結果をクリアしました。");
+      */
+    }
+
+    // 物件検索ボックス (propertySearchBox) にもクリア機能を追加する場合
+    function clearPropertySearch() {
+      const propertySearchBox = document.getElementById('propertySearchBox');
+      propertySearchBox.value = '';
+
+      // 検索結果をクリアする（例: マーカーとポリゴンを削除）
+      propertyMarkers.forEach(marker => map.removeLayer(marker));
+      propertyMarkers.length = 0;
+
+      propertyPolygons.forEach(polygon => map.removeLayer(polygon));
+      propertyPolygons.length = 0;
+
+      const ul = document.getElementById('propertyResultUl');
+      ul.innerHTML = "";
+
+      // ユーザーに通知（オプション）
+      alert("物件検索の結果をクリアしました。");
+    }
+   
+    
 
     // -------------------------------------------------------
     // 2) Excel reading (all columns)
