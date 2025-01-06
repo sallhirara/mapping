@@ -16,6 +16,10 @@
   <!-- XLSX for reading .xls / .xlsx / .xlsm -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
+  <!-- Hammer.js の導入 -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.8/hammer.min.js"></script>
+  
+
   <style>
     * {
         margin: 0;
@@ -182,12 +186,19 @@
         display: none;
     }    
 
+    /* 地図コンテナ内の要素の選択を無効化 */
+    #map * {
+      -webkit-user-select: none; /* Safari */
+      user-select: none; /* 他のブラウザ */
+    }
+    
     #map {
       flex: 1;
       position: relative;
       height: calc(100% + 0px); /* menu-container の高さ +margin を考慮 */
       width: 100%;
       z-index: 0;
+      touch-action: none; /* Hammer.js がタッチイベントを管理 */      
     }
 
     #currentLocationBtn {
@@ -407,6 +418,8 @@
     // --------------------------------------------------
 
 
+    
+
     // -------------------------------------------------------
     // 1) Initialize Leaflet map
     // -------------------------------------------------------
@@ -420,11 +433,20 @@
     // 1-A) We disable doubleClickZoom so it doesn't zoom on dblclick
     map.doubleClickZoom.disable();
 
+    
+    // -------------------------------------------------------
+    // 既存の Leaflet の dblclick イベントとの競合を避ける
+    // -------------------------------------------------------
+    // Leaflet の dblclick イベントは Hammer.js が handle するため、以下のコードは不要。
+    // ただし、念のため以下のコードをコメントアウトまたは削除。 
+    
+    /*
     // 1-B) Then we handle dblclick => pan to that point
     map.on('dblclick', (e) => {
       // Pan smoothly to e.latlng
       map.panTo(e.latlng, { animate: true });
     });
+    */
 
     L.tileLayer('https://api.maptiler.com/maps/basic/{z}/{x}/{y}.png?key=Sv80uSRLZxFEwRiW17Cg', {
       maxZoom: 19,
@@ -441,7 +463,62 @@
         map.panInsideBounds(bounds, { animate: false });
     });
 
+    // -------------------------------------------------------
+    // Hammer.js の設定
+    // -------------------------------------------------------
+    const mapElement = document.getElementById('map');
+    const hammer = new Hammer.Manager(mapElement);
 
+    // ダブルタップジェスチャーの追加
+    const doubleTap = new Hammer.Tap({ event: 'doubletap', taps: 2 });
+    hammer.add(doubleTap);
+
+    // プレス（ホールド）ジェスチャーの追加
+    const press = new Hammer.Press({ event: 'press', time: 500 }); // 500ms のホールド
+    hammer.add(press);
+
+    // 状態管理用フラグ
+    let isDoubleTap = false;
+    let holdTimeout = null;
+
+    // ダブルタップイベントのリスナー
+    hammer.on('doubletap', (ev) => {
+      ev.preventDefault(); // デフォルト動作を防止
+      isDoubleTap = true;
+
+      // ダブルタップ後にホールドが開始されたかを監視
+      holdTimeout = setTimeout(() => {
+        if (isDoubleTap) {
+          // ホールドが検出されなかった場合、ダブルタップだけとみなして地図中心移動
+          const x = ev.center.x;
+          const y = ev.center.y;
+          const latlng = map.containerPointToLatLng([x, y]);
+          
+          map.panTo(latlng, { animate: true });
+          
+          isDoubleTap = false; // フラグリセット
+        }
+      }, 500); // プレスの時間と一致させる
+    });
+
+    // プレス（ホールド）イベントのリスナー
+    hammer.on('press', (ev) => {
+      if (isDoubleTap) {
+        ev.preventDefault(); // デフォルト動作を防止
+        map.zoomIn(); // または map.zoomOut() に変更可能
+        clearTimeout(holdTimeout); // タイムアウトをクリア
+        isDoubleTap = false; // フラグリセット
+      }
+    });
+
+    // タップイベントのリスナー
+    hammer.on('tap', (ev) => {
+      if (isDoubleTap) {
+        ev.preventDefault(); // デフォルト動作を防止
+        // ダブルタップだけが行われた場合の地図中心移動は上記のタイムアウト内で処理済み
+        // ここでは特に何もしない
+      }
+    });
 
 
     // レイヤー切り替え、改良の余地ありか。。。。
