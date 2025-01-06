@@ -41,49 +41,49 @@
       z-index: 1000;
     }
 
-/* モバイル用: 下からスライドアップ */
-@media screen and (max-width: 768px) {
-  #menuContainer {
-    position: fixed;
-    bottom: -66%; /* 完全には隠れない */
-    left: 0;
-    width: 100%;
-    height: 70%;
-    border-radius: 15px 15px 0 0;
-    background: rgba(255, 255, 255, 0.95);
-    transition: transform 0.3s ease-out, bottom 0.3s ease-out;
-    z-index: 1000;
-  }
+    /* モバイル用: 下からスライドアップ */
+    @media screen and (max-width: 768px) {
+      #menuContainer {
+        position: fixed;
+        bottom: -66%; /* 完全には隠れない */
+        left: 0;
+        width: 100%;
+        height: 70%;
+        border-radius: 15px 15px 0 0;
+        background: rgba(255, 255, 255, 0.95);
+        transition: transform 0.3s ease-out, bottom 0.3s ease-out;
+        z-index: 1000;
+      }
 
-  #menuContainer.closed {
-    bottom: -66%; /* ハンドル部分が見える位置 */
-  }
+      #menuContainer.closed {
+        bottom: -66%; /* ハンドル部分が見える位置 */
+      }
 
-  #menuContainer.half {
-    bottom: -30%; /* ハーフビュー */
-  }
+      #menuContainer.half {
+        bottom: -30%; /* ハーフビュー */
+      }
 
-  #menuContainer.full {
-    bottom: 0; /* フルビュー */
-  }
+      #menuContainer.full {
+        bottom: 0; /* フルビュー */
+      }
 
-  .menu-header {
-    width: 100%;
-    height: 30px; /* ハンドル部分の高さ */
-    background:rgba(255, 255, 255, 0.95);
-    border-radius: 15px 15px 0 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    cursor: grab;
-  }
+      .menu-header {
+        width: 100%;
+        height: 30px; /* ハンドル部分の高さ */
+        background:rgba(255, 255, 255, 0.95);
+        border-radius: 15px 15px 0 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        cursor: grab;
+      }
 
-  .drag-handle {
-    width: 50px;
-    height: 5px;
-    background: #999;
-    border-radius: 2.5px;
-  }
+      .drag-handle {
+        width: 50px;
+        height: 5px;
+        background: #999;
+        border-radius: 2.5px;
+      }
 
       
       .menu-toggle {
@@ -191,7 +191,7 @@
     }
 
     #currentLocationBtn {
-        position: absolute;
+        position: fixed;
         top: 50px;
         right: 15px;
         z-index: 1000;
@@ -215,7 +215,7 @@
     } 
 
     #layerToggleBtn {
-        position: absolute;
+        position: fixed;
         top: 15px;
         right: 15px;
         z-index: 1000;
@@ -240,7 +240,7 @@
 
     /* propertyContainer for the search panel + list */
     #propertyContainer {
-      position: absolute;
+      position: fixed;
       top: 15px; 
       width: 320px;
       max-height: 70vh; 
