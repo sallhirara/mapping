@@ -1159,30 +1159,39 @@
     // -------------------------------------------------------
     // **) Close UI Elements
     // -------------------------------------------------------
-    // UI要素を閉じる共通関数を定義
     function closeUIElements() {
-    // メニューコンテナを閉じる
-    const menuContainer = document.getElementById('menuContainer');
-    if (menuContainer) {
-        menuContainer.style.transform = 'translateX(-280px)'; // PC用
-        menuContainer.classList.add('closed'); // モバイル用
+      const menuContainer = document.getElementById('menuContainer');
+      const listArea = document.getElementById('propertyListArea');
+      const mapElement = document.getElementById('map');
+
+      // 携帯表示（モバイル用クラス）
+      if (window.innerWidth < 769) {
+          if (menuContainer) {
+              menuContainer.classList.remove('full', 'half');
+              menuContainer.classList.add('closed'); // スライドダウン
+          }
+      } 
+      // PC表示（スタイル変更）
+      else {
+          if (menuContainer) {
+              menuContainer.style.transform = 'translateX(-280px)'; // メニューを隠す
+          }
+      }
+
+      // 物件リストを非表示にする
+      if (listArea) {
+          listArea.classList.add('hidden');
+      }
+
+      // モバイルキーボードを閉じる
+      document.activeElement.blur();
+
+      // 地図にフォーカスを移動
+      if (mapElement) {
+          mapElement.focus();
+      }
     }
 
-    // 物件リストを非表示にする
-    const listArea = document.getElementById('propertyListArea');
-    if (listArea) {
-        listArea.classList.add('hidden');
-    }
-
-    // モバイルキーボードを閉じる
-    document.activeElement.blur();
-
-    // 地図のみにフォーカスを移動
-    const mapElement = document.getElementById('map');
-    if (mapElement) {
-        mapElement.focus();
-    }
-}
 
 
     // -------------------------------------------------------
