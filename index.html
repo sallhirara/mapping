@@ -614,7 +614,6 @@
     document.getElementById('geoSearchBox').addEventListener('keydown', (event) => {
         if (event.key === 'Enter') {
         handleGeoSearch();
-        closeUIElements(); // UIを閉じる
         }
     });
 
@@ -622,41 +621,8 @@
     document.getElementById('propertySearchBox').addEventListener('keydown', (event) => {
         if (event.key === 'Enter') {
         handlePropertySearch();
-        closeUIElements(); // UIを閉じる
         }
-    });  
-
-
-    // -------------------------------------------------------
-    // 検索実（Enter) でUIを閉じるための関数
-    // -------------------------------------------------------
-    function closeUIElements() {
-      // メニューコンテナを閉じる（PC/モバイルに対応）
-      const menuContainer = document.getElementById('menuContainer');
-      const menuToggleBtn = document.getElementById('menuToggleBtn');
-
-      if (window.innerWidth >= 769) {
-        // PCビューの場合
-        if (menuContainer.classList.contains('open')) {
-          menuContainer.classList.remove('open');
-          menuToggleBtn.innerHTML = '☰'; // メニューアイコンに戻す
-        }
-      } else {
-        // モバイルビューの場合
-        menuContainer.classList.remove('full', 'half'); // 'closed' がデフォルト状態
-        menuContainer.classList.add('closed');
-      }
-
-      // 物件リストを非表示にする
-      const propertyListArea = document.getElementById('propertyListArea');
-      propertyListArea.classList.add('hidden');
-
-      // 入力フィールドからフォーカスを外す（携帯のキーボードを隠す）
-      const geoSearchBox = document.getElementById('geoSearchBox');
-      const propertySearchBox = document.getElementById('propertySearchBox');
-      geoSearchBox.blur();
-      propertySearchBox.blur();
-    }    
+    });    
 
 
     // -------------------------------------------------------  
