@@ -413,7 +413,8 @@
     const map = L.map('map', {
         zoomControl: false, // ズームボタンを非表示にする
         minZoom: 2, // 最小ズームレベルを制限
-        maxZoom: 18 // 最大ズームレベルを制限        
+        maxZoom: 18, // 最大ズームレベルを制限  
+        worldCopyJump: true
     }).setView([20, 0], 2);
 
     // 1-A) We disable doubleClickZoom so it doesn't zoom on dblclick
@@ -433,13 +434,13 @@
 
     // 地図の最大表示範囲を設定（余白ができないようにする）
     const bounds = L.latLngBounds(
-        L.latLng(-85, -180), // 南西端
-        L.latLng(85, 180)    // 北東端
+        L.latLng(-85, -Infinity), // 南西端
+        L.latLng(85, Infinity)    // 北東端
     );
-    map.setMaxBounds(bounds);
     map.on('drag', function () {
-    map.panInsideBounds(bounds, { animate: false });
+        map.panInsideBounds(bounds, { animate: false });
     });
+
 
 
 
