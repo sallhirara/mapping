@@ -448,61 +448,51 @@
 
 // Double-tap-and-hold zoom variables
 let lastTapTime = 0;
+let tapHoldTimer = null;
 let initialTouchY = 0;
 let isDoubleTapHolding = false;
 let initialZoom = 0;
 
-// タッチイベントの処理を修正
-map.on('touchstart', function(e) {
-    // 必ずデフォルトの動作をキャンセル
+// Add touch event listeners to the map
+map.on('touchstart', (e) => {
+  const currentTime = new Date().getTime();
+  const tapLength = currentTime - lastTapTime;
+  
+  if (tapLength < 300 && tapLength > 0) {  // ダブルタップの判定（300ms以内）
+    // Prevent default behavior
     e.originalEvent.preventDefault();
     
-    const currentTime = new Date().getTime();
-    const tapLength = currentTime - lastTapTime;
+    // Store initial touch position and zoom level
+    initialTouchY = e.originalEvent.touches[0].clientY;
+    initialZoom = map.getZoom();
+    isDoubleTapHolding = true;
     
-    if (tapLength < 300 && tapLength > 0) {
-        initialTouchY = e.originalEvent.touches[0].clientY;
-        initialZoom = map.getZoom();
-        isDoubleTapHolding = true;
-    }
+    // Clear any existing timer
+    if (tapHoldTimer) clearTimeout(tapHoldTimer);
+  }
+  
+  lastTapTime = currentTime;
+});
+
+map.on('touchmove', (e) => {
+  if (isDoubleTapHolding) {
+    e.originalEvent.preventDefault();
     
-    lastTapTime = currentTime;
+    // Calculate the distance moved
+    const currentTouchY = e.originalEvent.touches[0].clientY;
+    const touchDiff = initialTouchY - currentTouchY;
+    
+    // Convert touch movement to zoom level change (adjust sensitivity as needed)
+    const zoomDiff = touchDiff * 0.01;
+    const newZoom = Math.max(map.getMinZoom(), Math.min(map.getMaxZoom(), initialZoom + zoomDiff));
+    
+    map.setZoom(newZoom);
+  }
 });
 
-map.on('touchmove', function(e) {
-    if (isDoubleTapHolding) {
-        // 必ずデフォルトの動作をキャンセル
-        e.originalEvent.preventDefault();
-        
-        const currentTouchY = e.originalEvent.touches[0].clientY;
-        const touchDiff = initialTouchY - currentTouchY;
-        
-        // より滑らかなズーム処理
-        const zoomDelta = touchDiff * 0.005; // 感度を調整
-        const newZoom = Math.max(
-            map.getMinZoom(), 
-            Math.min(map.getMaxZoom(), initialZoom + zoomDelta)
-        );
-        
-        map.setZoom(newZoom, { animate: false });
-    }
+map.on('touchend', () => {
+  isDoubleTapHolding = false;
 });
-
-// touchend と touchcancel の両方をハンドル
-map.on('touchend touchcancel', function() {
-    isDoubleTapHolding = false;
-});
-
-// 地図のコンテナ要素にもイベントリスナーを追加
-document.getElementById('map').addEventListener('touchstart', function(e) {
-    e.preventDefault();
-}, { passive: false });
-
-document.getElementById('map').addEventListener('touchmove', function(e) {
-    if (isDoubleTapHolding) {
-        e.preventDefault();
-    }
-}, { passive: false });
 
 
     // レイヤー切り替え、改良の余地ありか。。。。
