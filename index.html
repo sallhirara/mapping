@@ -101,32 +101,48 @@
         width: 320px;
         height: 100%;
         border-radius: 0 15px 15px 0;
-        transform: translateX(-100%); /* 非表示状態 */
-      }
-      #menuContainer.open {
-        transform: translateX(0); /* 表示状態 */
+        transform: translateX(-280px); /* デフォルトで40px分だけ表示 */
+        transition: transform 0.3s ease-out;
       }
 
-      /* PCではハンバーガーメニューを表示 */
+      #menuContainer.open {
+        transform: translateX(0); /* 完全に表示 */
+      }
+
+      /* メニュートグルボタンを右端に配置 */
       .menu-toggle {
-        display: block;
-        position: fixed;
-        top: 15px;
-        left: 15px;
-        background: #007bff;
-        color: white;
-        border: none;
-        padding: 10px 15px;
+        position: absolute;
+        top: 50%;
+        right: -30px;
+        transform: translateY(-50%);
+        background: white;
+        color: #666;
+        border: 1px solid #ccc;
+        border-radius: 0 5px 5px 0;
+        padding: 8px 12px;
         cursor: pointer;
-        border-radius: 5px;
-        font-size: 16px;
+        box-shadow: 2px 0 5px rgba(0,0,0,0.1);
         z-index: 1001;
+        transition: color 0.3s;
+      }
+
+      .menu-toggle:hover {
+        color: #333;
+      }
+
+      /* メニューコンテンツ */
+      .menu-content {
+        width: 100%;
+        height: 100%;
+        background: white;
+        overflow-y: auto;
+        padding: 10px;
       }
 
       /* PCではメニューヘッダーを非表示 */
       .menu-header {
-        display: none !important; /* 確実に非表示 */
-      }     
+        display: none !important;
+      }
     }
 
 
@@ -998,40 +1014,126 @@
     // -------------------------------------------------------
     document.addEventListener('DOMContentLoaded', () => {
       const menuContainer = document.getElementById('menuContainer');
+      const menuToggleBtn = document.getElementById('menuToggleBtn');
       const menuDragHandle = document.getElementById('menuDragHandle');
+
+      // PC用の状態管理
+      let isMenuOpen = false;
+      let isHovering = false;
+
+      // モバイル用の状態管理（既存コードの変数）
       let startY = 0;
       let isDragging = false;
 
-      const setMenuState = (state) => {
-        menuContainer.classList.remove('closed', 'half', 'full');
-        menuContainer.classList.add(state);
-      };
+      // デバイスチェック関数
+      const isPCView = () => window.innerWidth >= 769;
 
-      menuDragHandle.addEventListener('touchstart', (e) => {
-        startY = e.touches[0].clientY;
-        isDragging = true;
-      });
+      // メニューの状態を更新する関数
+      function updateMenuPosition(position) {
+        if (isPCView()) {
+          menuContainer.style.transform = `translateX(${position}px)`;
+        }
+      }
 
-      menuDragHandle.addEventListener('touchmove', (e) => {
-        if (!isDragging) return;
-        const currentY = e.touches[0].clientY;
-        const deltaY = currentY - startY;
+      // PCモードのメニュー操作
+      if (menuToggleBtn) {
+        menuToggleBtn.addEventListener('click', (e) => {
+          if (isPCView()) {
+            e.stopPropagation();
+            isMenuOpen = !isMenuOpen;
+            updateMenuPosition(isMenuOpen ? 0 : -280);
+            menuToggleBtn.innerHTML = isMenuOpen ? '&times;' : '☰';
+          }
+        });
+      }
 
-        if (deltaY > 50) {
-          setMenuState('closed'); // 閉じる
-        } else if (deltaY > -50 && deltaY < 50) {
-          setMenuState('half'); // ハーフビュー
-        } else if (deltaY < -50) {
-          setMenuState('full'); // フルビュー
+      // PCモードのメニュー外クリック
+      document.addEventListener('click', (e) => {
+        if (isPCView() && isMenuOpen && 
+            !menuContainer.contains(e.target) && 
+            e.target !== menuToggleBtn) {
+          isMenuOpen = false;
+          updateMenuPosition(-280);
+          menuToggleBtn.innerHTML = '☰';
         }
       });
 
-      menuDragHandle.addEventListener('touchend', () => {
-        isDragging = false;
+      // PCモードのホバー効果
+      menuContainer.addEventListener('mouseenter', () => {
+        if (isPCView() && !isMenuOpen) {
+          isHovering = true;
+          updateMenuPosition(-200);
+        }
+      });
+
+      menuContainer.addEventListener('mouseleave', () => {
+        if (isPCView() && !isMenuOpen) {
+          isHovering = false;
+          updateMenuPosition(-280);
+        }
+      });
+
+      // メニューコンテナのクリックイベント追加
+      menuContainer.addEventListener('click', (e) => {
+        if (isPCView() && !isMenuOpen && isHovering) {
+          isMenuOpen = true;
+          updateMenuPosition(0);
+          menuToggleBtn.innerHTML = '&times;';
+          e.stopPropagation();
+        }
+      });
+
+      // 既存のモバイルモード用コード
+      if (menuDragHandle) {
+        menuDragHandle.addEventListener('touchstart', (e) => {
+          if (!isPCView()) {
+            startY = e.touches[0].clientY;
+            isDragging = true;
+          }
+        });
+
+        menuDragHandle.addEventListener('touchmove', (e) => {
+          if (!isDragging || isPCView()) return;
+          const currentY = e.touches[0].clientY;
+          const deltaY = currentY - startY;
+
+          if (deltaY > 50) {
+            setMenuState('closed');
+          } else if (deltaY > -50 && deltaY < 50) {
+            setMenuState('half');
+          } else if (deltaY < -50) {
+            setMenuState('full');
+          }
+        });
+
+        menuDragHandle.addEventListener('touchend', () => {
+          if (!isPCView()) {
+            isDragging = false;
+          }
+        });
+      }
+
+      // 既存のモバイル用関数
+      function setMenuState(state) {
+        if (!isPCView()) {
+          menuContainer.classList.remove('closed', 'half', 'full');
+          menuContainer.classList.add(state);
+        }
+      }
+
+      // 初期設定とリサイズ対応
+      window.addEventListener('resize', () => {
+        if (isPCView()) {
+          updateMenuPosition(isMenuOpen ? 0 : -280);
+          menuContainer.classList.remove('closed', 'half', 'full');
+        } else {
+          menuContainer.style.transform = '';
+          menuContainer.classList.add('closed');
+          isMenuOpen = false;
+          isHovering = false;
+        }
       });
     });
-
-
 
   </script>
 </body>
