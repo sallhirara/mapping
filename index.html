@@ -614,6 +614,7 @@
     document.getElementById('geoSearchBox').addEventListener('keydown', (event) => {
         if (event.key === 'Enter') {
         handleGeoSearch();
+        closeUIElements(); // UIを閉じる
         }
     });
 
@@ -621,6 +622,7 @@
     document.getElementById('propertySearchBox').addEventListener('keydown', (event) => {
         if (event.key === 'Enter') {
         handlePropertySearch();
+        closeUIElements(); // UIを閉じる
         }
     });  
 
