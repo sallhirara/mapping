@@ -242,7 +242,6 @@
     #propertyContainer {
       position: absolute;
       top: 15px; 
-      left: 15px;
       width: 320px;
       max-height: 70vh; 
       background-color: transparent;
@@ -255,6 +254,19 @@
       touch-action: pan-y; 
       overscroll-behavior: contain;
     }
+    
+    /* モバイル用: 初期設定 */
+    #propertyContainer {
+      left: 15px;
+    }
+
+    /* PC表示用: 画面幅が769px以上の場合 */
+    @media screen and (min-width: 769px) {
+      #propertyContainer {
+        left: 60px;
+      }
+    }
+    
 
     #propertySearchHeader {
       background: transparent;
