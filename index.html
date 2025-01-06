@@ -928,20 +928,81 @@
         return;
       }
       try {
-        const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q)}`;
+        const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q)}&polygon_geojson=1`;
         const res = await fetch(url);
         const data = await res.json();
+
         if (!data.length) {
           alert("No matching location found.");
           return;
         }
-        const { lat, lon } = data[0];
-        map.setView([lat, lon], 12);
-      } catch(e) {
+
+        const { boundingbox, geojson, lat, lon } = data[0];
+
+        // 既存の境界線やポリゴンを削除
+        if (window.currentBoundaryLayer) {
+          map.removeLayer(window.currentBoundaryLayer);
+        }
+        if (window.currentFillLayer) {
+          map.removeLayer(window.currentFillLayer);
+        }
+
+        if (geojson) {
+          // GeoJSONデータがある場合はそれを描画
+          const boundaryLayer = L.geoJSON(geojson, {
+            style: {
+              color: '#FF000DA8',
+              weight: 1,
+              dashArray: '2, 2', // 点線スタイル
+              fillColor: '#FF0000A8', // 薄い赤
+              fillOpacity: 0.2
+            }
+          }).addTo(map);
+
+          // レイヤーを保存しておく
+          window.currentBoundaryLayer = boundaryLayer;
+
+          // マップを境界にフィット
+          map.fitBounds(boundaryLayer.getBounds(), { padding: [20, 20] });
+        } else if (boundingbox) {
+          // GeoJSONがない場合はBounding Boxで描画
+          const bounds = [
+            [parseFloat(boundingbox[0]), parseFloat(boundingbox[2])], // 南西端
+            [parseFloat(boundingbox[1]), parseFloat(boundingbox[3])]  // 北東端
+          ];
+
+          // 境界線
+          const rectangle = L.rectangle(bounds, {
+            color: '#FF000DA8',
+            weight: 1,
+            dashArray: '2, 2' // 点線
+          }).addTo(map);
+
+          // 塗りつぶし
+          const fillLayer = L.rectangle(bounds, {
+            color: '#FF0000A8',
+            fillColor: 'rgba(255, 0, 0, 0.2)', // 薄い赤
+            fillOpacity: 0.2,
+            weight: 0 // 線なし
+          }).addTo(map);
+
+          // レイヤーを保存しておく
+          window.currentBoundaryLayer = rectangle;
+          window.currentFillLayer = fillLayer;
+
+          // マップを境界にフィット
+          map.fitBounds(bounds, { padding: [20, 20] });
+        } else {
+          // GeoJSONもBounding Boxもない場合、緯度経度で表示
+          map.setView([lat, lon], 12);
+        }
+      } catch (e) {
         console.error(e);
         alert("Geo search failed: " + e.message);
       }
     }
+
+
 
     // -------------------------------------------------------
     // 10) Real-time Current Location
