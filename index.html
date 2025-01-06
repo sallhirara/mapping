@@ -613,16 +613,18 @@
     // 地域検索: Enterキーで検索
     document.getElementById('geoSearchBox').addEventListener('keydown', (event) => {
         if (event.key === 'Enter') {
-        handleGeoSearch();
+            closeUIElements(); // UIを閉じる
+            handleGeoSearch();
         }
     });
 
     // 物件検索: Enterキーで検索
     document.getElementById('propertySearchBox').addEventListener('keydown', (event) => {
         if (event.key === 'Enter') {
-        handlePropertySearch();
+            closeUIElements(); // UIを閉じる
+            handlePropertySearch();
         }
-    });    
+    });
 
 
     // -------------------------------------------------------  
@@ -1159,26 +1161,29 @@
     // -------------------------------------------------------
     // UI要素を閉じる共通関数を定義
     function closeUIElements() {
-        // 物件リストを非表示にする
-        const listArea = document.getElementById('propertyListArea');
-        listArea.classList.add('hidden');
-
-        // メニューコンテナを閉じる
-        const menuContainer = document.getElementById('menuContainer');
-        if (menuContainer) {
-            menuContainer.style.transform = 'translateX(-280px)'; // PC用
-            menuContainer.classList.add('closed'); // モバイル用
-        }
-
-        // モバイルキーボードを閉じる
-        document.activeElement.blur();
-
-        // 地図のみにフォーカスを移動
-        const mapElement = document.getElementById('map');
-        if (mapElement) {
-            mapElement.focus();
-        }
+    // メニューコンテナを閉じる
+    const menuContainer = document.getElementById('menuContainer');
+    if (menuContainer) {
+        menuContainer.style.transform = 'translateX(-280px)'; // PC用
+        menuContainer.classList.add('closed'); // モバイル用
     }
+
+    // 物件リストを非表示にする
+    const listArea = document.getElementById('propertyListArea');
+    if (listArea) {
+        listArea.classList.add('hidden');
+    }
+
+    // モバイルキーボードを閉じる
+    document.activeElement.blur();
+
+    // 地図のみにフォーカスを移動
+    const mapElement = document.getElementById('map');
+    if (mapElement) {
+        mapElement.focus();
+    }
+}
+
 
     // -------------------------------------------------------
     // 10) Real-time Current Location
