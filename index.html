@@ -190,6 +190,7 @@
     #map * {
       -webkit-user-select: none; /* Safari */
       user-select: none; /* 他のブラウザ */
+      -webkit-touch-callout: none; /* iOS Safariでのコンテキストメニューを無効化 */
     }
     
     #map {
@@ -198,7 +199,8 @@
       height: calc(100% + 0px); /* menu-container の高さ +margin を考慮 */
       width: 100%;
       z-index: 0;
-      touch-action: none; /* Hammer.js がタッチイベントを管理 */      
+      touch-action: manipulation; /* Hammer.js がタッチイベントを管理 */
+      -webkit-tap-highlight-color: transparent; /* タップ時のハイライトを無効化 */   
     }
 
     #currentLocationBtn {
@@ -470,11 +472,11 @@
     const hammer = new Hammer.Manager(mapElement);
 
     // ダブルタップジェスチャーの追加
-    const doubleTap = new Hammer.Tap({ event: 'doubletap', taps: 2 });
+    const doubleTap = new Hammer.Tap({ event: 'doubletap', taps: 2, interval: 300, threshold: 10, posThreshold: 30 });
     hammer.add(doubleTap);
 
     // プレス（ホールド）ジェスチャーの追加
-    const press = new Hammer.Press({ event: 'press', time: 500 }); // 500ms のホールド
+    const press = new Hammer.Press({ event: 'press', time: 500, threshold: 5 });
     hammer.add(press);
 
     // 状態管理用フラグ
@@ -484,6 +486,8 @@
     // ダブルタップイベントのリスナー
     hammer.on('doubletap', (ev) => {
       ev.preventDefault(); // デフォルト動作を防止
+      ev.srcEvent.stopPropagation(); // イベントの伝播を停止
+
       isDoubleTap = true;
 
       // ダブルタップ後にホールドが開始されたかを監視
@@ -493,9 +497,9 @@
           const x = ev.center.x;
           const y = ev.center.y;
           const latlng = map.containerPointToLatLng([x, y]);
-          
+
           map.panTo(latlng, { animate: true });
-          
+
           isDoubleTap = false; // フラグリセット
         }
       }, 500); // プレスの時間と一致させる
@@ -505,18 +509,22 @@
     hammer.on('press', (ev) => {
       if (isDoubleTap) {
         ev.preventDefault(); // デフォルト動作を防止
+        ev.srcEvent.stopPropagation(); // イベントの伝播を停止
+
+        // ズームインまたはズームアウトのロジック
         map.zoomIn(); // または map.zoomOut() に変更可能
+
         clearTimeout(holdTimeout); // タイムアウトをクリア
         isDoubleTap = false; // フラグリセット
       }
     });
 
-    // タップイベントのリスナー
+    // タップイベントのリスナー（不要な場合は削除）
     hammer.on('tap', (ev) => {
       if (isDoubleTap) {
         ev.preventDefault(); // デフォルト動作を防止
+        ev.srcEvent.stopPropagation(); // イベントの伝播を停止
         // ダブルタップだけが行われた場合の地図中心移動は上記のタイムアウト内で処理済み
-        // ここでは特に何もしない
       }
     });
 
