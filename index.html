@@ -441,7 +441,53 @@
         map.panInsideBounds(bounds, { animate: false });
     });
 
+// Double-tap-and-hold zoom variables
+let lastTapTime = 0;
+let tapHoldTimer = null;
+let initialTouchY = 0;
+let isDoubleTapHolding = false;
+let initialZoom = 0;
 
+// Add touch event listeners to the map
+map.on('touchstart', (e) => {
+  const currentTime = new Date().getTime();
+  const tapLength = currentTime - lastTapTime;
+  
+  if (tapLength < 300 && tapLength > 0) {  // ダブルタップの判定（300ms以内）
+    // Prevent default behavior
+    e.originalEvent.preventDefault();
+    
+    // Store initial touch position and zoom level
+    initialTouchY = e.originalEvent.touches[0].clientY;
+    initialZoom = map.getZoom();
+    isDoubleTapHolding = true;
+    
+    // Clear any existing timer
+    if (tapHoldTimer) clearTimeout(tapHoldTimer);
+  }
+  
+  lastTapTime = currentTime;
+});
+
+map.on('touchmove', (e) => {
+  if (isDoubleTapHolding) {
+    e.originalEvent.preventDefault();
+    
+    // Calculate the distance moved
+    const currentTouchY = e.originalEvent.touches[0].clientY;
+    const touchDiff = initialTouchY - currentTouchY;
+    
+    // Convert touch movement to zoom level change (adjust sensitivity as needed)
+    const zoomDiff = touchDiff * 0.01;
+    const newZoom = Math.max(map.getMinZoom(), Math.min(map.getMaxZoom(), initialZoom + zoomDiff));
+    
+    map.setZoom(newZoom);
+  }
+});
+
+map.on('touchend', () => {
+  isDoubleTapHolding = false;
+});
 
 
     // レイヤー切り替え、改良の余地ありか。。。。
