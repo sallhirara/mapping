@@ -193,15 +193,27 @@
       -ms-user-select: none;
       user-select: none;
       touch-action: none;       
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: rgba(0,0,0,0);      
     }
     
+    /* 新しく追加 */
     .leaflet-container {
+        /* 選択を防ぐ */
         -webkit-user-select: none;
         -moz-user-select: none;
         -ms-user-select: none;
         user-select: none;
+        /* タッチ操作の制御 */
+        touch-action: pan-x pan-y pinch-zoom;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    /* マーカーのタッチ操作制御 */
+    .leaflet-marker-icon {
         touch-action: none;
-    }    
+        -webkit-tap-highlight-color: rgba(0,0,0,0);
+    }  
 
     #currentLocationBtn {
         position: fixed;
@@ -428,11 +440,12 @@
         minZoom: 2, // 最小ズームレベルを制限
         maxZoom: 18, // 最大ズームレベルを制限  
         worldCopyJump: true,
-        tapHold: true,
         tap: true,
-        tapTolerance: 15,
+        bounceAtZoomLimits: true,
         touchZoom: true,
-        bounceAtZoomLimits: false
+        tapTolerance: 15,
+        zoomDelta: 1,
+        zoomSnap: 0
     }).setView([20, 0], 2);
 
     // 1-A) We disable doubleClickZoom so it doesn't zoom on dblclick
@@ -443,6 +456,10 @@
       // Pan smoothly to e.latlng
       map.panTo(e.latlng, { animate: true });
     });
+
+    // タッチズーム設定の明示的な有効化
+    map.touchZoom.enable();    
+    
 
     L.tileLayer('https://api.maptiler.com/maps/basic/{z}/{x}/{y}.png?key=Sv80uSRLZxFEwRiW17Cg', {
       maxZoom: 19,
