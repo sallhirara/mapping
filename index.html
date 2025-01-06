@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <title>Project Map</title>
 
@@ -18,18 +18,26 @@
 
   <style>
     * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
     }
+    
+    html {
+        height: 100%;
+        width: 100%;
+        overflow: hidden;
+    }    
 
     /* Overall layout: top bar for geo search + excel, then map filling the rest */
     body {
-      font-family: Arial, sans-serif;
-      height: 100vh;
-      overflow: hidden; 
-      display: flex;
-      flex-direction: column;
+        height: 100%;
+        width: 100%;
+        overflow: hidden;
+        position: fixed;
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior: none;
     }
 
     /* 共通 */
@@ -183,11 +191,15 @@
     }    
 
     #map {
-      flex: 1;
-      position: relative;
-      height: calc(100% + 0px); /* menu-container の高さ +margin を考慮 */
-      width: 100%;
-      z-index: 0;
+        height: 100%;
+        width: 100%;
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        /* iPhoneのノッチ等に対応 */
+        padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
     }
 
     #currentLocationBtn {
@@ -328,6 +340,7 @@
       50%  { opacity:0; }
       100% { opacity:1; }
     }
+    
     .blinking-marker {
       width: 14px;
       height: 14px;
@@ -336,6 +349,51 @@
       border-radius: 50%;
       animation: blink 1s infinite;
     }
+
+    /* 高解像度ディスプレイ対応 */
+    @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+        .custom-file-input, 
+        #propertySearchHeader input,
+        #top-bar input {
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+    }
+
+    /* デバイス向けの最適化 */
+    @supports (padding: max(0px)) {
+        #map {
+            padding-left: max(env(safe-area-inset-left), 0px);
+            padding-right: max(env(safe-area-inset-right), 0px);
+            padding-top: max(env(safe-area-inset-top), 0px);
+            padding-bottom: max(env(safe-area-inset-bottom), 0px);
+        }
+    }   
+    
+/* モバイル向けコントロール配置の調整 */
+@media screen and (max-width: 768px) {
+    #currentLocationBtn {
+        bottom: calc(env(safe-area-inset-bottom) + 60px);
+    }
+    
+    #layerToggleBtn {
+        top: calc(env(safe-area-inset-top) + 15px);
+    }
+
+    #propertyContainer {
+        top: calc(env(safe-area-inset-top) + 15px);
+        margin-left: env(safe-area-inset-left);
+    }
+}
+
+/* タブレット/PC向けコントロール配置の調整 */
+@media screen and (min-width: 769px) {
+    #menuContainer {
+        height: 100vh;
+        max-height: 100vh;
+    }
+}    
+    
   </style>
 </head>
 
