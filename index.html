@@ -471,13 +471,21 @@
           zoomControl: false, // ズームボタンを非表示にする
           minZoom: 3, // 最小ズームレベルを制限
           maxZoom: 18, // 最大ズームレベルを制限  
-          worldCopyJump: true,
-          maxBounds: [
-            [-90, -27],
-            [90, 387]
-        ],
-        maxBoundsViscosity: 1.0
+          worldCopyJump: true
       }).setView([1, 125], 3);　// Center of Asia Oceania
+      
+
+
+      // 地図の最大表示範囲を設定（余白ができないようにする）
+      const bounds = L.latLngBounds(
+          L.latLng(-85, -Infinity), // 南西端
+          L.latLng(85, Infinity)    // 北東端
+      );
+      map.on('drag', function () {
+          map.panInsideBounds(bounds, { animate: false });
+      });      
+
+      
 
       // ダブルクリックズームを無効化
       map.doubleClickZoom.disable();
