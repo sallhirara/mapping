@@ -469,7 +469,7 @@
       // -------------------------------------------------------
       const map = L.map('map', {
           zoomControl: false, // ズームボタンを非表示にする
-          minZoom: 2, // 最小ズームレベルを制限
+          minZoom: 3, // 最小ズームレベルを制限
           maxZoom: 18, // 最大ズームレベルを制限  
           worldCopyJump: true,
           maxBounds: [
@@ -477,7 +477,7 @@
             [90, 333]
         ],
         maxBoundsViscosity: 1.0
-      }).setView([20, 120], 2);　// アジア中心
+      }).setView([-8.808908018015241, 115.16783429569537], 4);　// Taman Budaya Garuda Wisnu Kencana
 
       // ダブルクリックズームを無効化
       map.doubleClickZoom.disable();
