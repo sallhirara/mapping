@@ -6,7 +6,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <title>Project Map</title>
 
-  <!-- fontawsan CSS -->
+  <!-- Font Awesome CSS -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
   <!-- Leaflet CSS / JS -->
@@ -17,13 +17,14 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
   <style>
+    /* 基本リセット */
     * {
         margin: 0;
         padding: 0;
         box-sizing: border-box;
     }
 
-    /* Overall layout: top bar for geo search + excel, then map filling the rest */
+    /* 全体レイアウト */
     body {
       font-family: Arial, sans-serif;
       height: 100vh;
@@ -32,7 +33,7 @@
       flex-direction: column;
     }
 
-    /* 共通 */
+    /* 共通メニュースタイル */
     .menu {
       position: fixed;
       background: rgba(255, 255, 255, 0.95);
@@ -41,11 +42,12 @@
       z-index: 1000;
     }
 
-    /* モバイル用: 下からスライドアップ */
+    /* メディアクエリ: モバイル */
     @media screen and (max-width: 768px) {
+      /* メニューコンテナのスタイル */
       #menuContainer {
         position: fixed;
-        bottom: -66%; /* 完全には隠れない */
+        bottom: -66%;
         left: 0;
         width: 100%;
         height: 70%;
@@ -55,22 +57,16 @@
         z-index: 1000;
       }
 
-      #menuContainer.closed {
-        bottom: -66%; /* ハンドル部分が見える位置 */
-      }
+      /* メニューの状態 */
+      #menuContainer.closed { bottom: -66%; }
+      #menuContainer.half { bottom: -30%; }
+      #menuContainer.full { bottom: 0; }
 
-      #menuContainer.half {
-        bottom: -30%; /* ハーフビュー */
-      }
-
-      #menuContainer.full {
-        bottom: 0; /* フルビュー */
-      }
-
+      /* ドラッグハンドル */
       .menu-header {
         width: 100%;
-        height: 30px; /* ハンドル部分の高さ */
-        background:rgba(255, 255, 255, 0.95);
+        height: 30px;
+        background: rgba(255, 255, 255, 0.95);
         border-radius: 15px 15px 0 0;
         display: flex;
         justify-content: center;
@@ -85,15 +81,11 @@
         border-radius: 2.5px;
       }
 
-      
-      .menu-toggle {
-        display: none !important; /* 確実に非表示 */
-      }
-
+      /* メニュートグルボタンを非表示に */
+      .menu-toggle { display: none !important; }
     }
 
-
-    /* PC/タブレット向け: 左からスライドイン */
+    /* メディアクエリ: デスクトップ/タブレット */
     @media screen and (min-width: 769px) {
       #menuContainer {
         top: 0;
@@ -101,15 +93,13 @@
         width: 320px;
         height: 100%;
         border-radius: 0 15px 15px 0;
-        transform: translateX(-280px); /* デフォルトで40px分だけ表示 */
+        transform: translateX(-280px);
         transition: transform 0.3s ease-out;
       }
 
-      #menuContainer.open {
-        transform: translateX(0); /* 完全に表示 */
-      }
+      #menuContainer.open { transform: translateX(0); }
 
-      /* メニュートグルボタンを右端に配置 */
+      /* メニュートグルボタンのスタイル */
       .menu-toggle {
         position: absolute;
         top: 50%;
@@ -126,9 +116,7 @@
         transition: color 0.3s;
       }
 
-      .menu-toggle:hover {
-        color: #333;
-      }
+      .menu-toggle:hover { color: #333; }
 
       /* メニューコンテンツ */
       .menu-content {
@@ -140,14 +128,10 @@
       }
 
       /* PCではメニューヘッダーを非表示 */
-      .menu-header {
-        display: none !important;
-      }
+      .menu-header { display: none !important; }
     }
 
-
-
-
+    /* その他のスタイル */
     #top-bar {
       background: #f8f9fa;
       margin-left: 5px;
@@ -162,42 +146,40 @@
         border-radius: 15px;
         padding: 5px 10px;
     }
-    
-    /* 検索コンテナのスタイリング */
+
+    /* 検索コンテナ */
     .search-container {
       position: relative;
-      display: inline-block; /* 必要に応じて調整 */
+      display: inline-block;
     }
 
-    /* 検索入力フィールドのパディングを右側に追加 */
     .search-container input {
-      padding-right: 30px; /* クリアアイコンのスペース確保 */
+      padding-right: 30px;
     }
 
-    /* クリアアイコンのスタイリング */
     .clear-icon {
       position: absolute;
       right: 8px;
-      top: 15%;
-      transform: translateY(-0%);
-      width: 20px; /* 必要に応じてサイズ調整 */
+      top: 50%;
+      transform: translateY(-50%);
+      width: 20px;
       height: 20px;
       cursor: pointer;
-      display: none; /* 初期状態では非表示 */
+      display: none;
       opacity: 0.7;
-      transition: opacity 0.3s;
+      transition: opacity 0.3s, transform 0.3s;
     }
 
     .clear-icon:hover {
       opacity: 1;
+      transform: scale(1.2);
     }
 
-    /* 入力フィールドに値がある場合にクリアアイコンを表示 */
     .search-container input:not(:placeholder-shown) + .clear-icon {
       display: block;
     }
-    
 
+    /* カスタムファイル入力 */
     .custom-file-input {
         color: #333;
         font-size: 20px;
@@ -213,67 +195,53 @@
         background-color: #ddd;
     }
 
-    #fileInput {
-        display: none;
-    }    
+    #fileInput { display: none; }
 
+    /* 地図スタイル */
     #map {
       flex: 1;
       position: relative;
-      height: calc(100% + 0px); /* menu-container の高さ +margin を考慮 */
+      height: calc(100% + 0px);
       width: 100%;
       z-index: 0;
     }
 
-    #currentLocationBtn {
+    /* ボタンスタイル */
+    #currentLocationBtn, #layerToggleBtn {
         position: fixed;
+        z-index: 1000;
+        cursor: pointer;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: transform 0.3s ease;
+        background: white;
+        border: none;
+    }
+
+    #currentLocationBtn {
         top: 50px;
         right: 15px;
-        z-index: 1000;
-        cursor: pointer;
-        border-radius: 50%;
-        width: 40px;
-        height: 40px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: all 0.3s;
     }
-
-    #lcurrentLocationBtn:hover {
-        transform: scale(1.2);
-    }
-
-    #currentLocationBtn img {
-        width: 30px;
-        height: 30px;
-    } 
 
     #layerToggleBtn {
-        position: fixed;
         top: 15px;
         right: 15px;
-        z-index: 1000;
-        cursor: pointer;
-        border-radius: 50%;
-        width: 40px;
-        height: 40px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: all 0.3s;
     }
 
-    #layerToggleBtn:hover {
+    #currentLocationBtn:hover, #layerToggleBtn:hover {
         transform: scale(1.2);
     }
 
-    #layerToggleBtn img {
-        width: 30px;
-        height: 30px;
-    }    
+    #currentLocationBtn img, #layerToggleBtn img {
+        width: 25px;
+        height: 25px;
+    }
 
-    /* propertyContainer for the search panel + list */
+    /* 物件コンテナ */
     #propertyContainer {
       position: fixed;
       top: 15px; 
@@ -288,20 +256,17 @@
       pointer-events: auto;
       touch-action: pan-y; 
       overscroll-behavior: contain;
-    }
-    
-    /* モバイル用: 初期設定 */
-    #propertyContainer {
-      left: 15px;
+      /* ローディングインジケーター用 */
+      position: relative;
     }
 
-    /* PC表示用: 画面幅が769px以上の場合 */
+    /* モバイル用 */
+    #propertyContainer { left: 15px; }
+
+    /* デスクトップ用 */
     @media screen and (min-width: 769px) {
-      #propertyContainer {
-        left: 60px;
-      }
+      #propertyContainer { left: 60px; }
     }
-    
 
     #propertySearchHeader {
       background: transparent;
@@ -318,99 +283,78 @@
       padding: 5px 10px;
       border: 1px solid grey;
       border-radius: 15px;
+      font-size: 16px;
     }
-    
+
     #propertySearchHeader button {
       padding: 5px 10px;
       cursor: pointer;
+      background: none;
+      border: none;
+      color: #555;
+      transition: color 0.3s;
+      font-size: 18px;
     }
 
-
-    /* 検索コンテナのスタイリング */
-    .search-container {
-      position: relative;
-      display: inline-block; /* 必要に応じて調整 */
+    #propertySearchHeader button:hover {
+      color: #333;
     }
 
-    /* 検索入力フィールドのパディングを右側に追加 */
-    .search-container input {
-      padding-right: 30px; /* クリアアイコンのスペース確保 */
-    }
-
-    /* クリアアイコンのスタイリング */
-    .clear-icon {
+    /* ローディングスピナー */
+    .loading-spinner {
       position: absolute;
-      right: 8px;
-      top: 15%;
-      transform: translateY(-0%);
-      width: 20px; /* 必要に応じてサイズ調整 */
-      height: 20px;
-      cursor: pointer;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      border: 8px solid #f3f3f3;
+      border-top: 8px solid #3498db;
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      animation: spin 2s linear infinite;
+      z-index: 1001;
       display: none; /* 初期状態では非表示 */
-      opacity: 0.7;
-      transition: opacity 0.3s, transform 0.3s;
     }
 
-    .clear-icon:hover {
-      opacity: 1;
-      transform: scale(1.2);
+    @keyframes spin {
+      0% { transform: translate(-50%, -50%) rotate(0deg); }
+      100% { transform: translate(-50%, -50%) rotate(360deg); }
     }
 
-    /* 入力フィールドに値がある場合にクリアアイコンを表示 */
-    .search-container input:not(:placeholder-shown) + .clear-icon {
-      display: block;
-    }
-    
-    
-    
-    
     #propertyListArea {
       flex: 1;
       overflow-y: auto;
       padding: 5px 10px;
       border: none;
       border-radius: 15px;
-      background: rgba(255, 255, 255, 0.3); /* 半透明 */
+      background: rgba(255, 255, 255, 0.3);
       backdrop-filter: blur(5px);
       transition: all 0.3s ease;
     }
-    
-    #propertyListArea.hidden {
-      display: none;
-    }
-    
-    ul {
-      list-style: none; 
-      margin: 0; 
-      padding: 0;
-    }
-    
-    li {
-      border-bottom: 1px solid #ccc;
-      padding: 3px 0;
-    }
-    
-    li:last-child {
-      border-bottom: none;
-    }
-    
+
+    #propertyListArea.hidden { display: none; }
+
+    ul { list-style: none; margin: 0; padding: 0; }
+
+    li { border-bottom: 1px solid #ccc; padding: 3px 0; }
+
+    li:last-child { border-bottom: none; }
+
     .property-name {
       color: #007bff;
       text-decoration: underline;
       cursor: pointer;
     }
-    
-    .property-name:hover {
-      color: #0056b3;
-    }
 
-    /* Blinking marker with CSS animation for current location (if real-time track used) */
+    .property-name:hover { color: #0056b3; }
+
+    /* ブリンキングマーカー */
     @keyframes blink {
       0%   { opacity:1; }
       50%  { opacity:0; }
       100% { opacity:1; }
     }
-    
+
     .blinking-marker {
       width: 14px;
       height: 14px;
@@ -419,278 +363,258 @@
       border-radius: 50%;
       animation: blink 1s infinite;
     }
-    
+
+    /* ローディングスピナーの表示 */
+    .loading {
+      display: block;
+    }
   </style>
 </head>
 
 <body>
-  <!-- The map occupies remaining space and add menu -->
-  <div id="map">
-    <!-- Real-time tracking toggle -->
-    <button id="currentLocationBtn" onclick="toggleCurrentLocation()" style="background: none; border: none; cursor: pointer; border-radius: 50%; padding: 0px;">
-        <img src="https://img.icons8.com/?size=100&id=ziC1TV1ikKi9&format=png&color=004ACD4D" alt="Show Location" style="width: 25px; height: 25px;">
+  <!-- 地図コンテナ -->
+  <div id="map" tabindex="0" aria-label="Map Area">
+    <!-- 現在位置ボタン -->
+    <button id="currentLocationBtn" onclick="toggleCurrentLocation()" aria-label="Toggle Current Location" title="Toggle Current Location">
+        <img src="https://img.icons8.com/?size=100&id=ziC1TV1ikKi9&format=png&color=004ACD4D" alt="Show Location" />
     </button>
 
-    <!-- propertyContainer: search + hide/show + list -->
+    <!-- 物件コンテナ（検索ボックスとリスト） -->
     <div id="propertyContainer">
       <div id="propertySearchHeader">
-        <!-- ここから propertySearchBox の検索コンテナの追加 -->
+        <!-- 物件検索ボックス -->
         <div class="search-container">
           <input
             type="text"
             id="propertySearchBox"
             placeholder="Property search"
-            style="font-size: 16px;"
+            aria-label="Property Search Box"
           />
           <img
             src="https://img.icons8.com/?size=100&id=121477&format=png&color=75750357"
             alt="Clear"
             class="clear-icon"
             onclick="clearPropertySearch()"
-            aria-label="物件検索をクリア"
+            aria-label="Clear Property Search"
           />
         </div>
-        <!-- 検索コンテナの追加ここまで -->
-
-        <!-- 既存のトグルボタン -->
-        <button onclick="toggleList()" style="background: none; border: none; cursor: pointer; border-radius: 50%; padding: 5px;">
-          <i id="toggleIcon" class="fa-solid fa-angles-up" style="font-size: 18px; color: #555"></i>
+        <!-- リスト表示トグルボタン -->
+        <button onclick="toggleList()" aria-label="Toggle Property List" title="Toggle Property List">
+          <i id="toggleIcon" class="fa-solid fa-angles-up" style="color: #555"></i>
         </button>        
       </div>
+
+      <!-- ローディングスピナー -->
+      <div class="loading-spinner" id="propertyLoadingSpinner" aria-hidden="true"></div>
 
       <div id="propertyListArea">
         <ul id="propertyResultUl"></ul>
       </div>
     </div>
-    <div id="layerToggleBtn">
-        <img src="https://img.icons8.com/?size=100&id=2m4kkop8aUO5&format=png&color=000000" alt="Toggle Icon" />
-    </div>
 
+    <!-- レイヤートグルボタン -->
+    <button id="layerToggleBtn" role="button" aria-label="Toggle Map Layer" title="Toggle Map Layer">
+        <img src="https://img.icons8.com/?size=100&id=2m4kkop8aUO5&format=png&color=000000" alt="Toggle Layer Icon" />
+    </button>
+
+    <!-- ローディングスピナー（地理検索用） -->
+    <div class="loading-spinner" id="geoLoadingSpinner" aria-hidden="true"></div>
   </div>
 
-  <div id="menuContainer" class="menu">
+  <!-- メニューコンテナ -->
+  <div id="menuContainer" class="menu" role="navigation" aria-label="Main Menu">
     <div class="menu-header" id="menuDragHandle">
-      <div class="drag-handle"></div>
+      <div class="drag-handle" aria-hidden="true"></div>
     </div>
     <div class="menu-content">
       <div id="top-bar">
-        <!-- ここから検索コンテナの追加 -->
+        <!-- 地域検索ボックス -->
         <div class="search-container">
           <input
             type="text"
             id="geoSearchBox"
             placeholder="Enter a place"
-            style="width: 200px; font-size: 16px;"
+            aria-label="Geographical Search Box"
           />
           <img
             src="https://img.icons8.com/?size=100&id=121477&format=png&color=75750357"
             alt="Clear"
             class="clear-icon"
             onclick="clearGeoSearch()"
+            aria-label="Clear Geographical Search"
           />
         </div>
-        <!-- 検索コンテナの追加ここまで -->
-
-        <label for="fileInput" class="custom-file-input"><i class="fa-solid fa-file-arrow-down"></i></label>
-        <input type="file" id="fileInput" accept=".xls,.xlsx,.xlsm" />    
+        <!-- ファイル入力 -->
+        <label for="fileInput" class="custom-file-input" tabindex="0" aria-label="Upload Excel File">
+          <i class="fa-solid fa-file-arrow-down"></i>
+        </label>
+        <input type="file" id="fileInput" accept=".xls,.xlsx,.xlsm" aria-hidden="true" />
       </div>      
       <ul>
-        <li><a href="#option1">Option 1</a></li>
-        <li><a href="#option2">Option 2</a></li>
-        <li><a href="#option3">Option 3</a></li>
+        <li><a href="#option1" tabindex="0">Option 1</a></li>
+        <li><a href="#option2" tabindex="0">Option 2</a></li>
+        <li><a href="#option3" tabindex="0">Option 3</a></li>
       </ul>
     </div>
   </div>
 
-  
-  <button id="menuToggleBtn" class="menu-toggle">☰</button>
+  <!-- メニュートグルボタン -->
+  <button id="menuToggleBtn" class="menu-toggle" aria-label="Toggle Menu" title="Toggle Menu">☰</button>
 
-  <script>
-    // --------------------------------------------------
-    //    ▼ sample ▼
-    // --------------------------------------------------
+  <script type="module">
+    // JavaScriptモジュールの開始
+    (() => {
+      // -------------------------------------------------------
+      // 1) Initialize Leaflet map
+      // -------------------------------------------------------
+      const map = L.map('map', {
+          zoomControl: false, // ズームボタンを非表示にする
+          minZoom: 2, // 最小ズームレベルを制限
+          maxZoom: 18, // 最大ズームレベルを制限  
+          worldCopyJump: true
+      }).setView([20, 0], 2);
 
-        // code here
+      // ダブルクリックズームを無効化
+      map.doubleClickZoom.disable();
 
-    // --------------------------------------------------
-    //    ▲ sample ▲
-    // --------------------------------------------------
+      // ダブルクリック時にパン
+      map.on('dblclick', (e) => {
+        map.panTo(e.latlng, { animate: true });
+      });
 
+      // タイルレイヤーの追加
+      const streetLayer = L.tileLayer('https://api.maptiler.com/maps/basic/{z}/{x}/{y}.png?key=Sv80uSRLZxFEwRiW17Cg', {
+        maxZoom: 19,
+        attribution: '&copy; MapTiler &copy; OpenStreetMap contributors',
+        detectRetina: true
+      });
 
-    // -------------------------------------------------------
-    // 1) Initialize Leaflet map
-    // -------------------------------------------------------
-    const map = L.map('map', {
-        zoomControl: false, // ズームボタンを非表示にする
-        minZoom: 2, // 最小ズームレベルを制限
-        maxZoom: 18, // 最大ズームレベルを制限  
-        worldCopyJump: true
-    }).setView([20, 0], 2);
+      const satelliteLayer = L.tileLayer('https://api.maptiler.com/maps/satellite/{z}/{x}/{y}.jpg?key=Sv80uSRLZxFEwRiW17Cg', {
+        maxZoom: 18,
+        attribution: '&copy; MapTiler & OpenStreetMap contributors'
+      });
 
-    // 1-A) We disable doubleClickZoom so it doesn't zoom on dblclick
-    map.doubleClickZoom.disable();
+      // 初期レイヤーを地図に追加
+      streetLayer.addTo(map);
 
-    // 1-B) Then we handle dblclick => pan to that point
-    map.on('dblclick', (e) => {
-      // Pan smoothly to e.latlng
-      map.panTo(e.latlng, { animate: true });
-    });
+      let isSatellite = false; // 現在のレイヤーフラグ
 
-    L.tileLayer('https://api.maptiler.com/maps/basic/{z}/{x}/{y}.png?key=Sv80uSRLZxFEwRiW17Cg', {
-      maxZoom: 19,
-      attribution: '&copy; MapTiler &copy; OpenStreetMap contributors',
-      detectRetina: true
-    }).addTo(map);
+      // レイヤートグルボタンのクリックイベント
+      const toggleBtn = document.getElementById('layerToggleBtn');
+      toggleBtn.addEventListener('click', () => {
+        toggleMapLayer();
+      });
 
-    // 地図の最大表示範囲を設定（余白ができないようにする）
-    const bounds = L.latLngBounds(
-        L.latLng(-85, -Infinity), // 南西端
-        L.latLng(85, Infinity)    // 北東端
-    );
-    map.on('drag', function () {
-        map.panInsideBounds(bounds, { animate: false });
-    });
-
-
-    // レイヤー切り替え、改良の余地ありか。。。。
-    // ベースレイヤーを定義
-    const streetLayer = L.tileLayer('https://api.maptiler.com/maps/basic/{z}/{x}/{y}.png?key=Sv80uSRLZxFEwRiW17Cg', {
-    maxZoom: 19,
-    attribution: '© OpenStreetMap contributors'
-    });
-
-    const satelliteLayer = L.tileLayer('https://api.maptiler.com/maps/satellite/{z}/{x}/{y}.jpg?key=Sv80uSRLZxFEwRiW17Cg', {
-    maxZoom: 18,
-    attribution: '&copy; MapTiler & OpenStreetMap contributors'
-    });
-
-    // 初期レイヤーを地図に追加
-    map.addLayer(streetLayer);
-
-    let isSatellite = false; // 現在のレイヤーフラグ
-
-    // トグルボタンのクリックイベント
-    const toggleBtn = document.getElementById('layerToggleBtn');
-    toggleBtn.addEventListener('click', () => {
-    if (isSatellite) {
-        map.removeLayer(satelliteLayer);
-        map.addLayer(streetLayer);
-        toggleBtn.querySelector('img').src = "https://img.icons8.com/?size=100&id=2m4kkop8aUO5&format=png&color=000000";
-    } else {
-        map.removeLayer(streetLayer);
-        map.addLayer(satelliteLayer);
-        toggleBtn.querySelector('img').src = "https://img.icons8.com/?size=100&id=NHtRhybXwxli&format=png&color=000000";
-    }
-    isSatellite = !isSatellite; // 状態を切り替える
-    });
-    // 改良の余地ありか。。。ここまで
-
-    
-
-    map.dragging.enable();
-    map.scrollWheelZoom.enable();
-
-    // If pointer/touch in propertyContainer => disable map drag
-    const propertyPanel = document.getElementById('propertyContainer');
-    propertyPanel.addEventListener('pointerenter', () => {
-      map.dragging.disable();
-      map.scrollWheelZoom.disable();
-    });
-    propertyPanel.addEventListener('pointerleave', () => {
-      map.dragging.enable();
-      map.scrollWheelZoom.enable();
-    });
-    propertyPanel.addEventListener('touchstart', () => {
-      map.dragging.disable();
-      map.scrollWheelZoom.disable();
-    });
-    propertyPanel.addEventListener('touchend', () => {
-      map.dragging.enable();
-      map.scrollWheelZoom.enable();
-    });
-
-    // -------------------------------------------------------
-    // 地域検索: Enterキーで検索
-    document.getElementById('geoSearchBox').addEventListener('keydown', (event) => {
-        if (event.key === 'Enter') {
-            closeUIElements(); // UIを閉じる
-            handleGeoSearch();
+      // レイヤートグルボタンのキーボードイベント
+      toggleBtn.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          toggleMapLayer();
         }
-    });
+      });
 
-    // 物件検索: Enterキーで検索
-    document.getElementById('propertySearchBox').addEventListener('keydown', (event) => {
-        if (event.key === 'Enter') {
-            closeUIElements(); // UIを閉じる
-            handlePropertySearch();
+      /**
+       * マップレイヤーの切り替え関数
+       */
+      function toggleMapLayer() {
+        if (isSatellite) {
+            map.removeLayer(satelliteLayer);
+            map.addLayer(streetLayer);
+            toggleBtn.querySelector('img').src = "https://img.icons8.com/?size=100&id=2m4kkop8aUO5&format=png&color=000000"; // ストリートアイコン
+            toggleBtn.querySelector('img').alt = "Switch to Satellite View";
+        } else {
+            map.removeLayer(streetLayer);
+            map.addLayer(satelliteLayer);
+            toggleBtn.querySelector('img').src = "https://img.icons8.com/?size=100&id=NHtRhybXwxli&format=png&color=000000"; // 衛星アイコン
+            toggleBtn.querySelector('img').alt = "Switch to Street View";
         }
-    });
-
-
-    // -------------------------------------------------------  
-    // geoSearchBoxをクリアする関数
-    function clearGeoSearch() {
-      const geoSearchBox = document.getElementById('geoSearchBox');
-      geoSearchBox.value = '';
-
-      // 検索結果をクリアする（既存の地理検索結果レイヤーを削除）
-      if (boundaryLayer) {
-        map.removeLayer(boundaryLayer);
-        boundaryLayer = null;
-      }
-      if (maskLayer) {
-        map.removeLayer(maskLayer);
-        maskLayer = null;
+        isSatellite = !isSatellite; // 状態を切り替える
       }
 
-      /*
-      // 地図を初期ビューにリセット（必要に応じて調整）
-      map.setView([20, 0], 2);
+      // 地図の操作を有効化
+      map.dragging.enable();
+      map.scrollWheelZoom.enable();
 
-      // クリア操作をユーザーに通知（オプション）
-      alert("地域検索の結果をクリアしました。");
-      */
-    }
+      // プロパティコンテナへのポインタ/タッチイベントで地図操作を無効化
+      const propertyPanel = document.getElementById('propertyContainer');
+      propertyPanel.addEventListener('pointerenter', () => {
+        map.dragging.disable();
+        map.scrollWheelZoom.disable();
+      });
+      propertyPanel.addEventListener('pointerleave', () => {
+        map.dragging.enable();
+        map.scrollWheelZoom.enable();
+      });
+      propertyPanel.addEventListener('touchstart', () => {
+        map.dragging.disable();
+        map.scrollWheelZoom.disable();
+      });
+      propertyPanel.addEventListener('touchend', () => {
+        map.dragging.enable();
+        map.scrollWheelZoom.enable();
+      });
 
-    // 物件検索ボックス (propertySearchBox) にもクリア機能を追加する場合
-    function clearPropertySearch() {
-      const propertySearchBox = document.getElementById('propertySearchBox');
-      propertySearchBox.value = '';
+      // -------------------------------------------------------
+      // 2) Excel reading (all columns)
+      // -------------------------------------------------------
+      let propertyData = [];
+      const fileInput = document.getElementById('fileInput');
 
-      // 検索結果をクリアする（例: マーカーとポリゴンを削除）
-      propertyMarkers.forEach(marker => map.removeLayer(marker));
-      propertyMarkers.length = 0;
+      fileInput.addEventListener('change', async (event) => {
+        const file = event.target.files[0];
+        if (!file) return;
 
-      propertyPolygons.forEach(polygon => map.removeLayer(polygon));
-      propertyPolygons.length = 0;
+        try {
+          // ローディングスピナーを表示
+          showLoadingSpinner('propertyLoadingSpinner');
 
-      const ul = document.getElementById('propertyResultUl');
-      ul.innerHTML = "";
-      
-      /*
-      // ユーザーに通知（オプション）
-      alert("物件検索の結果をクリアしました。");
-      */
-    }
-   
-    
+          const data = await readExcelFile(file);
+          propertyData = parseExcelData(data);
 
-    // -------------------------------------------------------
-    // 2) Excel reading (all columns)
-    // -------------------------------------------------------
-    let propertyData = [];
-    document.getElementById('fileInput').addEventListener('change', event => {
-      const file = event.target.files[0];
-      if (!file) return;
+          console.log("Excel loaded:", propertyData.length, "rows");
+          alert("Excel loaded: " + propertyData.length + " properties found.");
+        } catch (error) {
+          console.error("Error loading Excel file:", error);
+          alert("Failed to load Excel file. Please ensure the file is valid.");
+        } finally {
+          // ローディングスピナーを非表示
+          hideLoadingSpinner('propertyLoadingSpinner');
+        }
+      });
 
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const data = new Uint8Array(e.target.result);
-        const workbook = XLSX.read(data, { type: 'array' });
-        const sheetName = workbook.SheetNames[0];
-        const jsonData = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
+      /**
+       * Excelファイルを読み込む非同期関数
+       * @param {File} file - ユーザーがアップロードしたファイル
+       * @returns {Promise} - Excelデータの配列
+       */
+      async function readExcelFile(file) {
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            try {
+              const data = new Uint8Array(e.target.result);
+              const workbook = XLSX.read(data, { type: 'array' });
+              const sheetName = workbook.SheetNames[0];
+              const jsonData = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
+              resolve(jsonData);
+            } catch (error) {
+              reject(error);
+            }
+          };
+          reader.onerror = () => {
+            reject(new Error("Failed to read the file."));
+          };
+          reader.readAsArrayBuffer(file);
+        });
+      }
 
-        propertyData = jsonData.map(row => ({
+      /**
+       * Excelデータをパースして物件データ配列を作成する関数
+       * @param {Array} data - Excelから読み込まれたデータ
+       * @returns {Array} - パースされた物件データ
+       */
+      function parseExcelData(data) {
+        return data.map(row => ({
           pjName:       row["PJ name"]        || "",
           address:      row["Address"]        || "",
           category1:    row["Category 1"]     || "",
@@ -704,667 +628,857 @@
           latitude:     parseFloat(row["Latitude"]   || "NaN"),
           longitude:    parseFloat(row["Longitude"]  || "NaN"),
         }));
-
-        console.log("Excel loaded:", propertyData.length, "rows");
-        alert("Excel loaded: " + propertyData.length + " properties found.");
-      };
-      reader.readAsArrayBuffer(file);
-    });
-
-    // -------------------------------------------------------
-    // 3) Arrays for markers & polygons
-    // -------------------------------------------------------
-    const propertyMarkers = [];
-    const propertyPolygons = [];
-
-    // -------------------------------------------------------
-    // 4) handlePropertySearch
-    // -------------------------------------------------------
-    function handlePropertySearch() {
-      const query = document.getElementById('propertySearchBox').value.trim();
-      if (!query) {
-        alert("Please enter a property search query.");
-        return;
       }
 
-      closeUIElements();
+      // -------------------------------------------------------
+      // 3) Arrays for markers & polygons
+      // -------------------------------------------------------
+      const propertyMarkers = [];
+      const propertyPolygons = [];
 
-      propertyMarkers.forEach(m => map.removeLayer(m));
-      propertyMarkers.length = 0;
-      propertyPolygons.forEach(p => map.removeLayer(p));
-      propertyPolygons.length = 0;
+      // -------------------------------------------------------
+      // 4) handlePropertySearch
+      // -------------------------------------------------------
+      const propertySearchBox = document.getElementById('propertySearchBox');
 
-      const ul = document.getElementById('propertyResultUl');
-      ul.innerHTML = "";
-
-      let results = [];
-      const complexPattern = /[:=()><]|(AND\b)|(OR\b)|(NOT\b)/i;
-      if (complexPattern.test(query)) {
-        results = parseComplexQuery(query, propertyData);
-      } else {
-        results = simpleSearch(propertyData, query);
-      }
-      if (results.length === 0) {
-        alert("No matching properties found.");
-        return;
-      }
-
-      const searchBounds = L.latLngBounds();
-
-      results.forEach((item, idx) => {
-        const li = document.createElement('li');
-        const nameSpan = document.createElement('span');
-        nameSpan.className = "property-name";
-        nameSpan.textContent = item.pjName || "(No Name)";
-        nameSpan.onclick = () => zoomToItem(item);
-        li.appendChild(nameSpan);
-        ul.appendChild(li);
-
-        if (!isNaN(item.latitude) && !isNaN(item.longitude)) {
-          const marker = createMarkerWithCategoryStyle(item);
-          propertyMarkers.push(marker);
-          searchBounds.extend(marker.getLatLng());
-        }
-        if (item.siteArea) {
-          try {
-            const coords = JSON.parse(item.siteArea);
-            if (Array.isArray(coords) && coords.length >= 3) {
-              const polygon = createPolygonWithCategoryStyle(item, coords);
-              propertyPolygons.push(polygon);
-              searchBounds.extend(polygon.getBounds());
-            }
-          } catch(e) {
-            console.warn("Invalid siteArea for", item.pjName, e);
+      propertySearchBox.addEventListener('keydown', async (event) => {
+          if (event.key === 'Enter') {
+              await handlePropertySearch();
           }
-        }
       });
 
-      if (searchBounds.isValid()) {
-        map.fitBounds(searchBounds, { padding: [20, 20] });
-      }
-    }
-
-    function createMarkerWithCategoryStyle(item) {
-      const latLng = [item.latitude, item.longitude];
-      let customIcon = getCategoryIcon(item.category1);
-
-      const marker = L.marker(latLng, { icon: customIcon }).addTo(map);
-      marker.bindPopup(buildPopup(item));
-      return marker;
-    }
-
-    function getCategoryIcon(cat) {
-      return L.icon({
-        iconUrl: chooseCategoryIconUrl(cat),
-        iconSize: [20, 20], 
-        iconAnchor: [10, 10],
-        popupAnchor: [0, -10]
-        //shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',//
-        //shadowSize: [41, 41],//
-        //shadowAnchor: [12, 41]//
-      });
-    }
-
-    function chooseCategoryIconUrl(cat) {
-      switch (cat.toLowerCase()) {
-        case 'primary':      return 'https://img.icons8.com/?size=100&id=bnfp2fmtrh0g&format=png&color=571601B8';
-        case 'area':         return 'https://img.icons8.com/?size=100&id=bnfp2fmtrh0g&format=png&color=05227AA8';
-        case 'haseko':       return 'https://img.icons8.com/?size=100&id=uRRFz0DH6uYw&format=png&color=000000';
-        case 'ecoba':        return 'https://img.icons8.com/?size=100&id=59830&format=png&color=4BAA8EA8';
-        case 'condominium':  return 'https://img.icons8.com/?size=100&id=24801&format=png&color=FF2E1754';
-        case 'others':       return 'https://img.icons8.com/?size=100&id=bnfp2fmtrh0g&format=png&color=0046b099';
-        case 'pj site':      return 'https://img.icons8.com/?size=100&id=ipgAkdE46kxu&format=png&color=000000';
-        default:             return 'https://maps.google.com/mapfiles/ms/icons/black-dot.png';
-      }
-    }
-
-    function createPolygonWithCategoryStyle(item, coords) {
-      const polygonStyle = getCategoryPolygonStyle(item.category1);
-      const polygon = L.polygon(coords, polygonStyle).addTo(map);
-      polygon.bindPopup(buildPopup(item));
-      polygon.on('click', () => polygon.openPopup());
-      return polygon;
-    }
-
-    function getCategoryPolygonStyle(cat) {
-      switch (cat.toLowerCase()) {
-        case 'primary':      return { color: 'none',   fillColor: 'blue',   fillOpacity: 0.2 };
-        case 'area':         return { color: 'none',  fillColor: 'gold',  fillOpacity: 0.2 };
-        case 'haseko':       return { color: 'none', fillColor: 'orange', fillOpacity: 0.2 };
-        case 'ecoba':        return { color: 'none', fillColor: 'purple', fillOpacity: 0.2 };
-        case 'condominium':  return { color: 'none',    fillColor: 'red',    fillOpacity: 0.2 };
-        case 'others':       return { color: 'none', fillColor: 'yellow', fillOpacity: 0.2 };
-        case 'pj site':      return { color: 'none',   fillColor: 'grey',   fillOpacity: 0.2 };
-        default:             return { color: 'none',  fillColor: 'black',  fillOpacity: 0.2 };
-      }
-    }
-
-    function zoomToItem(item) {
-        // ポリゴン（siteArea）がある場合の処理
-        if (item.siteArea) {
-            try {
-                const coords = JSON.parse(item.siteArea);
-                if (Array.isArray(coords) && coords.length >= 3) {
-                    const tempPoly = L.polygon(coords);
-                    map.fitBounds(tempPoly.getBounds(), { padding: [20, 20] }); // ポリゴン領域にズーム
-                    return; // ポリゴンが存在する場合はここで処理終了
-                }
-            } catch (e) {
-                console.warn("Invalid siteArea format:", e);
-            }
-        }
-
-        // 緯度・経度が有効な場合の処理
-        if (!isNaN(item.latitude) && !isNaN(item.longitude)) {
-            const targetLatLng = [item.latitude, item.longitude];
-            const zoomLevel = 17; // ズームレベルを変更可能
-
-            // アニメーション付きズーム（flyToを利用）
-            map.flyTo(targetLatLng, zoomLevel);
-        } else {
-            console.warn("Invalid coordinates for item:", item);
-        }
-    }
-
-
-
-    function buildPopup(item) {
-      return `
-        <strong>${item.pjName}</strong><br>
-        Address: ${item.address}<br>
-        Category1: ${item.category1}<br>
-        Category2: ${item.category2}<br>
-        Developer: ${item.developer}<br>
-        Architect: ${item.architect}<br>
-        Contractor: ${item.contractor}<br>
-        Sales Company: ${item.salesCompany}<br>
-        Status: ${item.status}<br>
-      `;
-    }
-
-    // -------------------------------------------------------
-    // 5) Show/Hide List
-    // -------------------------------------------------------
-    function toggleList() {
-      const listArea = document.getElementById('propertyListArea');
-      const btn = document.querySelector('#propertySearchHeader button[onclick="toggleList()"]');
-      if (listArea.classList.contains('hidden')) {
-        listArea.classList.remove('hidden');
-        btn.textContent = "Hide List";
-      } else {
-        listArea.classList.add('hidden');
-        btn.textContent = "Show List";
-      }
-    }
-
-    // -------------------------------------------------------
-    // 6) Simple Search
-    // -------------------------------------------------------
-    function simpleSearch(data, rawQuery) {
-      const tokens = rawQuery.toLowerCase().split(/\s+/);
-      const notWords = tokens.filter(t => t.startsWith("-")).map(t => t.slice(1));
-      const andWords = tokens.filter(t => !t.startsWith("-") && t !== "and" && t !== "or");
-
-      function buildText(item) {
-        const combined = [
-          item.pjName,
-          item.address,
-          item.category1,
-          item.category2,
-          item.developer,
-          item.architect,
-          item.contractor,
-          item.salesCompany,
-          item.status,
-          item.siteArea
-        ].join(" ").toLowerCase().replace(/\s+/g, "");
-        return combined;
-      }
-
-      let idxSet = new Set(data.map((_, i) => i));
-      // AND
-      andWords.forEach(w => {
-        idxSet = new Set([...idxSet].filter(idx => {
-          const txt = buildText(data[idx]);
-          return txt.includes(w);
-        }));
-      });
-      // NOT
-      notWords.forEach(n => {
-        idxSet.forEach(idx => {
-          const txt = buildText(data[idx]);
-          if (txt.includes(n)) {
-            idxSet.delete(idx);
-          }
-        });
-      });
-      return [...idxSet].map(i => data[i]);
-    }
-
-    // -------------------------------------------------------
-    // 7) Complex Search (parentheses, AND/OR/NOT, : = > >=)
-    // -------------------------------------------------------
-    function parseComplexQuery(query, data) {
-      const tokens = tokenizeComplex(query);
-      const ast = parseExpression(tokens);
-      if (tokens.length > 0) {
-        throw new Error("Extra tokens remain. Check parentheses or operators.");
-      }
-      return data.filter(item => evaluateAST(ast, item));
-    }
-
-    function tokenizeComplex(q) {
-      const pattern = /\(|\)|\bAND\b|\bOR\b|\bNOT\b|>=|>|=|:|"[^"]*"|\S+/gi;
-      const raw = q.match(pattern) || [];
-      const tokens = [];
-      raw.forEach(t => {
-        const upper = t.toUpperCase();
-        if (upper === 'AND' || upper === 'OR' || upper === 'NOT'
-         || t === '(' || t === ')' || t === '>' || t === '>='
-         || t === '=' || t === ':') {
-          tokens.push({ type: upper, text: t });
-        } else if (t.startsWith('"') && t.endsWith('"')) {
-          tokens.push({ type: 'STRING', text: t.slice(1, -1) });
-        } else {
-          tokens.push({ type: 'WORD', text: t });
-        }
-      });
-      return tokens;
-    }
-    function parseExpression(tokens) {
-      let left = parseTerm(tokens);
-      while (peek(tokens, 'OR')) {
-        consume(tokens, 'OR');
-        const right = parseTerm(tokens);
-        left = { type: 'OR', left, right };
-      }
-      return left;
-    }
-    function parseTerm(tokens) {
-      let left = parseFactor(tokens);
-      while (peek(tokens, 'AND')) {
-        consume(tokens, 'AND');
-        const right = parseFactor(tokens);
-        left = { type: 'AND', left, right };
-      }
-      return left;
-    }
-    function parseFactor(tokens) {
-      let isNot = false;
-      if (peek(tokens, 'NOT')) {
-        consume(tokens, 'NOT');
-        isNot = true;
-      }
-      let node;
-      if (peek(tokens, '(')) {
-        consume(tokens, '(');
-        node = parseExpression(tokens);
-        consume(tokens, ')');
-      } else {
-        node = parseCondition(tokens);
-      }
-      if (isNot) {
-        node = { type: 'NOT', expr: node };
-      }
-      return node;
-    }
-    function parseCondition(tokens) {
-      const colToken = consumeType(tokens, ['WORD']);
-      const opToken = nextToken(tokens);
-      if (![':', '=', '>', '>='].includes(opToken.text)) {
-        throw new Error(`Invalid operator: ${opToken.text}`);
-      }
-      const valToken = consumeType(tokens, ['WORD','STRING']);
-      return {
-        type: 'COND',
-        column: colToken.text,
-        op: opToken.text,
-        value: valToken.text
-      };
-    }
-    function peek(tokens, text) {
-      return tokens[0] && tokens[0].text.toUpperCase() === text.toUpperCase();
-    }
-    function consume(tokens, text) {
-      if (!peek(tokens, text)) {
-        throw new Error(`Expected "${text}" but got "${tokens[0]?.text}"`);
-      }
-      return tokens.shift();
-    }
-    function consumeType(tokens, types) {
-      if (!tokens[0] || !types.includes(tokens[0].type)) {
-        throw new Error(`Expected one of [${types.join(', ')}], got ${tokens[0]?.type}`);
-      }
-      return tokens.shift();
-    }
-    function nextToken(tokens) {
-      if (!tokens.length) throw new Error("Unexpected end of tokens.");
-      return tokens.shift();
-    }
-    function evaluateAST(ast, item) {
-      switch (ast.type) {
-        case 'OR':
-          return evaluateAST(ast.left, item) || evaluateAST(ast.right, item);
-        case 'AND':
-          return evaluateAST(ast.left, item) && evaluateAST(ast.right, item);
-        case 'NOT':
-          return !evaluateAST(ast.expr, item);
-        case 'COND':
-          return evaluateCondition(ast, item);
-        default:
-          throw new Error("Unknown AST node type: " + ast.type);
-      }
-    }
-    function evaluateCondition(cond, item) {
-      const col = cond.column.toLowerCase();
-      const op  = cond.op;
-      const val = cond.value;
-      let fieldVal = (item[col] || "").toString().toLowerCase();
-      let fieldNum = parseFloat(item[col]);
-
-      switch (op) {
-        case ':':
-          return fieldVal.includes(val.toLowerCase());
-        case '=':
-          return fieldVal === val.toLowerCase();
-        case '>':
-        case '>=': {
-          if (isNaN(fieldNum)) return false;
-          const cmp = parseFloat(val);
-          if (isNaN(cmp)) return false;
-          return (op === '>') ? (fieldNum > cmp) : (fieldNum >= cmp);
-        }
-        default:
-          return false;
-      }
-    }
-
-    // -------------------------------------------------------
-    // 9) handleGeoSearch (Nominatim)
-    // -------------------------------------------------------
-    let boundaryLayer = null;
-    let maskLayer = null;
-
-    async function handleGeoSearch() {
-      const q = document.getElementById('geoSearchBox').value.trim();
-      if (!q) {
-        alert("Please enter a place name.");
-        return;
-      }
-
-      closeUIElements();
-
-      // 既存のレイヤーを削除
-      if (boundaryLayer) map.removeLayer(boundaryLayer);
-      if (maskLayer) map.removeLayer(maskLayer);
-
-      try {
-        // シンプルな検索URLで行政区域データを取得
-        const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q)}&polygon_geojson=1`;
-        const res = await fetch(url);
-        const data = await res.json();
-
-        if (!data.length) {
-          alert("No matching location found.");
+      /**
+       * 物件検索処理
+       */
+      async function handlePropertySearch() {
+        const query = propertySearchBox.value.trim();
+        if (!query) {
+          alert("Please enter a property search query.");
           return;
         }
 
-        const result = data[0];
+        closeUIElements();
 
-        if (result.geojson) {
-          // 境界線を描画
-          boundaryLayer = L.geoJSON(result.geojson, {
-            style: {
-              color: '#FF000DA8',
-              weight: 1.7,
-              opacity: 1,
-              fillOpacity: 0,
-              dashArray: '2, 3'
-            }
-          }).addTo(map);
+        try {
+          // ローディングスピナーを表示
+          showLoadingSpinner('propertyLoadingSpinner');
 
-          // マスクレイヤーを作成
-          const worldBounds = [
-            [[-90, -180], [90, -180], [90, 180], [-90, 180], [-90, -180]]
-          ];
+          // 既存のマーカーとポリゴンを削除
+          propertyMarkers.forEach(m => map.removeLayer(m));
+          propertyMarkers.length = 0;
+          propertyPolygons.forEach(p => map.removeLayer(p));
+          propertyPolygons.length = 0;
 
-          if (result.geojson.type === 'Polygon') {
-            worldBounds.push(result.geojson.coordinates[0].map(p => [p[1], p[0]]).reverse());
-          } else if (result.geojson.type === 'MultiPolygon') {
-            result.geojson.coordinates.forEach(poly => {
-              worldBounds.push(poly[0].map(p => [p[1], p[0]]).reverse());
+          const ul = document.getElementById('propertyResultUl');
+          ul.innerHTML = "";
+
+          let results = [];
+          const complexPattern = /[:=()><]|(AND\b)|(OR\b)|(NOT\b)/i;
+          if (complexPattern.test(query)) {
+            results = parseComplexQuery(query, propertyData);
+          } else {
+            results = simpleSearch(propertyData, query);
+          }
+          if (results.length === 0) {
+            alert("No matching properties found.");
+            return;
+          }
+
+          const searchBounds = L.latLngBounds();
+
+          results.forEach((item) => {
+            const li = document.createElement('li');
+            const nameSpan = document.createElement('span');
+            nameSpan.className = "property-name";
+            nameSpan.textContent = item.pjName || "(No Name)";
+            nameSpan.onclick = () => zoomToItem(item);
+            nameSpan.setAttribute('tabindex', '0');
+            nameSpan.setAttribute('role', 'button');
+            nameSpan.setAttribute('aria-pressed', 'false');
+            nameSpan.addEventListener('keydown', (e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                zoomToItem(item);
+              }
             });
+            li.appendChild(nameSpan);
+            ul.appendChild(li);
+
+            if (!isNaN(item.latitude) && !isNaN(item.longitude)) {
+              const marker = createMarkerWithCategoryStyle(item);
+              propertyMarkers.push(marker);
+              searchBounds.extend(marker.getLatLng());
+            }
+            if (item.siteArea) {
+              try {
+                const coords = JSON.parse(item.siteArea);
+                if (Array.isArray(coords) && coords.length >= 3) {
+                  const polygon = createPolygonWithCategoryStyle(item, coords);
+                  propertyPolygons.push(polygon);
+                  searchBounds.extend(polygon.getBounds());
+                }
+              } catch(e) {
+                console.warn("Invalid siteArea for", item.pjName, e);
+              }
+            }
+          });
+
+          if (searchBounds.isValid()) {
+            map.fitBounds(searchBounds, { padding: [20, 20] });
           }
-
-          maskLayer = L.polygon(worldBounds, {
-            color: 'none',
-            fillColor: '#000',
-            fillOpacity: 0.1
-          }).addTo(map);
-          maskLayer.bringToBack();
-
-          // 地図を境界に合わせる
-          map.fitBounds(boundaryLayer.getBounds(), { padding: [20, 20] });
-        } else {
-          // 境界がない場合は中心点に移動
-          map.setView([result.lat, result.lon], 13);
+        } catch (error) {
+          console.error("Error during property search:", error);
+          alert("An error occurred during the search. Please try again.");
+        } finally {
+          // ローディングスピナーを非表示
+          hideLoadingSpinner('propertyLoadingSpinner');
         }
-
-      } catch(e) {
-        console.error(e);
-        alert("Search failed. Please try again.");
-      }
-    }
-
-    // -------------------------------------------------------
-    // **) Close UI Elements
-    // -------------------------------------------------------
-    function closeUIElements() {
-      const menuContainer = document.getElementById('menuContainer');
-      const listArea = document.getElementById('propertyListArea');
-      const mapElement = document.getElementById('map');
-
-      // 携帯表示（モバイル用クラス）
-      if (window.innerWidth < 769) {
-          if (menuContainer) {
-              menuContainer.classList.remove('full', 'half');
-              menuContainer.classList.add('closed'); // スライドダウン
-          }
-      } 
-      // PC表示（スタイル変更）
-      else {
-          if (menuContainer) {
-              menuContainer.style.transform = 'translateX(-280px)'; // メニューを隠す
-          }
       }
 
-      // 物件リストを非表示にする
-      if (listArea) {
-          listArea.classList.add('hidden');
+      /**
+       * マーカー作成関数
+       * @param {Object} item - 物件データ
+       * @returns {Object} - Leafletマーカー
+       */
+      function createMarkerWithCategoryStyle(item) {
+        const latLng = [item.latitude, item.longitude];
+        let customIcon = getCategoryIcon(item.category1);
+
+        const marker = L.marker(latLng, { icon: customIcon }).addTo(map);
+        marker.bindPopup(buildPopup(item));
+        return marker;
       }
 
-      // モバイルキーボードを閉じる
-      document.activeElement.blur();
-
-      // 地図にフォーカスを移動
-      if (mapElement) {
-          mapElement.focus();
-      }
-    }
-
-
-
-    // -------------------------------------------------------
-    // 10) Real-time Current Location
-    // -------------------------------------------------------
-    let currentLocMarker = null;
-    let watchID = null;
-    let trackingActive = false;
-
-    function toggleCurrentLocation() {
-    const btnIcon = document.querySelector('#currentLocationBtn img'); // ボタン内のアイコン画像を取得
-
-    if (!trackingActive) {
-        // Start real-time tracking
-        if (!navigator.geolocation) {
-        alert("Geolocation is not supported by this browser.");
-        return;
-        }
-        watchID = navigator.geolocation.watchPosition(
-        positionSuccess,
-        positionError,
-        { enableHighAccuracy: true }
-        );
-        btnIcon.src = "https://img.icons8.com/?size=100&id=ziC1TV1ikKi9&format=png&color=004ACD99"; // 追跡中のアイコン
-        trackingActive = true;
-    } else {
-        // Stop real-time tracking
-        if (watchID !== null) {
-        navigator.geolocation.clearWatch(watchID);
-        watchID = null;
-        }
-        if (currentLocMarker) {
-        map.removeLayer(currentLocMarker);
-        currentLocMarker = null;
-        }
-        btnIcon.src = "https://img.icons8.com/?size=100&id=ziC1TV1ikKi9&format=png&color=004ACD63"; // 停止中のアイコン
-        trackingActive = false;
-    }
-    }
-
-    function positionSuccess(pos) {
-    const lat = pos.coords.latitude;
-    const lng = pos.coords.longitude;
-    console.log("Current position:", lat, lng);
-
-    // If marker not created yet, create it
-    if (!currentLocMarker) {
-        const divIcon = L.divIcon({
-        html: '<div class="blinking-marker"></div>',
-        className: '',
-        iconSize: [18, 18],
-        iconAnchor: [9, 9]
+      /**
+       * カテゴリに応じたアイコン取得
+       * @param {String} cat - カテゴリ名
+       * @returns {Object} - Leafletアイコン
+       */
+      function getCategoryIcon(cat) {
+        return L.icon({
+          iconUrl: chooseCategoryIconUrl(cat),
+          iconSize: [20, 20], 
+          iconAnchor: [10, 10],
+          popupAnchor: [0, -10]
         });
-        currentLocMarker = L.marker([lat, lng], { icon: divIcon }).addTo(map);
-    } else {
-        // Just update position
-        currentLocMarker.setLatLng([lat, lng]);
-    }
+      }
 
-    // Smoothly move the map to the current location
-    map.flyTo([lat, lng], 16); // 第2引数はズームレベル、スムーズな移動を実現
-    }
+      /**
+       * アイコンURL選択
+       * @param {String} cat - カテゴリ名
+       * @returns {String} - アイコンのURL
+       */
+      function chooseCategoryIconUrl(cat) {
+        switch (cat.toLowerCase()) {
+          case 'primary':      return 'https://img.icons8.com/?size=100&id=bnfp2fmtrh0g&format=png&color=571601B8';
+          case 'area':         return 'https://img.icons8.com/?size=100&id=bnfp2fmtrh0g&format=png&color=05227AA8';
+          case 'haseko':       return 'https://img.icons8.com/?size=100&id=uRRFz0DH6uYw&format=png&color=000000';
+          case 'ecoba':        return 'https://img.icons8.com/?size=100&id=59830&format=png&color=4BAA8EA8';
+          case 'condominium':  return 'https://img.icons8.com/?size=100&id=24801&format=png&color=FF2E1754';
+          case 'others':       return 'https://img.icons8.com/?size=100&id=bnfp2fmtrh0g&format=png&color=0046b099';
+          case 'pj site':      return 'https://img.icons8.com/?size=100&id=ipgAkdE46kxu&format=png&color=000000';
+          default:             return 'https://maps.google.com/mapfiles/ms/icons/black-dot.png';
+        }
+      }
 
-    // -------------------------------------------------------
-    // 11) PJ list toggle
-    // -------------------------------------------------------
-    function positionError(err) {
-    console.error("Geolocation error:", err);
-    alert("Failed to get current location: " + err.message);
-    }
+      /**
+       * ポリゴン作成関数
+       * @param {Object} item - 物件データ
+       * @param {Array} coords - ポリゴンの座標
+       * @returns {Object} - Leafletポリゴン
+       */
+      function createPolygonWithCategoryStyle(item, coords) {
+        const polygonStyle = getCategoryPolygonStyle(item.category1);
+        const polygon = L.polygon(coords, polygonStyle).addTo(map);
+        polygon.bindPopup(buildPopup(item));
+        polygon.on('click', () => polygon.openPopup());
+        return polygon;
+      }
 
-    function toggleList() {
+      /**
+       * カテゴリに応じたポリゴンスタイル取得
+       * @param {String} cat - カテゴリ名
+       * @returns {Object} - ポリゴンスタイル
+       */
+      function getCategoryPolygonStyle(cat) {
+        switch (cat.toLowerCase()) {
+          case 'primary':      return { color: 'none', fillColor: 'blue', fillOpacity: 0.2 };
+          case 'area':         return { color: 'none', fillColor: 'gold', fillOpacity: 0.2 };
+          case 'haseko':       return { color: 'none', fillColor: 'orange', fillOpacity: 0.2 };
+          case 'ecoba':        return { color: 'none', fillColor: 'purple', fillOpacity: 0.2 };
+          case 'condominium':  return { color: 'none', fillColor: 'red', fillOpacity: 0.2 };
+          case 'others':       return { color: 'none', fillColor: 'yellow', fillOpacity: 0.2 };
+          case 'pj site':      return { color: 'none', fillColor: 'grey', fillOpacity: 0.2 };
+          default:             return { color: 'none', fillColor: 'black', fillOpacity: 0.2 };
+        }
+      }
+
+      /**
+       * アイテムにズーム
+       * @param {Object} item - 物件データ
+       */
+      function zoomToItem(item) {
+          // ポリゴン（siteArea）がある場合の処理
+          if (item.siteArea) {
+              try {
+                  const coords = JSON.parse(item.siteArea);
+                  if (Array.isArray(coords) && coords.length >= 3) {
+                      const tempPoly = L.polygon(coords);
+                      map.fitBounds(tempPoly.getBounds(), { padding: [20, 20] });
+                      return; // ポリゴンが存在する場合はここで処理終了
+                  }
+              } catch (e) {
+                  console.warn("Invalid siteArea format:", e);
+              }
+          }
+
+          // 緯度・経度が有効な場合の処理
+          if (!isNaN(item.latitude) && !isNaN(item.longitude)) {
+              const targetLatLng = [item.latitude, item.longitude];
+              const zoomLevel = 17; // ズームレベルを変更可能
+
+              // アニメーション付きズーム（flyToを利用）
+              map.flyTo(targetLatLng, zoomLevel);
+          } else {
+              console.warn("Invalid coordinates for item:", item);
+          }
+      }
+
+      /**
+       * ポップアップ内容構築
+       * @param {Object} item - 物件データ
+       * @returns {String} - HTMLコンテンツ
+       */
+      function buildPopup(item) {
+        return `
+          <strong>${item.pjName}</strong><br>
+          Address: ${item.address}<br>
+          Category1: ${item.category1}<br>
+          Category2: ${item.category2}<br>
+          Developer: ${item.developer}<br>
+          Architect: ${item.architect}<br>
+          Contractor: ${item.contractor}<br>
+          Sales Company: ${item.salesCompany}<br>
+          Status: ${item.status}<br>
+        `;
+      }
+
+      // -------------------------------------------------------
+      // 5) Show/Hide List
+      // -------------------------------------------------------
+      /**
+       * リスト表示の切り替え関数
+       */
+      function toggleList() {
         const listArea = document.getElementById('propertyListArea');
-        const toggleIcon = document.getElementById('toggleIcon');  // Access the icon
+        const toggleIcon = document.getElementById('toggleIcon');  // アイコンを取得
 
         if (listArea.classList.contains('hidden')) {
             listArea.classList.remove('hidden');
-            toggleIcon.classList.remove('fa-angles-down');  // Remove "up" icon
-            toggleIcon.classList.add('fa-angles-up');   // Add "down" icon
+            toggleIcon.classList.remove('fa-angles-down');  // "down"アイコンを削除
+            toggleIcon.classList.add('fa-angles-up');   // "up"アイコンを追加
         } else {
             listArea.classList.add('hidden');
-            toggleIcon.classList.remove('fa-angles-up');  // Remove "down" icon
-            toggleIcon.classList.add('fa-angles-down');       // Add "up" icon
-        }
-    }
-
-
-
-
-    // -------------------------------------------------------
-    // 12) Menu Container 改善の余地あり
-    // -------------------------------------------------------
-    document.addEventListener('DOMContentLoaded', () => {
-      const menuContainer = document.getElementById('menuContainer');
-      const menuToggleBtn = document.getElementById('menuToggleBtn');
-      const menuDragHandle = document.getElementById('menuDragHandle');
-
-      // PC用の状態管理
-      let isMenuOpen = false;
-      let isHovering = false;
-
-      // モバイル用の状態管理（既存コードの変数）
-      let startY = 0;
-      let isDragging = false;
-
-      // デバイスチェック関数
-      const isPCView = () => window.innerWidth >= 769;
-
-      // メニューの状態を更新する関数
-      function updateMenuPosition(position) {
-        if (isPCView()) {
-          menuContainer.style.transform = `translateX(${position}px)`;
+            toggleIcon.classList.remove('fa-angles-up');  // "up"アイコンを削除
+            toggleIcon.classList.add('fa-angles-down');       // "down"アイコンを追加
         }
       }
 
-      // PCモードのメニュー操作
-      if (menuToggleBtn) {
-        menuToggleBtn.addEventListener('click', (e) => {
+      // -------------------------------------------------------
+      // 6) Simple Search
+      // -------------------------------------------------------
+      /**
+       * 簡易検索関数
+       * @param {Array} data - 物件データ
+       * @param {String} rawQuery - ユーザーのクエリ
+       * @returns {Array} - 検索結果
+       */
+      function simpleSearch(data, rawQuery) {
+        const tokens = rawQuery.toLowerCase().split(/\s+/);
+        const notWords = tokens.filter(t => t.startsWith("-")).map(t => t.slice(1));
+        const andWords = tokens.filter(t => !t.startsWith("-") && t !== "and" && t !== "or");
+
+        /**
+         * アイテムのテキストを構築
+         * @param {Object} item - 物件データ
+         * @returns {String} - 結合されたテキスト
+         */
+        function buildText(item) {
+          const combined = [
+            item.pjName,
+            item.address,
+            item.category1,
+            item.category2,
+            item.developer,
+            item.architect,
+            item.contractor,
+            item.salesCompany,
+            item.status,
+            item.siteArea
+          ].join(" ").toLowerCase().replace(/\s+/g, "");
+          return combined;
+        }
+
+        let idxSet = new Set(data.map((_, i) => i));
+        // AND条件
+        andWords.forEach(w => {
+          idxSet = new Set([...idxSet].filter(idx => {
+            const txt = buildText(data[idx]);
+            return txt.includes(w);
+          }));
+        });
+        // NOT条件
+        notWords.forEach(n => {
+          idxSet.forEach(idx => {
+            const txt = buildText(data[idx]);
+            if (txt.includes(n)) {
+              idxSet.delete(idx);
+            }
+          });
+        });
+        return [...idxSet].map(i => data[i]);
+      }
+
+      // -------------------------------------------------------
+      // 7) Complex Search (parentheses, AND/OR/NOT, : = > >=)
+      // -------------------------------------------------------
+      /**
+       * 複雑な検索クエリを解析してフィルタリングする関数
+       * @param {String} query - ユーザーのクエリ
+       * @param {Array} data - 物件データ
+       * @returns {Array} - 検索結果
+       */
+      function parseComplexQuery(query, data) {
+        const tokens = tokenizeComplex(query);
+        const ast = parseExpression(tokens);
+        if (tokens.length > 0) {
+          throw new Error("Extra tokens remain. Check parentheses or operators.");
+        }
+        return data.filter(item => evaluateAST(ast, item));
+      }
+
+      /**
+       * クエリをトークンに分解する関数
+       * @param {String} q - クエリ文字列
+       * @returns {Array} - トークンの配列
+       */
+      function tokenizeComplex(q) {
+        const pattern = /\(|\)|\bAND\b|\bOR\b|\bNOT\b|>=|>|=|:|"[^"]*"|\S+/gi;
+        const raw = q.match(pattern) || [];
+        const tokens = [];
+        raw.forEach(t => {
+          const upper = t.toUpperCase();
+          if (upper === 'AND' || upper === 'OR' || upper === 'NOT'
+           || t === '(' || t === ')' || t === '>' || t === '>='
+           || t === '=' || t === ':') {
+            tokens.push({ type: upper, text: t });
+          } else if (t.startsWith('"') && t.endsWith('"')) {
+            tokens.push({ type: 'STRING', text: t.slice(1, -1) });
+          } else {
+            tokens.push({ type: 'WORD', text: t });
+          }
+        });
+        return tokens;
+      }
+
+      /**
+       * 式を解析する関数
+       * @param {Array} tokens - トークンの配列
+       * @returns {Object} - 抽象構文木（AST）
+       */
+      function parseExpression(tokens) {
+        let left = parseTerm(tokens);
+        while (peek(tokens, 'OR')) {
+          consume(tokens, 'OR');
+          const right = parseTerm(tokens);
+          left = { type: 'OR', left, right };
+        }
+        return left;
+      }
+
+      function parseTerm(tokens) {
+        let left = parseFactor(tokens);
+        while (peek(tokens, 'AND')) {
+          consume(tokens, 'AND');
+          const right = parseFactor(tokens);
+          left = { type: 'AND', left, right };
+        }
+        return left;
+      }
+
+      function parseFactor(tokens) {
+        let isNot = false;
+        if (peek(tokens, 'NOT')) {
+          consume(tokens, 'NOT');
+          isNot = true;
+        }
+        let node;
+        if (peek(tokens, '(')) {
+          consume(tokens, '(');
+          node = parseExpression(tokens);
+          consume(tokens, ')');
+        } else {
+          node = parseCondition(tokens);
+        }
+        if (isNot) {
+          node = { type: 'NOT', expr: node };
+        }
+        return node;
+      }
+
+      function parseCondition(tokens) {
+        const colToken = consumeType(tokens, ['WORD']);
+        const opToken = nextToken(tokens);
+        if (![':', '=', '>', '>='].includes(opToken.text)) {
+          throw new Error(`Invalid operator: ${opToken.text}`);
+        }
+        const valToken = consumeType(tokens, ['WORD','STRING']);
+        return {
+          type: 'COND',
+          column: colToken.text,
+          op: opToken.text,
+          value: valToken.text
+        };
+      }
+
+      function peek(tokens, text) {
+        return tokens[0] && tokens[0].text.toUpperCase() === text.toUpperCase();
+      }
+
+      function consume(tokens, text) {
+        if (!peek(tokens, text)) {
+          throw new Error(`Expected "${text}" but got "${tokens[0]?.text}"`);
+        }
+        return tokens.shift();
+      }
+
+      function consumeType(tokens, types) {
+        if (!tokens[0] || !types.includes(tokens[0].type)) {
+          throw new Error(`Expected one of [${types.join(', ')}], got ${tokens[0]?.type}`);
+        }
+        return tokens.shift();
+      }
+
+      function nextToken(tokens) {
+        if (!tokens.length) throw new Error("Unexpected end of tokens.");
+        return tokens.shift();
+      }
+
+      /**
+       * 抽象構文木（AST）を評価する関数
+       * @param {Object} ast - 抽象構文木
+       * @param {Object} item - 物件データ
+       * @returns {Boolean} - 評価結果
+       */
+      function evaluateAST(ast, item) {
+        switch (ast.type) {
+          case 'OR':
+            return evaluateAST(ast.left, item) || evaluateAST(ast.right, item);
+          case 'AND':
+            return evaluateAST(ast.left, item) && evaluateAST(ast.right, item);
+          case 'NOT':
+            return !evaluateAST(ast.expr, item);
+          case 'COND':
+            return evaluateCondition(ast, item);
+          default:
+            throw new Error("Unknown AST node type: " + ast.type);
+        }
+      }
+
+      /**
+       * 条件を評価する関数
+       * @param {Object} cond - 条件オブジェクト
+       * @param {Object} item - 物件データ
+       * @returns {Boolean} - 評価結果
+       */
+      function evaluateCondition(cond, item) {
+        const col = cond.column.toLowerCase();
+        const op  = cond.op;
+        const val = cond.value;
+        let fieldVal = (item[col] || "").toString().toLowerCase();
+        let fieldNum = parseFloat(item[col]);
+
+        switch (op) {
+          case ':':
+            return fieldVal.includes(val.toLowerCase());
+          case '=':
+            return fieldVal === val.toLowerCase();
+          case '>':
+          case '>=': {
+            if (isNaN(fieldNum)) return false;
+            const cmp = parseFloat(val);
+            if (isNaN(cmp)) return false;
+            return (op === '>') ? (fieldNum > cmp) : (fieldNum >= cmp);
+          }
+          default:
+            return false;
+        }
+      }
+
+      // -------------------------------------------------------
+      // 8) handleGeoSearch (Nominatim)
+      // -------------------------------------------------------
+      let boundaryLayer = null;
+      let maskLayer = null;
+
+      const geoSearchBox = document.getElementById('geoSearchBox');
+
+      geoSearchBox.addEventListener('keydown', async (event) => {
+          if (event.key === 'Enter') {
+              await handleGeoSearch();
+          }
+      });
+
+      /**
+       * 地域検索処理
+       */
+      async function handleGeoSearch() {
+        const q = geoSearchBox.value.trim();
+        if (!q) {
+          alert("Please enter a place name.");
+          return;
+        }
+
+        closeUIElements();
+
+        try {
+          // ローディングスピナーを表示
+          showLoadingSpinner('geoLoadingSpinner');
+
+          // 既存のレイヤーを削除
+          if (boundaryLayer) map.removeLayer(boundaryLayer);
+          if (maskLayer) map.removeLayer(maskLayer);
+
+          // Nominatim APIを使用して地理情報を取得
+          const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q)}&polygon_geojson=1`;
+          const response = await fetch(url);
+          if (!response.ok) throw new Error("Network response was not ok.");
+          const data = await response.json();
+
+          if (!data.length) {
+            alert("No matching location found.");
+            return;
+          }
+
+          const result = data[0];
+
+          if (result.geojson) {
+            // 境界線を描画
+            boundaryLayer = L.geoJSON(result.geojson, {
+              style: {
+                color: '#FF000DA8',
+                weight: 1.7,
+                opacity: 1,
+                fillOpacity: 0,
+                dashArray: '2, 3'
+              }
+            }).addTo(map);
+
+            // マスクレイヤーを作成
+            const worldBounds = [
+              [[-90, -180], [90, -180], [90, 180], [-90, 180], [-90, -180]]
+            ];
+
+            if (result.geojson.type === 'Polygon') {
+              worldBounds.push(result.geojson.coordinates[0].map(p => [p[1], p[0]]).reverse());
+            } else if (result.geojson.type === 'MultiPolygon') {
+              result.geojson.coordinates.forEach(poly => {
+                worldBounds.push(poly[0].map(p => [p[1], p[0]]).reverse());
+              });
+            }
+
+            maskLayer = L.polygon(worldBounds, {
+              color: 'none',
+              fillColor: '#000',
+              fillOpacity: 0.1
+            }).addTo(map);
+            maskLayer.bringToBack();
+
+            // 地図を境界に合わせる
+            map.fitBounds(boundaryLayer.getBounds(), { padding: [20, 20] });
+          } else {
+            // 境界がない場合は中心点に移動
+            map.setView([result.lat, result.lon], 13);
+          }
+
+        } catch(e) {
+          console.error(e);
+          alert("Search failed. Please try again.");
+        } finally {
+          // ローディングスピナーを非表示
+          hideLoadingSpinner('geoLoadingSpinner');
+        }
+      }
+
+      /**
+       * 地理検索ボックスをクリアする関数
+       */
+      function clearGeoSearch() {
+        geoSearchBox.value = '';
+
+        // 検索結果をクリアする（既存の地理検索結果レイヤーを削除）
+        if (boundaryLayer) {
+          map.removeLayer(boundaryLayer);
+          boundaryLayer = null;
+        }
+        if (maskLayer) {
+          map.removeLayer(maskLayer);
+          maskLayer = null;
+        }
+      }
+
+      /**
+       * 物件検索ボックスをクリアする関数
+       */
+      function clearPropertySearch() {
+        propertySearchBox.value = '';
+
+        // 検索結果をクリアする（マーカーとポリゴンを削除）
+        propertyMarkers.forEach(marker => map.removeLayer(marker));
+        propertyMarkers.length = 0;
+
+        propertyPolygons.forEach(polygon => map.removeLayer(polygon));
+        propertyPolygons.length = 0;
+
+        const ul = document.getElementById('propertyResultUl');
+        ul.innerHTML = "";
+      }
+
+      // -------------------------------------------------------
+      // **) Close UI Elements
+      // -------------------------------------------------------
+      /**
+       * UI要素を閉じる関数
+       */
+      function closeUIElements() {
+        const menuContainer = document.getElementById('menuContainer');
+        const listArea = document.getElementById('propertyListArea');
+        const mapElement = document.getElementById('map');
+
+        // 携帯表示（モバイル用クラス）
+        if (window.innerWidth < 769) {
+            if (menuContainer) {
+                menuContainer.classList.remove('full', 'half');
+                menuContainer.classList.add('closed'); // スライドダウン
+            }
+        } 
+        // PC表示（スタイル変更）
+        else {
+            if (menuContainer) {
+                menuContainer.style.transform = 'translateX(-280px)'; // メニューを隠す
+            }
+        }
+
+        // 物件リストを非表示にする
+        if (listArea) {
+            listArea.classList.add('hidden');
+        }
+
+        // モバイルキーボードを閉じる
+        document.activeElement.blur();
+
+        // 地図にフォーカスを移動
+        if (mapElement) {
+            mapElement.focus();
+        }
+      }
+
+      // -------------------------------------------------------
+      // 9) Real-time Current Location
+      // -------------------------------------------------------
+      let currentLocMarker = null;
+      let watchID = null;
+      let trackingActive = false;
+
+      const currentLocationBtn = document.getElementById('currentLocationBtn');
+
+      currentLocationBtn.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          toggleCurrentLocation();
+        }
+      });
+
+      /**
+       * 現在位置の追跡を切り替える関数
+       */
+      function toggleCurrentLocation() {
+        const btnIcon = document.querySelector('#currentLocationBtn img'); // ボタン内のアイコン画像を取得
+
+        if (!trackingActive) {
+            // リアルタイム追跡を開始
+            if (!navigator.geolocation) {
+              alert("Geolocation is not supported by this browser.");
+              return;
+            }
+            watchID = navigator.geolocation.watchPosition(
+              positionSuccess,
+              positionError,
+              { enableHighAccuracy: true }
+            );
+            btnIcon.src = "https://img.icons8.com/?size=100&id=ziC1TV1ikKi9&format=png&color=004ACD99"; // 追跡中のアイコン
+            btnIcon.alt = "Tracking Current Location";
+            trackingActive = true;
+        } else {
+            // リアルタイム追跡を停止
+            if (watchID !== null) {
+              navigator.geolocation.clearWatch(watchID);
+              watchID = null;
+            }
+            if (currentLocMarker) {
+              map.removeLayer(currentLocMarker);
+              currentLocMarker = null;
+            }
+            btnIcon.src = "https://img.icons8.com/?size=100&id=ziC1TV1ikKi9&format=png&color=004ACD63"; // 停止中のアイコン
+            btnIcon.alt = "Stop Tracking Location";
+            trackingActive = false;
+        }
+      }
+
+      /**
+       * 現在位置取得成功時のコールバック
+       * @param {Object} pos - GeolocationPositionオブジェクト
+       */
+      function positionSuccess(pos) {
+        const lat = pos.coords.latitude;
+        const lng = pos.coords.longitude;
+        console.log("Current position:", lat, lng);
+
+        // マーカーがまだ作成されていない場合、作成
+        if (!currentLocMarker) {
+            const divIcon = L.divIcon({
+              html: '<div class="blinking-marker"></div>',
+              className: '',
+              iconSize: [18, 18],
+              iconAnchor: [9, 9]
+            });
+            currentLocMarker = L.marker([lat, lng], { icon: divIcon }).addTo(map);
+        } else {
+            // 位置を更新
+            currentLocMarker.setLatLng([lat, lng]);
+        }
+
+        // 現在位置にスムーズに移動
+        map.flyTo([lat, lng], 16);
+      }
+
+      /**
+       * 現在位置取得失敗時のコールバック
+       * @param {Object} err - GeolocationPositionErrorオブジェクト
+       */
+      function positionError(err) {
+        console.error("Geolocation error:", err);
+        alert("Failed to get current location: " + err.message);
+      }
+
+      // -------------------------------------------------------
+      // 10) Menu Container 改善
+      // -------------------------------------------------------
+      document.addEventListener('DOMContentLoaded', () => {
+        const menuContainer = document.getElementById('menuContainer');
+        const menuToggleBtn = document.getElementById('menuToggleBtn');
+        const menuDragHandle = document.getElementById('menuDragHandle');
+
+        // PC用の状態管理
+        let isMenuOpen = false;
+        let isHovering = false;
+
+        // モバイル用の状態管理
+        let startY = 0;
+        let isDragging = false;
+
+        // デバイスチェック関数
+        const isPCView = () => window.innerWidth >= 769;
+
+        /**
+         * メニューの位置を更新する関数
+         * @param {Number} position - メニューのX位置
+         */
+        function updateMenuPosition(position) {
+          if (isPCView()) {
+            menuContainer.style.transform = `translateX(${position}px)`;
+          }
+        }
+
+        /**
+         * メニュートグルボタンのクリックイベントハンドラ
+         * @param {Event} e - クリックイベント
+         */
+        function handleMenuToggle(e) {
           if (isPCView()) {
             e.stopPropagation();
             isMenuOpen = !isMenuOpen;
             updateMenuPosition(isMenuOpen ? 0 : -280);
             menuToggleBtn.innerHTML = isMenuOpen ? '&times;' : '☰';
+            menuToggleBtn.setAttribute('aria-pressed', isMenuOpen);
           }
-        });
-      }
-
-      // PCモードのメニュー外クリック
-      document.addEventListener('click', (e) => {
-        if (isPCView() && isMenuOpen && 
-            !menuContainer.contains(e.target) && 
-            e.target !== menuToggleBtn) {
-          isMenuOpen = false;
-          updateMenuPosition(-280);
-          menuToggleBtn.innerHTML = '☰';
         }
-      });
 
-      // PCモードのホバー効果
-      menuContainer.addEventListener('mouseenter', () => {
-        if (isPCView() && !isMenuOpen) {
-          isHovering = true;
-          updateMenuPosition(-200);
+        /**
+         * メニュー外クリック時にメニューを閉じる関数
+         * @param {Event} e - クリックイベント
+         */
+        function handleDocumentClick(e) {
+          if (isPCView() && isMenuOpen && 
+              !menuContainer.contains(e.target) && 
+              e.target !== menuToggleBtn) {
+            isMenuOpen = false;
+            updateMenuPosition(-280);
+            menuToggleBtn.innerHTML = '☰';
+            menuToggleBtn.setAttribute('aria-pressed', isMenuOpen);
+          }
         }
-      });
 
-      menuContainer.addEventListener('mouseleave', () => {
-        if (isPCView() && !isMenuOpen) {
-          isHovering = false;
-          updateMenuPosition(-280);
+        /**
+         * メニューコンテナのホバーイベントハンドラ
+         */
+        function handleMenuHover() {
+          if (isPCView() && !isMenuOpen) {
+            isHovering = true;
+            updateMenuPosition(-200);
+          }
         }
-      });
 
-      // メニューコンテナのクリックイベント追加
-      menuContainer.addEventListener('click', (e) => {
-        if (isPCView() && !isMenuOpen && isHovering) {
-          isMenuOpen = true;
-          updateMenuPosition(0);
-          menuToggleBtn.innerHTML = '&times;';
-          e.stopPropagation();
+        /**
+         * メニューコンテナのホバー終了イベントハンドラ
+         */
+        function handleMenuHoverEnd() {
+          if (isPCView() && !isMenuOpen) {
+            isHovering = false;
+            updateMenuPosition(-280);
+          }
         }
-      });
 
-      // 既存のモバイルモード用コード
-      if (menuDragHandle) {
-        menuDragHandle.addEventListener('touchstart', (e) => {
+        /**
+         * メニューコンテナのクリックイベントハンドラ
+         * @param {Event} e - クリックイベント
+         */
+        function handleMenuClick(e) {
+          if (isPCView() && !isMenuOpen && isHovering) {
+            isMenuOpen = true;
+            updateMenuPosition(0);
+            menuToggleBtn.innerHTML = '&times;';
+            menuToggleBtn.setAttribute('aria-pressed', isMenuOpen);
+            e.stopPropagation();
+          }
+        }
+
+        /**
+         * モバイル用のメニュードラッグイベントハンドラ
+         * @param {TouchEvent} e - タッチイベント
+         */
+        function handleMenuDragStart(e) {
           if (!isPCView()) {
             startY = e.touches[0].clientY;
             isDragging = true;
           }
-        });
+        }
 
-        menuDragHandle.addEventListener('touchmove', (e) => {
+        /**
+         * モバイル用のメニュードラッグ移動イベントハンドラ
+         * @param {TouchEvent} e - タッチイベント
+         */
+        function handleMenuDragMove(e) {
           if (!isDragging || isPCView()) return;
           const currentY = e.touches[0].clientY;
           const deltaY = currentY - startY;
@@ -1376,37 +1490,107 @@
           } else if (deltaY < -50) {
             setMenuState('full');
           }
-        });
+        }
 
-        menuDragHandle.addEventListener('touchend', () => {
+        /**
+         * モバイル用のメニュードラッグ終了イベントハンドラ
+         */
+        function handleMenuDragEnd() {
           if (!isPCView()) {
             isDragging = false;
           }
+        }
+
+        /**
+         * メニューの状態を設定する関数
+         * @param {String} state - 'closed', 'half', 'full'
+         */
+        function setMenuState(state) {
+          if (!isPCView()) {
+            menuContainer.classList.remove('closed', 'half', 'full');
+            menuContainer.classList.add(state);
+          }
+        }
+
+        // メニュートグルボタンにイベントリスナーを追加
+        if (menuToggleBtn) {
+          menuToggleBtn.addEventListener('click', handleMenuToggle);
+          menuToggleBtn.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              handleMenuToggle(e);
+            }
+          });
+        }
+
+        // ドキュメント全体にクリックイベントリスナーを追加
+        document.addEventListener('click', handleDocumentClick);
+
+        // メニューコンテナにホバーイベントリスナーを追加
+        if (menuContainer) {
+          menuContainer.addEventListener('mouseenter', handleMenuHover);
+          menuContainer.addEventListener('mouseleave', handleMenuHoverEnd);
+          menuContainer.addEventListener('click', handleMenuClick);
+        }
+
+        // メニューコンテナにドラッグイベントリスナーを追加
+        if (menuDragHandle) {
+          menuDragHandle.addEventListener('touchstart', handleMenuDragStart);
+          menuDragHandle.addEventListener('touchmove', handleMenuDragMove);
+          menuDragHandle.addEventListener('touchend', handleMenuDragEnd);
+        }
+
+        // リサイズイベントに対応
+        window.addEventListener('resize', () => {
+          if (isPCView()) {
+            updateMenuPosition(isMenuOpen ? 0 : -280);
+            menuContainer.classList.remove('closed', 'half', 'full');
+          } else {
+            menuContainer.style.transform = '';
+            menuContainer.classList.add('closed');
+            isMenuOpen = false;
+            isHovering = false;
+          }
         });
-      }
-
-      // 既存のモバイル用関数
-      function setMenuState(state) {
-        if (!isPCView()) {
-          menuContainer.classList.remove('closed', 'half', 'full');
-          menuContainer.classList.add(state);
-        }
-      }
-
-      // 初期設定とリサイズ対応
-      window.addEventListener('resize', () => {
-        if (isPCView()) {
-          updateMenuPosition(isMenuOpen ? 0 : -280);
-          menuContainer.classList.remove('closed', 'half', 'full');
-        } else {
-          menuContainer.style.transform = '';
-          menuContainer.classList.add('closed');
-          isMenuOpen = false;
-          isHovering = false;
-        }
       });
-    });
 
+      // -------------------------------------------------------
+      // 11) Utility Functions
+      // -------------------------------------------------------
+      /**
+       * ローディングスピナーを表示する関数
+       * @param {String} spinnerId - スピナーのID
+       */
+      function showLoadingSpinner(spinnerId) {
+        const spinner = document.getElementById(spinnerId);
+        if (spinner) {
+          spinner.classList.add('loading');
+          spinner.setAttribute('aria-hidden', 'false');
+        }
+      }
+
+      /**
+       * ローディングスピナーを非表示にする関数
+       * @param {String} spinnerId - スピナーのID
+       */
+      function hideLoadingSpinner(spinnerId) {
+        const spinner = document.getElementById(spinnerId);
+        if (spinner) {
+          spinner.classList.remove('loading');
+          spinner.setAttribute('aria-hidden', 'true');
+        }
+      }
+
+      // -------------------------------------------------------
+      // 12) Expose Functions to Global Scope
+      // -------------------------------------------------------
+      // これらの関数をグローバルスコープに公開する
+      window.clearGeoSearch = clearGeoSearch;
+      window.clearPropertySearch = clearPropertySearch;
+      window.toggleCurrentLocation = toggleCurrentLocation;
+      window.toggleList = toggleList;
+
+    })();
   </script>
 </body>
 </html>
