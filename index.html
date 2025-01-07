@@ -258,8 +258,6 @@
       pointer-events: auto;
       touch-action: pan-y; 
       overscroll-behavior: contain;
-      /* ローディングインジケーター用 */
-      position: relative;
     }
 
     /* モバイル用 */
@@ -304,7 +302,7 @@
 
     /* ローディングスピナー */
     .loading-spinner {
-      position: absolute;
+      position: fixed;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
@@ -565,6 +563,8 @@
       fileInput.addEventListener('change', async (event) => {
         const file = event.target.files[0];
         if (!file) return;
+        
+        closeUIElements();
 
         try {
           // ローディングスピナーを表示
