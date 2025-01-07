@@ -472,7 +472,7 @@
           minZoom: 2, // 最小ズームレベルを制限
           maxZoom: 18, // 最大ズームレベルを制限  
           worldCopyJump: true
-      }).setView([20, 0], 2);
+      }).setView([20, 120], 2);　// アジア中心
 
       // ダブルクリックズームを無効化
       map.doubleClickZoom.disable();
@@ -1176,9 +1176,16 @@
               }
             }).addTo(map);
 
-            // マスクレイヤーを作成
+            // マスクレイヤーを作成　（アジア中心）
+            const mapBounds = map.getBounds();
             const worldBounds = [
-              [[-90, -180], [90, -180], [90, 180], [-90, 180], [-90, -180]]
+              [
+                [-90, 340],   // 最南端, 東端
+                [90, 340],    // 最北端, 東端
+                [90, -20],   // 最北端, 西端
+                [-90, -20],  // 最南端, 西端
+                [-90, 340]    // 多角形を閉じる
+              ]
             ];
 
             if (result.geojson.type === 'Polygon') {
