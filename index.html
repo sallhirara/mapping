@@ -1541,6 +1541,25 @@
           menuDragHandle.addEventListener('touchmove', handleMenuDragMove);
           menuDragHandle.addEventListener('touchend', handleMenuDragEnd);
         }
+ 
+
+        
+        /**
+         * Add by Sako
+         * 物件リスト外クリックでリスト閉じる
+         */        
+        // ドキュメント全体のクリックを監視してリストを閉じる
+        document.addEventListener('click', (event) => {
+          const propertyContainer = document.getElementById('propertyContainer'); // 物件コンテナ
+          const propertyListArea = document.getElementById('propertyListArea'); // 物件リスト
+
+          // クリックした箇所が物件コンテナの外で、リストが表示されている場合
+          if (!propertyContainer.contains(event.target) && !propertyListArea.classList.contains('hidden')) {
+            toggleList(); // 既存のリストを閉じる関数を呼び出す
+          }
+        });
+        
+        
 
         // リサイズイベントに対応
         window.addEventListener('resize', () => {
