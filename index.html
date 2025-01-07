@@ -471,7 +471,12 @@
           zoomControl: false, // ズームボタンを非表示にする
           minZoom: 2, // 最小ズームレベルを制限
           maxZoom: 18, // 最大ズームレベルを制限  
-          worldCopyJump: true
+          worldCopyJump: true,
+          maxBounds: [
+            [-90, -27],
+            [90, 333]
+        ],
+        maxBoundsViscosity: 1.0
       }).setView([20, 120], 2);　// アジア中心
 
       // ダブルクリックズームを無効化
