@@ -528,12 +528,12 @@
       // -------------------------------------------------------  
 
       // ダブルクリックズームを無効化
-      map.doubleClickZoom.disable();
+      //map.doubleClickZoom.disable();
 
       // ダブルクリック時にパン
-      map.on('dblclick', (e) => {
-        map.panTo(e.latlng, { animate: true });
-      });
+      //map.on('dblclick', (e) => {
+     //   map.panTo(e.latlng, { animate: true });
+     // });
 
       // タイルレイヤーの追加
       const streetLayer = L.tileLayer('https://api.maptiler.com/maps/basic/{z}/{x}/{y}.png?key=Sv80uSRLZxFEwRiW17Cg', {
