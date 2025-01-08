@@ -13,13 +13,6 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-  <!-- Leaflet Gesture Handling CSS -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet-gesture-handling@latest/dist/leaflet-gesture-handling.min.css" />
-
-  <!-- Leaflet Gesture Handling JS -->
-  <script src="https://unpkg.com/leaflet-gesture-handling@latest/dist/leaflet-gesture-handling.min.js"></script>
-
-  
   <!-- XLSX for reading .xls / .xlsx / .xlsm -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
@@ -213,12 +206,6 @@
       height: calc(100% + 0px);
       width: 100%;
       z-index: 0;
-
-      /* Prevent default touch actions and allow Leaflet to handle gestures */
-      touch-action: pan-x pan-y pinch-zoom;
-      -ms-touch-action: pan-x pan-y pinch-zoom; /* For IE and Edge */
-      user-select: none; /* Prevent text selection on double-tap */
-      -webkit-user-select: none; /* For Safari */      
     }
 
     /* ボタンスタイル */
@@ -486,8 +473,7 @@
           zoomControl: false, // ズームボタンを非表示にする
           minZoom: 2, // 最小ズームレベルを制限
           maxZoom: 18, // 最大ズームレベルを制限  
-          worldCopyJump: true,
-          gestureHandling: true, // If using a plugin like leaflet-gesture-handling        
+          worldCopyJump: true
       }).setView([1, 125], 3);　   // Center of Asia Oceania     
    // }).setView([16, 105], 5);　  // Center of Vietnam
    // }).setView([54, 15], 4);　   // Center of Europe
@@ -505,35 +491,9 @@
           map.panInsideBounds(bounds, { animate: false });
       });      
 
-      // -------------------------------------------------------
-      // 1)-a Prevent Default Browser Actions on the Map
-      // -------------------------------------------------------
-    
-      // Prevent the context menu from appearing on long press
-      const mapElement = document.getElementById('map');
-      mapElement.addEventListener('contextmenu', function(e) {
-          e.preventDefault();
-      });
+      
 
-      // Prevent touch gestures that interfere with Leaflet
-      mapElement.addEventListener('touchstart', function(e) {
-          // Prevent long press actions like copy/translate/share
-          if (e.touches.length === 2) { // Detecting double touch
-              e.preventDefault();
-          }
-      }, { passive: false });
 
-      // -------------------------------------------------------
-      // 1)-b Double Click Actions
-      // -------------------------------------------------------  
-
-      // ダブルクリックズームを無効化
-      //map.doubleClickZoom.disable();
-
-      // ダブルクリック時にパン
-      //map.on('dblclick', (e) => {
-     //   map.panTo(e.latlng, { animate: true });
-     // });
 
       // タイルレイヤーの追加
       const streetLayer = L.tileLayer('https://api.maptiler.com/maps/basic/{z}/{x}/{y}.png?key=Sv80uSRLZxFEwRiW17Cg', {
