@@ -39,7 +39,7 @@
       background: rgba(255, 255, 255, 0.95);
       box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
       transition: transform 0.3s ease-in-out;
-      z-index: 1000;
+      z-index: 3002;
     }
 
     /* メディアクエリ: モバイル */
@@ -184,6 +184,7 @@
         border: 1px solid grey;
         border-radius: 15px;
         font-size: 16px;
+        z-index: 3001;
     }
 
     .info-icon {
@@ -547,78 +548,79 @@
 
 <body>
   <!-- 地図コンテナ -->
-  <div id="map" tabindex="0" aria-label="Map Area">
-    <!-- レイヤートグルボタン -->
-    <button id="layerToggleBtn" role="button" aria-label="Toggle Map Layer" title="Toggle Map Layer">
-        <img src="https://img.icons8.com/?size=100&id=2m4kkop8aUO5&format=png&color=000000" alt="Toggle Layer Icon" />
-    </button>        
-    
-    <!-- 現在位置ボタン -->
-    <button id="currentLocationBtn" onclick="toggleCurrentLocation()" aria-label="Toggle Current Location" title="Toggle Current Location">
-        <img src="https://img.icons8.com/?size=100&id=ziC1TV1ikKi9&format=png&color=004ACD4D" alt="Show Location" />
+  <div id="map" tabindex="0" aria-label="Map Area"></div>
+
+  <!-- レイヤートグルボタン -->
+  <button id="layerToggleBtn" role="button" aria-label="Toggle Map Layer" title="Toggle Map Layer">
+      <img src="https://img.icons8.com/?size=100&id=2m4kkop8aUO5&format=png&color=000000" alt="Toggle Layer Icon" />
+  </button>        
+  
+  <!-- 現在位置ボタン -->
+  <button id="currentLocationBtn" onclick="toggleCurrentLocation()" aria-label="Toggle Current Location" title="Toggle Current Location">
+      <img src="https://img.icons8.com/?size=100&id=ziC1TV1ikKi9&format=png&color=004ACD4D" alt="Show Location" />
+  </button>
+
+  <!-- Zoom Controls -->
+  <div id="zoomContainer" class="zoom-container" aria-label="Zoom Controls">
+    <button id="moveZoomBtn" class="zoom-btn" aria-label="Move Zoom Controls" title="Move Zoom Controls">
+      <i class="fa-solid fa-caret-left"></i>
     </button>
-
-    <!-- Zoom Controls -->
-    <div id="zoomContainer" class="zoom-container" aria-label="Zoom Controls">
-      <button id="moveZoomBtn" class="zoom-btn" aria-label="Move Zoom Controls" title="Move Zoom Controls">
-        <i class="fa-solid fa-caret-left"></i>
-      </button>
-      <button id="zoomInBtn" class="zoom-btn" aria-label="Zoom In" title="Zoom In">
-        <i class="fa-solid fa-circle-plus"></i>
-      </button>
-      <button id="zoomOutBtn" class="zoom-btn" aria-label="Zoom Out" title="Zoom Out">
-        <i class="fa-solid fa-circle-minus"></i>
-      </button>
-    </div>   
-    
-    <!-- メニュートグルボタン -->
-    <button id="menuToggleBtn" class="menu-toggle" aria-label="Toggle Menu" title="Toggle Menu">
-      ☰
-    </button>        
-    
-    <!-- 物件コンテナ（検索ボックスとリスト） -->
-    <div id="propertyContainer">
-      <div id="propertySearchHeader">
-        <!-- 物件検索ボックス -->
-        <div class="search-container">
-          <input
-            type="text"
-            id="propertySearchBox"
-            placeholder="Property search"
-            aria-label="Property Search Box"
-          />
-          <img
-            src="https://img.icons8.com/?size=100&id=80585&format=png&color=000000"
-            alt="Info"
-            class="info-icon"
-            onclick="openInfoModal()"
-            aria-label="Show Search Infomation"
-          />          
-          <img
-            src="https://img.icons8.com/?size=100&id=121477&format=png&color=75750399"
-            alt="Clear"
-            class="clear-icon"
-            onclick="clearPropertySearch()"
-            aria-label="Clear Property Search"
-          />
-        </div>
-        <!-- リスト表示トグルボタン -->
-        <button onclick="toggleList()" aria-label="Toggle Property List" title="Toggle Property List">
-          <i id="toggleIcon" class="fa-solid fa-angles-down" style="color: #555"></i>
-        </button>        
+    <button id="zoomInBtn" class="zoom-btn" aria-label="Zoom In" title="Zoom In">
+      <i class="fa-solid fa-circle-plus"></i>
+    </button>
+    <button id="zoomOutBtn" class="zoom-btn" aria-label="Zoom Out" title="Zoom Out">
+      <i class="fa-solid fa-circle-minus"></i>
+    </button>
+  </div>   
+  
+  <!-- メニュートグルボタン -->
+  <button id="menuToggleBtn" class="menu-toggle" aria-label="Toggle Menu" title="Toggle Menu">
+    ☰
+  </button>        
+  
+  <!-- 物件コンテナ（検索ボックスとリスト） -->
+  <div id="propertyContainer">
+    <div id="propertySearchHeader">
+      <!-- 物件検索ボックス -->
+      <div class="search-container">
+        <input
+          type="text"
+          id="propertySearchBox"
+          placeholder="Property search"
+          aria-label="Property Search Box"
+        />
+        <img
+          src="https://img.icons8.com/?size=100&id=80585&format=png&color=000000"
+          alt="Info"
+          class="info-icon"
+          onclick="openInfoModal()"
+          aria-label="Show Search Infomation"
+        />          
+        <img
+          src="https://img.icons8.com/?size=100&id=121477&format=png&color=75750399"
+          alt="Clear"
+          class="clear-icon"
+          onclick="clearPropertySearch()"
+          aria-label="Clear Property Search"
+        />
       </div>
+      <!-- リスト表示トグルボタン -->
+      <button onclick="toggleList()" aria-label="Toggle Property List" title="Toggle Property List">
+        <i id="toggleIcon" class="fa-solid fa-angles-down" style="color: #555"></i>
+      </button>        
+    </div>
 
-      <!-- ローディングスピナー -->
-      <div class="loading-spinner" id="propertyLoadingSpinner" aria-hidden="true"></div>
+    <!-- ローディングスピナー -->
+    <div class="loading-spinner" id="propertyLoadingSpinner" aria-hidden="true"></div>
 
-      <div id="propertyListArea" class="hidden">
-        <ul id="propertyResultUl"></ul>
-      </div>
-    </div>  
+    <div id="propertyListArea" class="hidden">
+      <ul id="propertyResultUl"></ul>
+    </div>
+  </div>  
 
-    <!-- ローディングスピナー（地理検索用） -->
-    <div class="loading-spinner" id="geoLoadingSpinner" aria-hidden="true"></div>
-  </div>
+  <!-- ローディングスピナー（地理検索用） -->
+  <div class="loading-spinner" id="geoLoadingSpinner" aria-hidden="true"></div>
+
 
   <!-- モーダルウィンドウ -->
   <div id="infoContainer" class="modal" aria-hidden="true">
