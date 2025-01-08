@@ -436,6 +436,9 @@
       max-width: 800px; /* 最大幅を設定 */
       border-radius: 10px;
       position: relative;
+      max-height: 80vh; /* Restricts modal height */
+      display: flex;
+      flex-direction: column; /* Stacks children vertically */      
     }
 
     .close-button {
@@ -479,6 +482,7 @@
     }
 
     .tab-content {
+      flex: 1;
       max-height: 60vh;
       overflow-y: auto;
     }
@@ -491,6 +495,14 @@
       display: block;
     }
 
+    /* Responsive adjustments */
+    @media (max-width: 600px) {
+      .modal-content {
+        width: 95%;
+        max-height: 90vh;
+        padding: 15px;
+      }
+    }
 
 
 
@@ -1980,9 +1992,15 @@ Tips:<br>
           modal.style.display = 'block';
           modal.setAttribute('aria-hidden', 'false');
           
+          // Prevent body from scrolling when modal is open
+          document.body.style.overflow = 'hidden';
+          
           // Optionally, set focus to the modal for accessibility
           const closeButton = modal.querySelector('.close-button');
           if (closeButton) closeButton.focus();
+          
+          // Trap focus within the modal
+          trapFocus(modal);
           
           // Add event listener for Escape key to close modal
           document.addEventListener('keydown', handleEscapeKey);
@@ -1997,6 +2015,9 @@ Tips:<br>
         if (modal) {
           modal.style.display = 'none';
           modal.setAttribute('aria-hidden', 'true');
+          
+          // Restore body scrolling
+          document.body.style.overflow = '';
           
           // Optionally, return focus to the info-icon for accessibility
           const infoIcon = document.querySelector('.info-icon');
@@ -2057,8 +2078,36 @@ Tips:<br>
         }
       }
 
+      /**
+       * Traps focus within the modal for accessibility
+       * @param {HTMLElement} modal 
+       */
+      function trapFocus(modal) {
+        const focusableElements = modal.querySelectorAll('a[href], button, textarea, input, select, [tabindex]:not([tabindex="-1"])');
+        const firstFocusable = focusableElements[0];
+        const lastFocusable = focusableElements[focusableElements.length - 1];
+
+        modal.addEventListener('keydown', function(e) {
+          const isTabPressed = (e.key === 'Tab' || e.keyCode === 9);
+
+          if (!isTabPressed) return;
+
+          if (e.shiftKey) { // Shift + Tab
+            if (document.activeElement === firstFocusable) {
+              e.preventDefault();
+              lastFocusable.focus();
+            }
+          } else { // Tab
+            if (document.activeElement === lastFocusable) {
+              e.preventDefault();
+              firstFocusable.focus();
+            }
+          }
+        });
+      }
+
       // Initialize modal functionalities when DOM is fully loaded
-      document.addEventListener('DOMContentLoaded', initializeModal);      
+      document.addEventListener('DOMContentLoaded', initializeModal);     
 
     })();
   </script>
