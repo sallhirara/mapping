@@ -24,18 +24,10 @@
         box-sizing: border-box;
     }
 
-    :root {
-  --vh: 100vh;
-}
-
-.container {
-  height: calc(var(--vh, 1vh) * 100 - 50px); /* 50pxはURLバーの高さを想定 */
-}
-
     /* 全体レイアウト */
     body {
       font-family: Arial, sans-serif;
-      height: 100vh;
+      height: calc(var(--vh, 1vh) * 100);
       overflow: hidden; 
       display: flex;
       flex-direction: column;
