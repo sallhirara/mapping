@@ -104,7 +104,7 @@
         width: 320px;
         height: 100%;
         border-radius: 0 15px 15px 0;
-        transform: translateX(-280px);
+        transform: translateX(-320px);
         transition: transform 0.3s ease-out;
       }
 
@@ -112,17 +112,18 @@
 
       /* メニュートグルボタンのスタイル */
       .menu-toggle {
-        position: absolute;
-        top: 50%;
-        right: -30px;
+        position: fixed;
+        top: 36px;
+        left: 20px;
         transform: translateY(-50%);
-        background: white;
-        color: #666;
-        border: 1px solid #ccc;
-        border-radius: 0 5px 5px 0;
+        background: none;
+        font-size: 18px;
+        color: #555;
+        border: none;
+        /* border-radius: 0 5px 5px 0; */
         padding: 8px 12px;
         cursor: pointer;
-        box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+        /* box-shadow: 2px 0 5px rgba(0,0,0,0.1); */
         z-index: 1001;
         transition: color 0.3s;
       }
@@ -468,6 +469,13 @@
       </button>
     </div>   
 
+    
+    <!-- メニュートグルボタン -->
+    <button id="menuToggleBtn" class="menu-toggle" aria-label="Toggle Menu" title="Toggle Menu">
+      ☰
+    </button>    
+    
+    
     <!-- 物件コンテナ（検索ボックスとリスト） -->
     <div id="propertyContainer">
       <div id="propertySearchHeader">
@@ -1528,7 +1536,7 @@
           if (isPCView()) {
             e.stopPropagation();
             isMenuOpen = !isMenuOpen;
-            updateMenuPosition(isMenuOpen ? 0 : -280);
+            updateMenuPosition(isMenuOpen ? 0 : -320); /* default -280 */
             menuToggleBtn.innerHTML = isMenuOpen ? '&times;' : '☰';
             menuToggleBtn.setAttribute('aria-pressed', isMenuOpen);
           }
@@ -1543,7 +1551,7 @@
               !menuContainer.contains(e.target) && 
               e.target !== menuToggleBtn) {
             isMenuOpen = false;
-            updateMenuPosition(-280);
+            updateMenuPosition(-320); /* default -280 */
             menuToggleBtn.innerHTML = '☰';
             menuToggleBtn.setAttribute('aria-pressed', isMenuOpen);
           }
@@ -1555,7 +1563,7 @@
         function handleMenuHover() {
           if (isPCView() && !isMenuOpen) {
             isHovering = true;
-            updateMenuPosition(-200);
+            updateMenuPosition(-320); /* default -200 */
           }
         }
 
@@ -1565,7 +1573,7 @@
         function handleMenuHoverEnd() {
           if (isPCView() && !isMenuOpen) {
             isHovering = false;
-            updateMenuPosition(-280);
+            updateMenuPosition(-320); /* default -280 */
           }
         }
 
@@ -1682,7 +1690,7 @@
         // リサイズイベントに対応
         window.addEventListener('resize', () => {
           if (isPCView()) {
-            updateMenuPosition(isMenuOpen ? 0 : -280);
+            updateMenuPosition(isMenuOpen ? 0 : -320); /* default -280 */
             menuContainer.classList.remove('closed', 'half', 'full');
           } else {
             menuContainer.style.transform = '';
