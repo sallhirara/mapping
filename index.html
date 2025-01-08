@@ -24,15 +24,11 @@
         box-sizing: border-box;
     }
 
-body, html {
-  height: 100svh;
-  margin: 0;
-  padding: 0;
-}
-
     /* 全体レイアウト */
     body {
       font-family: Arial, sans-serif;
+      height: calc(var(--vh, 1vh) * 100);
+      overflow: hidden; 
       display: flex;
       flex-direction: column;
     }
@@ -195,7 +191,7 @@ body, html {
       position: absolute;
       left: 8px;
       top: 18%;
-      transform: translateY(0%);
+      transform: translateY(-0%);
       width: 20px;
       height: 20px;
       cursor: pointer;
@@ -252,7 +248,7 @@ body, html {
     #map {
       flex: 1;
       position: relative;
-      height: 100svh;
+      height: calc(var(--vh, 1vh) * 100);
       width: 100%;
       z-index: 0;
     }
@@ -576,12 +572,7 @@ body, html {
       <i class="fa-solid fa-circle-minus"></i>
     </button>
   </div>   
-
-  <!-- 全画面表示トグルボタンの追加 -->
-  <button id="fullscreenToggleBtn" class="zoom-btn" aria-label="Toggle Fullscreen" title="Toggle Fullscreen">
-    <i class="fa-solid fa-expand"></i>
-  </button>  
-
+  
   <!-- メニュートグルボタン -->
   <button id="menuToggleBtn" class="menu-toggle" aria-label="Toggle Menu" title="Toggle Menu">
     ☰
@@ -2073,59 +2064,6 @@ Tips:<br>
       document.addEventListener('DOMContentLoaded', initializeModal);      
 
     })();
-
-// 全画面表示トグルボタンの取得
-const fullscreenToggleBtn = document.getElementById('fullscreenToggleBtn');
-const fullscreenIcon = fullscreenToggleBtn.querySelector('i');
-
-// 全画面表示の状態を管理するフラグ
-let isFullscreen = false;
-
-// 全画面表示のトグル関数
-function toggleFullscreen() {
-  if (!isFullscreen) {
-    // 全画面表示をリクエスト
-    document.documentElement.requestFullscreen().then(() => {
-      isFullscreen = true;
-      fullscreenIcon.classList.remove('fa-expand');
-      fullscreenIcon.classList.add('fa-compress');
-    }).catch((err) => {
-      console.error(`全画面表示に失敗しました: ${err.message} (${err.name})`);
-    });
-  } else {
-    // 全画面表示を終了
-    if (document.fullscreenElement) {
-      document.exitFullscreen().then(() => {
-        isFullscreen = false;
-        fullscreenIcon.classList.remove('fa-compress');
-        fullscreenIcon.classList.add('fa-expand');
-      }).catch((err) => {
-        console.error(`全画面表示の終了に失敗しました: ${err.message} (${err.name})`);
-      });
-    }
-  }
-}
-
-// ボタンのクリックイベントに関数をバインド
-fullscreenToggleBtn.addEventListener('click', toggleFullscreen);
-
-// キーボード操作（Enterキーやスペースキー）にも対応
-fullscreenToggleBtn.addEventListener('keydown', (e) => {
-  if (e.key === 'Enter' || e.key === ' ') {
-    e.preventDefault();
-    toggleFullscreen();
-  }
-});
-
-// 全画面表示の状態が変更されたときにアイコンを更新
-document.addEventListener('fullscreenchange', () => {
-  if (!document.fullscreenElement) {
-    isFullscreen = false;
-    fullscreenIcon.classList.remove('fa-compress');
-    fullscreenIcon.classList.add('fa-expand');
-  }
-});
-    
   </script>
 </body>
 </html>
