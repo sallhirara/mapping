@@ -83,6 +83,11 @@
 
       /* メニュートグルボタンを非表示に */
       .menu-toggle { display: none !important; }
+      
+      .zoom-container {
+        bottom: 60px;
+      }
+      
     }
 
     /* メディアクエリ: デスクトップ/タブレット */
@@ -129,6 +134,11 @@
 
       /* PCではメニューヘッダーを非表示 */
       .menu-header { display: none !important; }
+      
+      .zoom-container {
+        bottom: 20px;
+      }
+      
     }
 
     /* その他のスタイル */
@@ -225,7 +235,7 @@
     }
 
     #currentLocationBtn {
-        top: 60px;
+        top: 70px;
         right: 20px;
     }
 
@@ -247,7 +257,7 @@
     /* Zoom Controls Container */
     .zoom-container {
       position: absolute;
-      bottom: 30px;
+      /* bottom: 20px; */
       right: 11px; /* Initial position: bottom right */
       display: flex;
       flex-direction: column;
