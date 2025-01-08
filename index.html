@@ -206,6 +206,12 @@
       height: calc(100% + 0px);
       width: 100%;
       z-index: 0;
+
+      /* Prevent default touch actions and allow Leaflet to handle gestures */
+      touch-action: pan-x pan-y pinch-zoom;
+      -ms-touch-action: pan-x pan-y pinch-zoom; /* For IE and Edge */
+      user-select: none; /* Prevent text selection on double-tap */
+      -webkit-user-select: none; /* For Safari */      
     }
 
     /* ボタンスタイル */
@@ -473,7 +479,8 @@
           zoomControl: false, // ズームボタンを非表示にする
           minZoom: 2, // 最小ズームレベルを制限
           maxZoom: 18, // 最大ズームレベルを制限  
-          worldCopyJump: true
+          worldCopyJump: true,
+          gestureHandling: true, // If using a plugin like leaflet-gesture-handling        
       }).setView([1, 125], 3);　   // Center of Asia Oceania     
    // }).setView([16, 105], 5);　  // Center of Vietnam
    // }).setView([54, 15], 4);　   // Center of Europe
@@ -491,7 +498,27 @@
           map.panInsideBounds(bounds, { animate: false });
       });      
 
-      
+      // -------------------------------------------------------
+      // 1)-a Prevent Default Browser Actions on the Map
+      // -------------------------------------------------------
+    
+      // Prevent the context menu from appearing on long press
+      const mapElement = document.getElementById('map');
+      mapElement.addEventListener('contextmenu', function(e) {
+          e.preventDefault();
+      });
+
+      // Prevent touch gestures that interfere with Leaflet
+      mapElement.addEventListener('touchstart', function(e) {
+          // Prevent long press actions like copy/translate/share
+          if (e.touches.length === 2) { // Detecting double touch
+              e.preventDefault();
+          }
+      }, { passive: false });
+
+      // -------------------------------------------------------
+      // 1)-b Double Click Actions
+      // -------------------------------------------------------  
 
       // ダブルクリックズームを無効化
       map.doubleClickZoom.disable();
