@@ -164,10 +164,11 @@
       align-items: center;
     }
 
-    #top-bar input {
+    /* top-bar の入力欄（info-iconなし） */
+    #top-bar .search-container input {
+        padding: 6px 35px 6px 10px; /* 右側のみclear-iconのスペース */
         border: 1px solid grey;
         border-radius: 15px;
-        padding: 6px 10px;
         font-size: 16px;
     }
 
@@ -177,9 +178,29 @@
       display: inline-block;
     }
 
-    .search-container input {
-      padding-right: 30px;
-      font-size: 16px;
+    /* propertyContainer の入力欄（info-iconあり） */
+    #propertyContainer .search-container input {
+        padding: 6px 35px 6px 35px; /* 両側にアイコンのスペース */
+        border: 1px solid grey;
+        border-radius: 15px;
+        font-size: 16px;
+    }
+
+    .info-icon {
+      position: absolute;
+      left: 8px;
+      top: 18%;
+      transform: translateY(-0%);
+      width: 20px;
+      height: 20px;
+      cursor: pointer;
+      opacity: 0.7;
+      transition: opacity 0.3s, transform 0.3s;
+    }
+
+    .info-icon:hover {
+      opacity: 1;
+      transform: scale(1.2);
     }
 
     .clear-icon {
@@ -200,7 +221,7 @@
       transform: scale(1.2);
     }
 
-    .search-container input:not(:placeholder-shown) + .clear-icon {
+    .search-container:has(input:not(:placeholder-shown)) .clear-icon {
       display: block;
     }
 
@@ -487,6 +508,13 @@
             placeholder="Property search"
             aria-label="Property Search Box"
           />
+          <img
+            src="https://img.icons8.com/?size=100&id=80585&format=png&color=000000"
+            alt="Info"
+            class="info-icon"
+            onclick="searchInfo()"
+            aria-label="Show Search Infomation"
+          />          
           <img
             src="https://img.icons8.com/?size=100&id=121477&format=png&color=75750399"
             alt="Clear"
