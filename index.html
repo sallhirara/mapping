@@ -458,7 +458,7 @@
     <!-- Zoom Controls -->
     <div id="zoomContainer" class="zoom-container" aria-label="Zoom Controls">
       <button id="moveZoomBtn" class="zoom-btn" aria-label="Move Zoom Controls" title="Move Zoom Controls">
-        <i class="fa-solid fa-angles-left"></i>
+        <i class="fa-solid fa-caret-left"></i>
       </button>
       <button id="zoomInBtn" class="zoom-btn" aria-label="Zoom In" title="Zoom In">
         <i class="fa-solid fa-circle-plus"></i>
@@ -1737,12 +1737,12 @@
               // Move to left
               zoomContainer.classList.add('moved-left');
               zoomContainer.classList.remove('moved-right');
-              moveZoomBtn.innerHTML = '<i class="fa-solid fa-angles-right"></i>';
+              moveZoomBtn.innerHTML = '<i class="fa-solid fa-caret-right"></i>';
             } else {
               // Move to right
               zoomContainer.classList.remove('moved-left');
               zoomContainer.classList.add('moved-right');
-              moveZoomBtn.innerHTML = '<i class="fa-solid fa-angles-left"></i>';
+              moveZoomBtn.innerHTML = '<i class="fa-solid fa-caret-left"></i>';
             }
             isRight = !isRight;
           }
