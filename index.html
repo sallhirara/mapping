@@ -489,14 +489,14 @@
         </div>
         <!-- リスト表示トグルボタン -->
         <button onclick="toggleList()" aria-label="Toggle Property List" title="Toggle Property List">
-          <i id="toggleIcon" class="fa-solid fa-angles-up" style="color: #555"></i>
+          <i id="toggleIcon" class="fa-solid fa-angles-down" style="color: #555"></i>
         </button>        
       </div>
 
       <!-- ローディングスピナー -->
       <div class="loading-spinner" id="propertyLoadingSpinner" aria-hidden="true"></div>
 
-      <div id="propertyListArea">
+      <div id="propertyListArea" class="hidden">
         <ul id="propertyResultUl"></ul>
       </div>
     </div>
