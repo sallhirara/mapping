@@ -334,7 +334,7 @@
     }
     */
     
-    
+
 
     /* 物件コンテナ */
     #propertyContainer {
@@ -494,9 +494,6 @@
       display: block;
     }
 
-
-
-
     #propertyListArea {
       flex: 1;
       overflow-y: auto;
@@ -628,12 +625,12 @@
     <div class="modal-content">
       <span class="close-button" onclick="closeInfoModal()" aria-label="Close Modal">&times;</span>
       <div class="tabs">
-        <button class="tab-button active" onclick="openTab('searchInfo')">Search Infomation</button>
-        <button class="tab-button" onclick="openTab('sub')">Sub</button>
+        <button class="tab-button active" onclick="openTab('searchResult')">Search Result</button>
+        <button class="tab-button" onclick="openTab('searchTips')">Search Tips</button>
       </div>
       <div class="tab-content">
-        <div id="searchInfo" class="tab-panel active">
-          <!-- searchInfo情報がここに表示されます -->
+        <div id="searchResult" class="tab-panel active">
+          <!-- searchResult情報がここに表示されます -->
           <p>
             1. Simple Search<br>
 
@@ -663,8 +660,8 @@ Tips:<br>
 •	The search is case-insensitive, so sunset villas and Sunset Villas yield the same results.<br>
           </p>
         </div>
-        <div id="sub" class="tab-panel">
-          <!-- sub情報がここに表示されます -->
+        <div id="searchTips" class="tab-panel">
+          <!-- searchTips情報がここに表示されます -->
           <p>sub</p>
         </div>
       </div>
@@ -736,7 +733,6 @@ Tips:<br>
           map.panInsideBounds(bounds, { animate: false });
       });      
 
-      
 
       // ダブルクリックズームを無効化
       map.doubleClickZoom.disable();
@@ -938,13 +934,8 @@ Tips:<br>
           const ul = document.getElementById('propertyResultUl');
           ul.innerHTML = "";
 
-          let results = [];
-          const complexPattern = /[:=()><]|(AND\b)|(OR\b)|(NOT\b)/i;
-          if (complexPattern.test(query)) {
-            results = parseComplexQuery(query, propertyData);
-          } else {
-            results = simpleSearch(propertyData, query);
-          }
+          // 常に簡易検索を使用
+          const results = simpleSearch(propertyData, query);
           if (results.length === 0) {
             alert("No matching properties found.");
             return;
@@ -1221,178 +1212,7 @@ Tips:<br>
       // -------------------------------------------------------
       // 7) Complex Search (parentheses, AND/OR/NOT, : = > >=)
       // -------------------------------------------------------
-      /**
-       * 複雑な検索クエリを解析してフィルタリングする関数
-       * @param {String} query - ユーザーのクエリ
-       * @param {Array} data - 物件データ
-       * @returns {Array} - 検索結果
-       */
-      function parseComplexQuery(query, data) {
-        const tokens = tokenizeComplex(query);
-        const ast = parseExpression(tokens);
-        if (tokens.length > 0) {
-          throw new Error("Extra tokens remain. Check parentheses or operators.");
-        }
-        return data.filter(item => evaluateAST(ast, item));
-      }
-
-      /**
-       * クエリをトークンに分解する関数
-       * @param {String} q - クエリ文字列
-       * @returns {Array} - トークンの配列
-       */
-      function tokenizeComplex(q) {
-        const pattern = /\(|\)|\bAND\b|\bOR\b|\bNOT\b|>=|>|=|:|"[^"]*"|\S+/gi;
-        const raw = q.match(pattern) || [];
-        const tokens = [];
-        raw.forEach(t => {
-          const upper = t.toUpperCase();
-          if (upper === 'AND' || upper === 'OR' || upper === 'NOT'
-           || t === '(' || t === ')' || t === '>' || t === '>='
-           || t === '=' || t === ':') {
-            tokens.push({ type: upper, text: t });
-          } else if (t.startsWith('"') && t.endsWith('"')) {
-            tokens.push({ type: 'STRING', text: t.slice(1, -1) });
-          } else {
-            tokens.push({ type: 'WORD', text: t });
-          }
-        });
-        return tokens;
-      }
-
-      /**
-       * 式を解析する関数
-       * @param {Array} tokens - トークンの配列
-       * @returns {Object} - 抽象構文木（AST）
-       */
-      function parseExpression(tokens) {
-        let left = parseTerm(tokens);
-        while (peek(tokens, 'OR')) {
-          consume(tokens, 'OR');
-          const right = parseTerm(tokens);
-          left = { type: 'OR', left, right };
-        }
-        return left;
-      }
-
-      function parseTerm(tokens) {
-        let left = parseFactor(tokens);
-        while (peek(tokens, 'AND')) {
-          consume(tokens, 'AND');
-          const right = parseFactor(tokens);
-          left = { type: 'AND', left, right };
-        }
-        return left;
-      }
-
-      function parseFactor(tokens) {
-        let isNot = false;
-        if (peek(tokens, 'NOT')) {
-          consume(tokens, 'NOT');
-          isNot = true;
-        }
-        let node;
-        if (peek(tokens, '(')) {
-          consume(tokens, '(');
-          node = parseExpression(tokens);
-          consume(tokens, ')');
-        } else {
-          node = parseCondition(tokens);
-        }
-        if (isNot) {
-          node = { type: 'NOT', expr: node };
-        }
-        return node;
-      }
-
-      function parseCondition(tokens) {
-        const colToken = consumeType(tokens, ['WORD']);
-        const opToken = nextToken(tokens);
-        if (![':', '=', '>', '>='].includes(opToken.text)) {
-          throw new Error(`Invalid operator: ${opToken.text}`);
-        }
-        const valToken = consumeType(tokens, ['WORD','STRING']);
-        return {
-          type: 'COND',
-          column: colToken.text,
-          op: opToken.text,
-          value: valToken.text
-        };
-      }
-
-      function peek(tokens, text) {
-        return tokens[0] && tokens[0].text.toUpperCase() === text.toUpperCase();
-      }
-
-      function consume(tokens, text) {
-        if (!peek(tokens, text)) {
-          throw new Error(`Expected "${text}" but got "${tokens[0]?.text}"`);
-        }
-        return tokens.shift();
-      }
-
-      function consumeType(tokens, types) {
-        if (!tokens[0] || !types.includes(tokens[0].type)) {
-          throw new Error(`Expected one of [${types.join(', ')}], got ${tokens[0]?.type}`);
-        }
-        return tokens.shift();
-      }
-
-      function nextToken(tokens) {
-        if (!tokens.length) throw new Error("Unexpected end of tokens.");
-        return tokens.shift();
-      }
-
-      /**
-       * 抽象構文木（AST）を評価する関数
-       * @param {Object} ast - 抽象構文木
-       * @param {Object} item - 物件データ
-       * @returns {Boolean} - 評価結果
-       */
-      function evaluateAST(ast, item) {
-        switch (ast.type) {
-          case 'OR':
-            return evaluateAST(ast.left, item) || evaluateAST(ast.right, item);
-          case 'AND':
-            return evaluateAST(ast.left, item) && evaluateAST(ast.right, item);
-          case 'NOT':
-            return !evaluateAST(ast.expr, item);
-          case 'COND':
-            return evaluateCondition(ast, item);
-          default:
-            throw new Error("Unknown AST node type: " + ast.type);
-        }
-      }
-
-      /**
-       * 条件を評価する関数
-       * @param {Object} cond - 条件オブジェクト
-       * @param {Object} item - 物件データ
-       * @returns {Boolean} - 評価結果
-       */
-      function evaluateCondition(cond, item) {
-        const col = cond.column.toLowerCase();
-        const op  = cond.op;
-        const val = cond.value;
-        let fieldVal = (item[col] || "").toString().toLowerCase();
-        let fieldNum = parseFloat(item[col]);
-
-        switch (op) {
-          case ':':
-            return fieldVal.includes(val.toLowerCase());
-          case '=':
-            return fieldVal === val.toLowerCase();
-          case '>':
-          case '>=': {
-            if (isNaN(fieldNum)) return false;
-            const cmp = parseFloat(val);
-            if (isNaN(cmp)) return false;
-            return (op === '>') ? (fieldNum > cmp) : (fieldNum >= cmp);
-          }
-          default:
-            return false;
-        }
-      }
+      // 複雑な検索機能を削除しました。
 
       // -------------------------------------------------------
       // 8) handleGeoSearch (Nominatim)
@@ -1694,7 +1514,7 @@ Tips:<br>
           if (isPCView()) {
             e.stopPropagation();
             isMenuOpen = !isMenuOpen;
-            updateMenuPosition(isMenuOpen ? 0 : -320); /* default -280 */
+            updateMenuPosition(isMenuOpen ? 0 : -320); /* default -320 */
             menuToggleBtn.innerHTML = isMenuOpen ? '&times;' : '☰';
             menuToggleBtn.setAttribute('aria-pressed', isMenuOpen);
           }
@@ -1709,7 +1529,7 @@ Tips:<br>
               !menuContainer.contains(e.target) && 
               e.target !== menuToggleBtn) {
             isMenuOpen = false;
-            updateMenuPosition(-320); /* default -280 */
+            updateMenuPosition(-320); /* default -320 */
             menuToggleBtn.innerHTML = '☰';
             menuToggleBtn.setAttribute('aria-pressed', isMenuOpen);
           }
@@ -1721,7 +1541,7 @@ Tips:<br>
         function handleMenuHover() {
           if (isPCView() && !isMenuOpen) {
             isHovering = true;
-            updateMenuPosition(-320); /* default -200 */
+            updateMenuPosition(-320); /* default -320 */
           }
         }
 
@@ -1731,7 +1551,7 @@ Tips:<br>
         function handleMenuHoverEnd() {
           if (isPCView() && !isMenuOpen) {
             isHovering = false;
-            updateMenuPosition(-320); /* default -280 */
+            updateMenuPosition(-320); /* default -320 */
           }
         }
 
@@ -1825,7 +1645,7 @@ Tips:<br>
           menuDragHandle.addEventListener('touchmove', handleMenuDragMove);
           menuDragHandle.addEventListener('touchend', handleMenuDragEnd);
         }
- 
+   
 
         
         /**
@@ -1843,12 +1663,11 @@ Tips:<br>
           }
         });
         
-        
 
         // リサイズイベントに対応
         window.addEventListener('resize', () => {
           if (isPCView()) {
-            updateMenuPosition(isMenuOpen ? 0 : -320); /* default -280 */
+            updateMenuPosition(isMenuOpen ? 0 : -320); /* default -320 */
             menuContainer.classList.remove('closed', 'half', 'full');
           } else {
             menuContainer.style.transform = '';
@@ -1970,7 +1789,7 @@ Tips:<br>
           });
         });
       })();
-  
+    
 
       // -------------------------------------------------------
       // 14) Modal Control Functions
