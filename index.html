@@ -772,7 +772,8 @@
         map.panTo(e.latlng, { animate: true });
       });
 
-      // タイルレイヤーの追加
+      // 既存のMapTilerタイルレイヤーをコメントアウトまたは削除
+      /*
       const streetLayer = L.tileLayer('https://api.maptiler.com/maps/basic/{z}/{x}/{y}.png?key=Sv80uSRLZxFEwRiW17Cg', {
         maxZoom: 19,
         attribution: '&copy; MapTiler &copy; OpenStreetMap contributors',
@@ -783,6 +784,21 @@
         maxZoom: 18,
         attribution: '&copy; MapTiler & OpenStreetMap contributors'
       });
+      */
+
+      // OSMの標準タイルレイヤーを追加
+      const streetLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+      }).addTo(map);
+
+      // サテライトビューを削除または他のプロバイダーに置き換える
+      // OSM標準タイルにはサテライトビューが含まれていないため、サテライトレイヤーを削除するか別のプロバイダーを使用します。
+      const satelliteLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; OpenStreetMap contributors'
+      });
+
 
       // 初期レイヤーを地図に追加
       streetLayer.addTo(map);
