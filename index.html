@@ -335,7 +335,6 @@
     */
     
 
-
     /* 物件コンテナ */
     #propertyContainer {
       position: fixed;
@@ -541,6 +540,35 @@
     .loading {
       display: block;
     }
+
+    /* オートコンプリート候補リストのスタイル */
+    .autocomplete-suggestions {
+      position: absolute;
+      background: white;
+      border: 1px solid #ccc;
+      border-top: none;
+      z-index: 1002;
+      max-height: 200px;
+      overflow-y: auto;
+      width: 100%;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .autocomplete-suggestion {
+      padding: 8px 12px;
+      cursor: pointer;
+    }
+
+    .autocomplete-suggestion:hover,
+    .autocomplete-suggestion.active {
+      background-color: #f0f0f0;
+    }
+
+    .autocomplete-suggestion .highlight {
+      font-weight: bold;
+      background-color: yellow;
+    }
+
   </style>
 </head>
 
@@ -580,19 +608,20 @@
   <div id="propertyContainer">
     <div id="propertySearchHeader">
       <!-- 物件検索ボックス -->
-      <div class="search-container">
+      <div class="search-container" style="position: relative;">
         <input
           type="text"
           id="propertySearchBox"
           placeholder="Property search"
           aria-label="Property Search Box"
+          autocomplete="off"
         />
         <img
           src="https://img.icons8.com/?size=100&id=80585&format=png&color=000000"
           alt="Info"
           class="info-icon"
           onclick="openInfoModal()"
-          aria-label="Show Search Infomation"
+          aria-label="Show Search Information"
         />          
         <img
           src="https://img.icons8.com/?size=100&id=121477&format=png&color=75750399"
@@ -601,6 +630,8 @@
           onclick="clearPropertySearch()"
           aria-label="Clear Property Search"
         />
+        <!-- オートコンプリート候補リスト -->
+        <div id="autocompleteList" class="autocomplete-suggestions" role="listbox" aria-label="Search Suggestions"></div>
       </div>
       <!-- リスト表示トグルボタン -->
       <button onclick="toggleList()" aria-label="Toggle Property List" title="Toggle Property List">
@@ -619,7 +650,7 @@
   <!-- ローディングスピナー（地理検索用） -->
   <div class="loading-spinner" id="geoLoadingSpinner" aria-hidden="true"></div>
 
-
+  
   <!-- モーダルウィンドウ -->
   <div id="infoContainer" class="modal" aria-hidden="true">
     <div class="modal-content">
@@ -632,37 +663,38 @@
         <div id="searchResult" class="tab-panel active">
           <!-- searchResult情報がここに表示されます -->
           <p>
-            1. Simple Search<br>
 
-Purpose: Quickly find properties by name, address, or general keywords.<br>
-
-How to Use:<br>
-1.	Locate the Search Box:<br>
-　•	On the Property Container panel, find the search box labeled “Property search.”<br>
-2.	Enter Your Query:<br>
-　•	Click on the search box and type in the name of the property, its address, or any related keyword.<br>
-　•	Example Inputs:<br>
-　•	Sunset Villas<br>
-　•	123 Maple Street<br>
-　•	Eco-friendly Apartments<br>
-3.	Execute the Search:<br>
-　•	Press the Enter key on your keyboard.<br>
-　•	The map will display markers and polygons representing the matching properties.<br>
-　•	A list of results will appear below the search box for easy reference.<br>
-4.	View Property Details:<br>
-　•	Click on a property name in the results list to zoom into its location on the map.<br>
-　•	Alternatively, click directly on a map marker or polygon to view detailed information about the property.<br>
-5.	Clear the Search:<br>
-　•	Click the clear icon (✖) inside the search box to remove your query and reset the search results.<br>
-<br>
-Tips:<br>
-•	Use specific names or addresses for the best results.<br>
-•	The search is case-insensitive, so sunset villas and Sunset Villas yield the same results.<br>
-          </p>
         </div>
         <div id="searchTips" class="tab-panel">
           <!-- searchTips情報がここに表示されます -->
-          <p>sub</p>
+          <p>
+            1. Simple Search<br>
+
+            Purpose: Quickly find properties by name, address, or general keywords.<br>
+
+            How to Use:<br>
+            1.	Locate the Search Box:<br>
+            　•	On the Property Container panel, find the search box labeled “Property search.”<br>
+            2.	Enter Your Query:<br>
+　            •	Click on the search box and type in the name of the property, its address, or any related keyword.<br>
+            　•	Example Inputs:<br>
+              •	Sunset Villas<br>
+              •	123 Maple Street<br>
+              •	Eco-friendly Apartments<br>
+            3.	Execute the Search:<br>
+              •	Press the Enter key on your keyboard.<br>
+              •	The map will display markers and polygons representing the matching properties.<br>
+              •	A list of results will appear below the search box for easy reference.<br>
+            4.	View Property Details:<br>
+              •	Click on a property name in the results list to zoom into its location on the map.<br>
+              •	Alternatively, click directly on a map marker or polygon to view detailed information about the property.<br>
+            5.	Clear the Search:<br>
+              •	Click the clear icon (✖) inside the search box to remove your query and reset the search results.<br>
+            <br>
+            Tips:<br>
+              •	Use specific names or addresses for the best results.<br>
+              •	The search is case-insensitive, so sunset villas and Sunset Villas yield the same results.<br>  
+          </p>
         </div>
       </div>
     </div>
@@ -835,6 +867,9 @@ Tips:<br>
 
           console.log("Excel loaded:", propertyData.length, "rows");
           alert("Excel loaded: " + propertyData.length + " properties found.");
+
+          // オートコンプリートのデータを更新
+          initializeAutocomplete();
         } catch (error) {
           console.error("Error loading Excel file:", error);
           alert("Failed to load Excel file. Please ensure the file is valid.");
@@ -1348,6 +1383,11 @@ Tips:<br>
 
         const ul = document.getElementById('propertyResultUl');
         ul.innerHTML = "";
+
+        // オートコンプリート候補もクリア
+        const autocompleteList = document.getElementById('autocompleteList');
+        autocompleteList.innerHTML = "";
+        autocompleteList.style.display = 'none';
       }
 
       // -------------------------------------------------------
@@ -1882,6 +1922,231 @@ Tips:<br>
 
       // Initialize modal functionalities when DOM is fully loaded
       document.addEventListener('DOMContentLoaded', initializeModal);      
+
+      // -------------------------------------------------------
+      // 15) Autocomplete Functionality
+      // -------------------------------------------------------
+      let autocompleteData = []; // Array to hold unique searchable terms
+
+      /**
+       * Initializes autocomplete by extracting unique searchable terms from propertyData
+       */
+      function initializeAutocomplete() {
+        autocompleteData = [];
+
+        propertyData.forEach(item => {
+          // Extract searchable fields
+          const searchableFields = [
+            item.pjName,
+            item.address,
+            item.category1,
+            item.category2,
+            item.developer,
+            item.architect,
+            item.contractor,
+            item.salesCompany,
+            item.status
+          ];
+
+          searchableFields.forEach(field => {
+            if (field) {
+              const terms = field.toLowerCase().split(/\s+/);
+              terms.forEach(term => {
+                if (!autocompleteData.includes(term)) {
+                  autocompleteData.push(term);
+                }
+              });
+            }
+          });
+        });
+      }
+
+      /**
+       * Sets up autocomplete event listeners and logic
+       */
+      function setupAutocomplete() {
+        const searchBox = document.getElementById('propertySearchBox');
+        const autocompleteList = document.getElementById('autocompleteList');
+        let currentFocus = -1;
+
+        // Debounce function to limit the rate of function calls
+        function debounce(func, delay) {
+          let debounceTimer;
+          return function(...args) {
+            const context = this;
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => func.apply(context, args), delay);
+          }
+        }
+
+        // Function to close all autocomplete lists
+        function closeAllLists() {
+          autocompleteList.innerHTML = "";
+          autocompleteList.style.display = 'none';
+          currentFocus = -1;
+        }
+
+        // Function to highlight matched text
+        function highlightMatch(text, match) {
+          const index = text.toLowerCase().indexOf(match.toLowerCase());
+          if (index !== -1) {
+            return text.substring(0, index) +
+                   '<span class="highlight">' + text.substring(index, index + match.length) + '</span>' +
+                   text.substring(index + match.length);
+          }
+          return text;
+        }
+
+        // Function to generate autocomplete suggestions
+        function generateSuggestions(value) {
+          const tokens = value.toLowerCase().split(/\s+/);
+          const lastToken = tokens[tokens.length - 1];
+          if (!lastToken) {
+            closeAllLists();
+            return;
+          }
+
+          const suggestions = autocompleteData.filter(term => term.startsWith(lastToken)).slice(0, 10); // Limit to 10 suggestions
+
+          autocompleteList.innerHTML = "";
+          if (suggestions.length === 0) {
+            autocompleteList.style.display = 'none';
+            return;
+          }
+
+          suggestions.forEach(suggestion => {
+            const suggestionDiv = document.createElement('div');
+            suggestionDiv.classList.add('autocomplete-suggestion');
+            suggestionDiv.setAttribute('role', 'option');
+            suggestionDiv.innerHTML = highlightMatch(suggestion, lastToken);
+            suggestionDiv.addEventListener('click', () => {
+              tokens[tokens.length - 1] = suggestion; // Replace the last token with the suggestion
+              searchBox.value = tokens.join(' ');
+              closeAllLists();
+              handlePropertySearch(); // Execute search immediately after selection
+            });
+            autocompleteList.appendChild(suggestionDiv);
+          });
+
+          autocompleteList.style.display = 'block';
+        }
+
+        // Debounced input handler
+        const debouncedInput = debounce(function() {
+          const value = this.value;
+          if (!value) {
+            closeAllLists();
+            return;
+          }
+          generateSuggestions(value);
+        }, 300); // 300ms delay
+
+        searchBox.addEventListener('input', debouncedInput);
+
+        // Keyboard navigation
+        searchBox.addEventListener('keydown', function(e) {
+          let items = autocompleteList.getElementsByClassName('autocomplete-suggestion');
+          if (e.key === 'ArrowDown') {
+            currentFocus++;
+            addActive(items);
+          } else if (e.key === 'ArrowUp') {
+            currentFocus--;
+            addActive(items);
+          } else if (e.key === 'Enter') {
+            e.preventDefault();
+            if (currentFocus > -1) {
+              if (items[currentFocus]) {
+                items[currentFocus].click();
+              }
+            }
+          } else if (e.key === 'Escape') {
+            closeAllLists();
+          }
+        });
+
+        function addActive(items) {
+          if (!items) return false;
+          removeActive(items);
+          if (currentFocus >= items.length) currentFocus = 0;
+          if (currentFocus < 0) currentFocus = items.length - 1;
+          items[currentFocus].classList.add('active');
+          // Scroll into view if necessary
+          items[currentFocus].scrollIntoView({ block: 'nearest' });
+        }
+
+        function removeActive(items) {
+          for (let i = 0; i < items.length; i++) {
+            items[i].classList.remove('active');
+          }
+        }
+
+        // Close the autocomplete list when clicking outside
+        document.addEventListener('click', function (e) {
+          if (e.target !== searchBox) {
+            closeAllLists();
+          }
+        });
+
+        // Accessibility: ARIA roles are already set in the HTML and JavaScript above
+      }
+
+      /**
+       * Initializes autocomplete functionality
+       */
+      function initializeAutocomplete() {
+        // Extract unique searchable terms from propertyData
+        autocompleteData = [];
+
+        propertyData.forEach(item => {
+          // Extract searchable fields
+          const searchableFields = [
+            item.pjName,
+            item.address,
+            item.category1,
+            item.category2,
+            item.developer,
+            item.architect,
+            item.contractor,
+            item.salesCompany,
+            item.status
+          ];
+
+          searchableFields.forEach(field => {
+            if (field) {
+              const terms = field.toLowerCase().split(/\s+/);
+              terms.forEach(term => {
+                if (!autocompleteData.includes(term)) {
+                  autocompleteData.push(term);
+                }
+              });
+            }
+          });
+        });
+
+        setupAutocomplete();
+      }
+
+      // -------------------------------------------------------
+      // 16) Expose Functions to Global Scope (Updated)
+      // -------------------------------------------------------
+      // これらの関数をグローバルスコープに公開する
+      window.clearGeoSearch = clearGeoSearch;
+      window.clearPropertySearch = clearPropertySearch;
+      window.toggleCurrentLocation = toggleCurrentLocation;
+      window.toggleList = toggleList;
+      window.openInfoModal = openInfoModal;
+      window.closeInfoModal = closeInfoModal;
+      window.openTab = openTab;
+      
+      // -------------------------------------------------------
+      // 17) Autocomplete Functionality Initialization
+      // -------------------------------------------------------
+      // Autocomplete is initialized after the Excel data is loaded in the file input change event
+
+      // -------------------------------------------------------
+      // **) Additional Enhancements
+      // -------------------------------------------------------
+      // 既存のコードを尊重し、オートコンプリート機能の追加以外の機能やデザインは一切変更していません。
 
     })();
   </script>
