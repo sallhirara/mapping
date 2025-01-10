@@ -1301,6 +1301,7 @@
           return;
         }
 
+        closeAllLists(); // オートコンプリート候補を閉じる
         closeUIElements();
 
         try {
@@ -2088,11 +2089,16 @@
               if (items[currentFocus]) {
                 items[currentFocus].click();
               }
+            } else {
+              // 候補が選択されていない場合、直接検索を実行
+              handlePropertySearch();
+              closeAllLists(); // 検索実行後に候補窓を閉じる
             }
           } else if (e.key === 'Escape') {
             closeAllLists();
           }
         });
+
 
         function addActive(items) {
           if (!items) return false;
