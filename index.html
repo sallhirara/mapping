@@ -28,7 +28,6 @@
     body {
       font-family: Arial, sans-serif;
       min-height: 100vh;
-      min-height: -webkit0fill-;
       overflow: hidden; 
       display: flex;
       flex-direction: column;
@@ -121,10 +120,8 @@
         font-size: 30px;
         color: #555;
         border: none;
-        /* border-radius: 0 5px 5px 0; */
         padding: 8px 12px;
         cursor: pointer;
-        /* box-shadow: 2px 0 5px rgba(0,0,0,0.1); */
         z-index: 1001;
         transition: color 0.3s;
       }
@@ -552,6 +549,7 @@
       overflow-y: auto;
       width: 100%;
       box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      display: none; /* 初期状態では非表示 */
     }
 
     .autocomplete-suggestion {
@@ -649,8 +647,8 @@
 
   <!-- ローディングスピナー（地理検索用） -->
   <div class="loading-spinner" id="geoLoadingSpinner" aria-hidden="true"></div>
-
   
+
   <!-- モーダルウィンドウ -->
   <div id="infoContainer" class="modal" aria-hidden="true">
     <div class="modal-content">
@@ -663,7 +661,7 @@
         <div id="searchResult" class="tab-panel active">
           <!-- searchResult情報がここに表示されます -->
           <p>
-
+  
         </div>
         <div id="searchTips" class="tab-panel">
           <!-- searchTips情報がここに表示されます -->
@@ -969,7 +967,7 @@
           const ul = document.getElementById('propertyResultUl');
           ul.innerHTML = "";
 
-          // 常に簡易検索を使用
+          // 簡易検索を使用
           const results = simpleSearch(propertyData, query);
           if (results.length === 0) {
             alert("No matching properties found.");
@@ -1199,7 +1197,21 @@
        * @returns {Array} - 検索結果
        */
       function simpleSearch(data, rawQuery) {
-        const tokens = rawQuery.toLowerCase().split(/\s+/);
+        // サポートする形式: "hai hong" da nang -someword
+        // 引用符で囲まれたフレーズを単一トークンとして扱う
+
+        // 正規表現で引用符内のフレーズを抽出
+        const regex = /"([^"]+)"|(\S+)/g;
+        const tokens = [];
+        let match;
+        while ((match = regex.exec(rawQuery.toLowerCase())) !== null) {
+          if (match[1]) {
+            tokens.push(match[1]); // 引用符内のフレーズ
+          } else {
+            tokens.push(match[2]); // 単一の単語
+          }
+        }
+
         const notWords = tokens.filter(t => t.startsWith("-")).map(t => t.slice(1));
         const andWords = tokens.filter(t => !t.startsWith("-") && t !== "and" && t !== "or");
 
@@ -1220,7 +1232,7 @@
             item.salesCompany,
             item.status,
             item.siteArea
-          ].join(" ").toLowerCase().replace(/\s+/g, "");
+          ].join(" ").toLowerCase().replace(/\s+/g, " ");
           return combined;
         }
 
@@ -1688,21 +1700,21 @@
    
 
         
-        /**
-         * Add by Sako
-         * 物件リスト外クリックでリスト閉じる
-         */        
-        // ドキュメント全体のクリックを監視してリストを閉じる
-        document.addEventListener('click', (event) => {
-          const propertyContainer = document.getElementById('propertyContainer'); // 物件コンテナ
-          const propertyListArea = document.getElementById('propertyListArea'); // 物件リスト
+          /**
+           * Add by Sako
+           * 物件リスト外クリックでリスト閉じる
+           */        
+          // ドキュメント全体のクリックを監視してリストを閉じる
+          document.addEventListener('click', (event) => {
+            const propertyContainer = document.getElementById('propertyContainer'); // 物件コンテナ
+            const propertyListArea = document.getElementById('propertyListArea'); // 物件リスト
 
-          // クリックした箇所が物件コンテナの外で、リストが表示されている場合
-          if (!propertyContainer.contains(event.target) && !propertyListArea.classList.contains('hidden')) {
-            toggleList(); // 既存のリストを閉じる関数を呼び出す
-          }
-        });
-        
+            // クリックした箇所が物件コンテナの外で、リストが表示されている場合
+            if (!propertyContainer.contains(event.target) && !propertyListArea.classList.contains('hidden')) {
+              toggleList(); // 既存のリストを閉じる関数を呼び出す
+            }
+          });
+          
 
         // リサイズイベントに対応
         window.addEventListener('resize', () => {
@@ -1948,9 +1960,16 @@
             item.status
           ];
 
+          // Include both individual terms and entire phrases
           searchableFields.forEach(field => {
             if (field) {
-              const terms = field.toLowerCase().split(/\s+/);
+              const lowerField = field.toLowerCase();
+              // Add the entire field as a term (for multi-word keywords)
+              if (!autocompleteData.includes(lowerField)) {
+                autocompleteData.push(lowerField);
+              }
+              // Split into individual words and add them
+              const terms = lowerField.split(/\s+/);
               terms.forEach(term => {
                 if (!autocompleteData.includes(term)) {
                   autocompleteData.push(term);
@@ -1959,6 +1978,8 @@
             }
           });
         });
+
+        setupAutocomplete();
       }
 
       /**
@@ -1999,14 +2020,13 @@
 
         // Function to generate autocomplete suggestions
         function generateSuggestions(value) {
-          const tokens = value.toLowerCase().split(/\s+/);
-          const lastToken = tokens[tokens.length - 1];
-          if (!lastToken) {
+          const trimmedValue = value.trim().toLowerCase();
+          if (!trimmedValue) {
             closeAllLists();
             return;
           }
 
-          const suggestions = autocompleteData.filter(term => term.startsWith(lastToken)).slice(0, 10); // Limit to 10 suggestions
+          const suggestions = autocompleteData.filter(term => term.startsWith(trimmedValue)).slice(0, 10); // Limit to 10 suggestions
 
           autocompleteList.innerHTML = "";
           if (suggestions.length === 0) {
@@ -2018,10 +2038,9 @@
             const suggestionDiv = document.createElement('div');
             suggestionDiv.classList.add('autocomplete-suggestion');
             suggestionDiv.setAttribute('role', 'option');
-            suggestionDiv.innerHTML = highlightMatch(suggestion, lastToken);
+            suggestionDiv.innerHTML = highlightMatch(suggestion, trimmedValue);
             suggestionDiv.addEventListener('click', () => {
-              tokens[tokens.length - 1] = suggestion; // Replace the last token with the suggestion
-              searchBox.value = tokens.join(' ');
+              searchBox.value = suggestion;
               closeAllLists();
               handlePropertySearch(); // Execute search immediately after selection
             });
@@ -2033,12 +2052,7 @@
 
         // Debounced input handler
         const debouncedInput = debounce(function() {
-          const value = this.value;
-          if (!value) {
-            closeAllLists();
-            return;
-          }
-          generateSuggestions(value);
+          generateSuggestions(this.value);
         }, 300); // 300ms delay
 
         searchBox.addEventListener('input', debouncedInput);
@@ -2088,42 +2102,6 @@
         });
 
         // Accessibility: ARIA roles are already set in the HTML and JavaScript above
-      }
-
-      /**
-       * Initializes autocomplete functionality
-       */
-      function initializeAutocomplete() {
-        // Extract unique searchable terms from propertyData
-        autocompleteData = [];
-
-        propertyData.forEach(item => {
-          // Extract searchable fields
-          const searchableFields = [
-            item.pjName,
-            item.address,
-            item.category1,
-            item.category2,
-            item.developer,
-            item.architect,
-            item.contractor,
-            item.salesCompany,
-            item.status
-          ];
-
-          searchableFields.forEach(field => {
-            if (field) {
-              const terms = field.toLowerCase().split(/\s+/);
-              terms.forEach(term => {
-                if (!autocompleteData.includes(term)) {
-                  autocompleteData.push(term);
-                }
-              });
-            }
-          });
-        });
-
-        setupAutocomplete();
       }
 
       // -------------------------------------------------------
