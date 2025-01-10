@@ -543,6 +543,7 @@
       position: absolute;
       background: white;
       border: 1px solid #ccc;
+      border-daradius: 10px;
       border-top: none;
       z-index: 1002;
       max-height: 200px;
@@ -953,6 +954,7 @@
         }
 
         closeUIElements();
+        closeAllLists(); // 検索開始時に候補窓を閉じる
 
         try {
           // ローディングスピナーを表示
