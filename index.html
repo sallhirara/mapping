@@ -543,7 +543,6 @@
       position: absolute;
       background: white;
       border: 1px solid #ccc;
-      border-radius: 10px;
       border-top: none;
       z-index: 1002;
       max-height: 200px;
@@ -565,7 +564,7 @@
 
     .autocomplete-suggestion .highlight {
       font-weight: bold;
-      background-color: rgba(255, 255, 0, 0.6);
+      background-color: yellow;
     }
 
   </style>
@@ -773,6 +772,7 @@
         map.panTo(e.latlng, { animate: true });
       });
 
+
       // 既存のMapTilerタイルレイヤーをコメントアウトまたは削除
       /*
       const streetLayer = L.tileLayer('https://api.maptiler.com/maps/basic/{z}/{x}/{y}.png?key=Sv80uSRLZxFEwRiW17Cg', {
@@ -799,7 +799,6 @@
         maxZoom: 19,
         attribution: '&copy; OpenStreetMap contributors'
       });
-
 
       // 初期レイヤーを地図に追加
       streetLayer.addTo(map);
@@ -1302,7 +1301,6 @@
           return;
         }
 
-        closeAllLists(); // オートコンプリート候補を閉じる
         closeUIElements();
 
         try {
@@ -2090,16 +2088,11 @@
               if (items[currentFocus]) {
                 items[currentFocus].click();
               }
-            } else {
-              // 候補が選択されていない場合、直接検索を実行
-              handlePropertySearch();
-              closeAllLists(); // 検索実行後に候補窓を閉じる
             }
           } else if (e.key === 'Escape') {
             closeAllLists();
           }
         });
-
 
         function addActive(items) {
           if (!items) return false;
