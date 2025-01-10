@@ -2073,6 +2073,7 @@
                 items[currentFocus].click();
               }
             }
+            closeAllLists(); // エンターキー押下時に候補窓を閉じる
           } else if (e.key === 'Escape') {
             closeAllLists();
           }
