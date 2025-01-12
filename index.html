@@ -541,9 +541,10 @@
     /* オートコンプリート候補リストのスタイル */
     .autocomplete-suggestions {
       position: absolute;
+      margin-top: 5px;
       background: white;
       border: 1px solid #ccc;
-      border-top: none;
+      border-radius: 10px;
       z-index: 1002;
       max-height: 200px;
       overflow-y: auto;
@@ -773,28 +774,13 @@
       });
 
 
-      // 既存のMapTilerタイルレイヤーをコメントアウトまたは削除
-      /*
-      const streetLayer = L.tileLayer('https://api.maptiler.com/maps/basic/{z}/{x}/{y}.png?key=Sv80uSRLZxFEwRiW17Cg', {
-        maxZoom: 19,
-        attribution: '&copy; MapTiler &copy; OpenStreetMap contributors',
-        detectRetina: true
-      });
-
-      const satelliteLayer = L.tileLayer('https://api.maptiler.com/maps/satellite/{z}/{x}/{y}.jpg?key=Sv80uSRLZxFEwRiW17Cg', {
-        maxZoom: 18,
-        attribution: '&copy; MapTiler & OpenStreetMap contributors'
-      });
-      */
-
       // OSMの標準タイルレイヤーを追加
       const streetLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19,
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
       }).addTo(map);
 
-      // サテライトビューを削除または他のプロバイダーに置き換える
-      // OSM標準タイルにはサテライトビューが含まれていないため、サテライトレイヤーを削除するか別のプロバイダーを使用します。
+      // サテライトビュー（ダミーとしてOSMを再度使用）
       const satelliteLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19,
         attribution: '&copy; OpenStreetMap contributors'
@@ -921,6 +907,7 @@
 
       /**
        * Excelデータをパースして物件データ配列を作成する関数
+       * ここで新たに Country / Region / Data Name / Administrative Division / Local Authority / Street を追加
        * @param {Array} data - Excelから読み込まれたデータ
        * @returns {Array} - パースされた物件データ
        */
@@ -938,6 +925,14 @@
           siteArea:     row["Site Area"]      || "",
           latitude:     parseFloat(row["Latitude"]   || "NaN"),
           longitude:    parseFloat(row["Longitude"]  || "NaN"),
+
+          // 追加カラム
+          country:                row["Country"]                 || "",
+          region:                 row["Region"]                  || "",
+          dataName:               row["Data Name"]               || "",
+          administrativeDivision: row["Administrative Division"] || "",
+          localAuthority:         row["Local Authority"]         || "",
+          street:                 row["Street"]                  || ""
         }));
       }
 
@@ -1165,6 +1160,7 @@
 
       /**
        * ポップアップ内容構築
+       * ※ ポップアップには今回追加の6カラムは表示しない
        * @param {Object} item - 物件データ
        * @returns {String} - HTMLコンテンツ
        */
@@ -1233,6 +1229,7 @@
 
         /**
          * アイテムのテキストを構築
+         * ※ 新たに追加した6カラムも検索対象に含める
          * @param {Object} item - 物件データ
          * @returns {String} - 結合されたテキスト
          */
@@ -1247,7 +1244,15 @@
             item.contractor,
             item.salesCompany,
             item.status,
-            item.siteArea
+            item.siteArea,
+
+            // 追加分
+            item.country,
+            item.region,
+            item.dataName,
+            item.administrativeDivision,
+            item.localAuthority,
+            item.street
           ].join(" ").toLowerCase().replace(/\s+/g, " ");
           return combined;
         }
@@ -1714,8 +1719,6 @@
           menuDragHandle.addEventListener('touchend', handleMenuDragEnd);
         }
    
-
-        
           /**
            * Add by Sako
            * 物件リスト外クリックでリスト閉じる
@@ -1958,6 +1961,7 @@
 
       /**
        * Initializes autocomplete by extracting unique searchable terms from propertyData
+       * ここで追加カラムも含めて検索候補に含める
        */
       function initializeAutocomplete() {
         autocompleteData = [];
@@ -1973,7 +1977,15 @@
             item.architect,
             item.contractor,
             item.salesCompany,
-            item.status
+            item.status,
+
+            // 追加分
+            item.country,
+            item.region,
+            item.dataName,
+            item.administrativeDivision,
+            item.localAuthority,
+            item.street
           ];
 
           // Include both individual terms and entire phrases
