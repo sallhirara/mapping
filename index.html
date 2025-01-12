@@ -42,33 +42,6 @@
       z-index: 3002;
     }
 
-
-    /* 地域選択ドロップダウンのスタイル */
-    .region-select-container select {
-      width: 100%;
-      padding: 8px;
-      border: 1px solid grey;
-      border-radius: 15px;
-      font-size: 16px;
-    }
-
-    .region-select-container button {
-      width: 100%;
-      padding: 8px;
-      margin-top: 5px;
-      background-color: #007bff;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      font-size: 16px;
-    }
-
-    .region-select-container button:hover {
-      background-color: #0056b3;
-    }    
-
-
     /* メディアクエリ: モバイル */
     @media screen and (max-width: 768px) {
       /* メニューコンテナのスタイル */
@@ -755,35 +728,6 @@
         </label>
         <input type="file" id="fileInput" accept=".xls,.xlsx,.xlsm" aria-hidden="true" />
       </div>      
-
-      <!-- 地域選択ドロップダウンを追加 -->
-      <div class="region-select-container" style="padding: 10px;">
-        <label for="regionSelect" style="display: block; margin-bottom: 5px;">Select Region or Union:</label>
-        <select id="regionSelect" aria-label="Select Region">
-          <option value="">-- Select a Region --</option>
-          <option value="ASIA">Asia</option>
-          <option value="Oceania">Oceania</option>
-          <option value="NorthAmerica">North America</option>
-          <option value="CentralSouthAmerica">Central & South America</option>
-          <option value="Europe">Europe</option>
-          <option value="Africa">Africa</option>
-          <option value="MiddleEast">Middle East</option>
-          <option value="">-- Select a Union --</option>
-          <option value="ASEAN">ASEAN</option>
-          <option value="EU">EU</option>
-          <option value="G7">G7</option>
-          <option value="G20">G20</option>
-          <option value="NATO">NATO</option>
-          <option value="OECD">OECD</option>
-          <option value="BRICS">BRICS</option>
-          <option value="MERCOSUR">MERCOSUR</option>
-          <!-- 必要に応じて他の地域も追加 -->
-        </select>
-        <button onclick="handleRegionSearch()" aria-label="Search Region" title="Search Region" style="margin-top: 10px;">
-          Search
-        </button>
-      </div>
-
       <ul>
         <li><a href="#option1" tabindex="0">Option 1</a></li>
         <li><a href="#option2" tabindex="0">Option 2</a></li>
@@ -2010,152 +1954,186 @@
       // Initialize modal functionalities when DOM is fully loaded
       document.addEventListener('DOMContentLoaded', initializeModal);      
 
-
-
       // -------------------------------------------------------
-      // 15) Region Search Functionality
+      // 15) Autocomplete Functionality
       // -------------------------------------------------------
-
-      // 地域と国のマッピング
-      const regionCountryMap = {
-        // Resions
-        "ASIA": ["Japan", "China", "India", "South Korea", "North Korea", "Indonesia", "Malaysia", "Thailand", "Vietnam", "Philippines", "Singapore", "Taiwan", "Hong Kong"],
-        "Oceania": ["Australia", "New Zealand", "Fiji", "Papua New Guinea", "Samoa", "Solomon Islands", "Vanuatu", "Kiribati", "Micronesia", "Marshall Islands", "Palau", "Tuvalu", "Nauru", "Cook Islands", "Niue"],
-        "NorthAmerica": ["United States", "Canada", "Mexico", "Belize", "Costa Rica", "Panama", "El Salvador", "Honduras", "Guatemala", "Cuba", "Bahamas", "Barbados", "Antigua and Barbuda", "Dominica", "Grenada", "Saint Kitts and Nevis", "Saint Lucia", "Saint Vincent and the Grenadines", "Trinidad and Tobago"],
-        "CentralSouthAmerica": ["Argentina", "Bolivia", "Brazil", "Chile", "Colombia", "Ecuador", "Peru", "Venezuela", "Paraguay", "Uruguay", "Suriname"],
-        "Europe": ["Albania", "Andorra", "Austria", "Belarus", "Belgium", "Bosnia and Herzegovina", "Bulgaria", "Croatia", "Czech Republic", "Denmark", "Estonia", "Finland", "France", "Germany", "Greece", "Hungary", "Iceland", "Ireland", "Italy", "Latvia", "Lithuania", "Luxembourg", "Malta", "Moldova", "Monaco", "Montenegro", "Netherlands", "Norway", "Poland", "Portugal", "Romania", "Russia", "San Marino", "Serbia", "Slovakia", "Slovenia", "Spain", "Sweden", "Switzerland", "Ukraine", "United Kingdom", "Vatican City"],
-        "Africa": ["Algeria", "Angola", "Benin", "Botswana", "Burkina Faso", "Burundi", "Cameroon", "Central African Republic", "Chad", "Comoros", "Congo", "Côte d'Ivoire", "Djibouti", "Egypt", "Eritrea", "Eswatini", "Ethiopia", "Gabon", "Gambia", "Ghana", "Guinea", "Guinea-Bissau", "Kenya", "Lesotho", "Liberia", "Libya", "Madagascar", "Malawi", "Mali", "Mauritania", "Mauritius", "Morocco", "Mozambique", "Namibia", "Niger", "Nigeria", "Rwanda", "Senegal", "Seychelles", "Sierra Leone", "Somalia", "South Africa", "Sudan", "South Sudan", "Tanzania", "Togo", "Uganda", "Zambia", "Zimbabwe"],
-        "MiddleEast": ["Bahrain", "Iran", "Iraq", "Israel", "Jordan", "Kuwait", "Lebanon", "Oman", "Qatar", "Saudi Arabia", "Syria", "Turkey", "United Arab Emirates"],
-        // Unions
-        "ASEAN": ["Brunei Darussalam", "Cambodia", "Indonesia", "Laos", "Malaysia", "Myanmar", "Philippines", "Singapore", "Thailand", "Vietnam"],
-        "EU": ["Austria", "Belgium", "Bulgaria", "Croatia", "Cyprus", "Czech Republic", "Denmark", "Estonia", "Finland", "France", "Germany", "Greece", "Hungary", "Ireland", "Italy", "Latvia", "Lithuania", "Luxembourg", "Malta", "Netherlands", "Poland", "Portugal", "Romania", "Slovakia", "Slovenia", "Spain", "Sweden"],
-        "G7": ["Canada", "France", "Germany", "Italy", "Japan", "United Kingdom", "United States"],
-        "G20": ["Argentina", "Australia", "Brazil", "Canada", "China", "France", "Germany", "India", "Indonesia", "Italy", "Japan", "Mexico", "Russia", "Saudi Arabia", "South Africa", "South Korea", "Turkey", "United Kingdom", "United States", "European Union"],
-        "NATO": ["Albania", "Belgium", "Bulgaria", "Canada", "Croatia", "Czech Republic", "Denmark", "Estonia", "Finland", "France", "Germany", "Greece", "Hungary", "Iceland", "Italy", "Latvia", "Lithuania", "Luxembourg", "Montenegro", "Netherlands", "North Macedonia", "Norway", "Poland", "Portugal", "Romania", "Slovakia", "Slovenia", "Spain", "Turkey", "United Kingdom", "United States"],
-        "OECD": ["Australia", "Austria", "Belgium", "Canada", "Chile", "Colombia", "Costa Rica", "Czech Republic", "Denmark", "Estonia", "Finland", "France", "Germany", "Greece", "Hungary", "Iceland", "Ireland", "Israel", "Italy", "Japan", "South Korea", "Latvia", "Lithuania", "Luxembourg", "Mexico", "Netherlands", "New Zealand", "Norway", "Poland", "Portugal", "Slovak Republic", "Slovenia", "Spain", "Sweden", "Switzerland", "Turkey", "United Kingdom", "United States"],
-        "BRICS": ["Brazil", "Russia", "India", "China", "South Africa"],
-        "MERCOSUR": ["Argentina", "Brazil", "Paraguay", "Uruguay", "Venezuela"]
-      };
-
-      // 地域ごとの色設定
-      const regionColors = {
-        // Resions
-        "ASIA": "#1f78b4",
-        "Oceania": "#1f78b4",
-        "NorthAmerica": "#1f78b4",
-        "CentralSouthAmerica": "#1f78b4",
-        "Europe": "#1f78b4",
-        "Africa": "#1f78b4",
-        "MiddleEast": "#1f78b4",
-        // Unions
-        "ASEAN": "#33a02c",
-        "EU": "#33a02c",
-        "G7": "#33a02c",
-        "G20": "#33a02c",
-        "NATO": "#33a02c",
-        "OECD": "#33a02c",
-        "BRICS": "#33a02c",
-        "MERCOSUR": "#33a02c",
-      };
-
-      // 地域検索用のレイヤー
-      let countriesLayer = null;
-      let currentHighlightedRegions = [];
+      let autocompleteData = []; // Array to hold unique searchable terms
 
       /**
-       * 地域検索を処理する関数
+       * Initializes autocomplete by extracting unique searchable terms from propertyData
+       * ここで追加カラムも含めて検索候補に含める
        */
-      async function handleRegionSearch() {
-        const regionSelect = document.getElementById('regionSelect');
-        const selectedRegion = regionSelect.value;
+      function initializeAutocomplete() {
+        autocompleteData = [];
 
-        // 既存のハイライトをクリア
-        clearRegionHighlights();
+        propertyData.forEach(item => {
+          // Extract searchable fields
+          const searchableFields = [
+            item.pjName,
+            item.address,
+            item.category1,
+            item.category2,
+            item.developer,
+            item.architect,
+            item.contractor,
+            item.salesCompany,
+            item.status,
 
-        if (!selectedRegion) {
-          alert("Please select a region.");
-          return;
+            // 追加分
+            item.country,
+            item.region,
+            item.dataName,
+            item.administrativeDivision,
+            item.localAuthority,
+            item.street
+          ];
+
+          // Include both individual terms and entire phrases
+          searchableFields.forEach(field => {
+            if (field) {
+              const lowerField = field.toLowerCase();
+              // Add the entire field as a term (for multi-word keywords)
+              if (!autocompleteData.includes(lowerField)) {
+                autocompleteData.push(lowerField);
+              }
+              // Split into individual words and add them
+              const terms = lowerField.split(/\s+/);
+              terms.forEach(term => {
+                if (!autocompleteData.includes(term)) {
+                  autocompleteData.push(term);
+                }
+              });
+            }
+          });
+        });
+
+        setupAutocomplete();
+      }
+
+      /**
+       * Sets up autocomplete event listeners and logic
+       */
+      function setupAutocomplete() {
+        const searchBox = document.getElementById('propertySearchBox');
+        const autocompleteList = document.getElementById('autocompleteList');
+        let currentFocus = -1;
+
+        // Debounce function to limit the rate of function calls
+        function debounce(func, delay) {
+          let debounceTimer;
+          return function(...args) {
+            const context = this;
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => func.apply(context, args), delay);
+          }
         }
 
-        const countries = regionCountryMap[selectedRegion];
-        if (!countries || countries.length === 0) {
-          alert("No countries found for the selected region.");
-          return;
+        // Function to close all autocomplete lists
+        function closeAllLists() {
+          autocompleteList.innerHTML = "";
+          autocompleteList.style.display = 'none';
+          currentFocus = -1;
         }
 
-        try {
-          // ローディングスピナーを表示
-          showLoadingSpinner('propertyLoadingSpinner');
+        // Function to highlight matched text
+        function highlightMatch(text, match) {
+          const index = text.toLowerCase().indexOf(match.toLowerCase());
+          if (index !== -1) {
+            return text.substring(0, index) +
+                   '<span class="highlight">' + text.substring(index, index + match.length) + '</span>' +
+                   text.substring(index + match.length);
+          }
+          return text;
+        }
 
-          // GeoJSONデータをロード
-          const geoData = await fetchCountriesGeoJSON();
-
-          // 地域に属する国々をフィルタリング
-          const selectedCountriesGeoJSON = {
-            type: "FeatureCollection",
-            features: geoData.features.filter(feature => {
-              const countryName = feature.properties.ADMIN || feature.properties.NAME;
-              return countries.includes(countryName);
-            })
-          };
-
-          // レイヤーを作成
-          if (countriesLayer) {
-            map.removeLayer(countriesLayer);
+        // Function to generate autocomplete suggestions
+        function generateSuggestions(value) {
+          const trimmedValue = value.trim().toLowerCase();
+          if (!trimmedValue) {
+            closeAllLists();
+            return;
           }
 
-          countriesLayer = L.geoJSON(selectedCountriesGeoJSON, {
-            style: {
-              color: regionColors[selectedRegion] || '#000000',
-              weight: 1,
-              fillOpacity: 0.3
-            },
-            onEachFeature: function (feature, layer) {
-              layer.bindPopup(`<strong>${feature.properties.ADMIN || feature.properties.NAME}</strong>`);
+          const suggestions = autocompleteData.filter(term => term.startsWith(trimmedValue)).slice(0, 10); // Limit to 10 suggestions
+
+          autocompleteList.innerHTML = "";
+          if (suggestions.length === 0) {
+            autocompleteList.style.display = 'none';
+            return;
+          }
+
+          suggestions.forEach(suggestion => {
+            const suggestionDiv = document.createElement('div');
+            suggestionDiv.classList.add('autocomplete-suggestion');
+            suggestionDiv.setAttribute('role', 'option');
+            suggestionDiv.innerHTML = highlightMatch(suggestion, trimmedValue);
+            suggestionDiv.addEventListener('click', () => {
+              searchBox.value = suggestion;
+              closeAllLists();
+              handlePropertySearch(); // Execute search immediately after selection
+            });
+            autocompleteList.appendChild(suggestionDiv);
+          });
+
+          autocompleteList.style.display = 'block';
+        }
+
+        // Debounced input handler
+        const debouncedInput = debounce(function() {
+          generateSuggestions(this.value);
+        }, 300); // 300ms delay
+
+        searchBox.addEventListener('input', debouncedInput);
+
+        // Keyboard navigation
+        searchBox.addEventListener('keydown', function(e) {
+          let items = autocompleteList.getElementsByClassName('autocomplete-suggestion');
+          if (e.key === 'ArrowDown') {
+            currentFocus++;
+            addActive(items);
+          } else if (e.key === 'ArrowUp') {
+            currentFocus--;
+            addActive(items);
+          } else if (e.key === 'Enter') {
+            e.preventDefault();
+            if (currentFocus > -1) {
+              if (items[currentFocus]) {
+                items[currentFocus].click();
+              }
             }
-          }).addTo(map);
+          } else if (e.key === 'Escape') {
+            closeAllLists();
+          }
+        });
 
-          currentHighlightedRegions.push(selectedRegion);
-
-          // 地図の表示範囲を調整
-          const bounds = countriesLayer.getBounds();
-          map.fitBounds(bounds, { padding: [50, 50] });
-
-        } catch (error) {
-          console.error("Error during region search:", error);
-          alert("An error occurred during the region search. Please try again.");
-        } finally {
-          // ローディングスピナーを非表示
-          hideLoadingSpinner('propertyLoadingSpinner');
+        function addActive(items) {
+          if (!items) return false;
+          removeActive(items);
+          if (currentFocus >= items.length) currentFocus = 0;
+          if (currentFocus < 0) currentFocus = items.length - 1;
+          items[currentFocus].classList.add('active');
+          // Scroll into view if necessary
+          items[currentFocus].scrollIntoView({ block: 'nearest' });
         }
-      }
 
-      /**
-       * GeoJSONデータを取得する関数
-       * @returns {Promise<Object>} - GeoJSONデータ
-       */
-      async function fetchCountriesGeoJSON() {
-        const response = await fetch('https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson');
-        if (!response.ok) {
-          throw new Error("Failed to fetch GeoJSON data.");
+        function removeActive(items) {
+          for (let i = 0; i < items.length; i++) {
+            items[i].classList.remove('active');
+          }
         }
-        const data = await response.json();
-        return data;
-      }
 
-      /**
-       * 地域ハイライトをクリアする関数
-       */
-      function clearRegionHighlights() {
-        if (countriesLayer) {
-          map.removeLayer(countriesLayer);
-          countriesLayer = null;
-        }
-        currentHighlightedRegions = [];
+        // Close the autocomplete list when clicking outside
+        document.addEventListener('click', function (e) {
+          if (e.target !== searchBox) {
+            closeAllLists();
+          }
+        });
+
+        // Accessibility: ARIA roles are already set in the HTML and JavaScript above
       }
 
       // -------------------------------------------------------
-      // 17) Expose Functions to Global Scope (Updated)
+      // 16) Expose Functions to Global Scope (Updated)
       // -------------------------------------------------------
       // これらの関数をグローバルスコープに公開する
       window.clearGeoSearch = clearGeoSearch;
@@ -2165,8 +2143,6 @@
       window.openInfoModal = openInfoModal;
       window.closeInfoModal = closeInfoModal;
       window.openTab = openTab;
-      window.handleRegionSearch = handleRegionSearch;
-      window.clearRegionHighlights = clearRegionHighlights;
       
       // -------------------------------------------------------
       // 17) Autocomplete Functionality Initialization
