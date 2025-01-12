@@ -170,6 +170,69 @@
         font-size: 16px;
     }
 
+
+
+
+    .container-wrapper {
+        margin: 10px 20px; /* コンテナ間のスペース */
+    }
+
+    .container-title {
+        font-size: 16px;
+        margin-bottom: 0px;
+        color: #333;
+    }
+
+    .button-container {
+        width: 100%;
+        max-width: 100%; /* 必要に応じて調整 */
+        overflow-x: auto; /* 横方向にスクロール可能にする */
+        display: flex; /* フレックスボックスで横並び */
+        white-space: nowrap; /* 子要素を横並びにする */
+        border: none;
+        border-radius: 5px;
+        background-color: #fff;
+        padding: 10px;
+        box-sizing: border-box;
+
+        /* スクロールバーを非表示にする */
+        -ms-overflow-style: none; /* IE and Edge */
+        scrollbar-width: none; /* Firefox */
+    }
+
+    .button-container::-webkit-scrollbar {
+        display: none; /* Safari and Chrome */
+    }
+
+    .button-container button {
+        flex: 0 0 auto; /* ボタンのサイズを固定 */
+        margin-right: 10px; /* ボタン間のスペース */
+        padding: 5px 10px;
+        font-size: 12px;
+        border: none;
+        border-radius: 12px;
+        background-color: #007BFF;
+        color: white;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+
+    .button-container button:hover {
+        background-color: #0056b3;
+    }
+
+    /* レスポンシブ対応 */
+    @media (max-width: 600px) {
+        .button-container button {
+            padding: 8px 16px;
+            font-size: 14px;
+        }
+    }    
+
+
+
+
+
     /* 検索コンテナ */
     .search-container {
       position: relative;
@@ -728,6 +791,62 @@
         </label>
         <input type="file" id="fileInput" accept=".xls,.xlsx,.xlsm" aria-hidden="true" />
       </div>      
+
+    <!-- Region Container -->
+    <div class="container-wrapper">
+      <div class="container-title">Region Container</div>
+      <div class="button-container">
+          <button>Region 1</button>
+          <button>Region 2</button>
+          <button>Region 3</button>
+          <button>Region 4</button>
+          <button>Region 5</button>
+          <button>Region 6</button>
+          <button>Region 7</button>
+          <button>Region 8</button>
+          <button>Region 9</button>
+          <button>Region 10</button>
+          <!-- 必要に応じてボタンを追加 -->
+      </div>
+  </div>
+
+  <!-- Union Container -->
+  <div class="container-wrapper">
+      <div class="container-title">Union Container</div>
+      <div class="button-container">
+          <button>Union 1</button>
+          <button>Union 2</button>
+          <button>Union 3</button>
+          <button>Union 4</button>
+          <button>Union 5</button>
+          <button>Union 6</button>
+          <button>Union 7</button>
+          <button>Union 8</button>
+          <button>Union 9</button>
+          <button>Union 10</button>
+          <!-- 必要に応じてボタンを追加 -->
+      </div>
+  </div>
+
+  <!-- Country Container -->
+  <div class="container-wrapper">
+      <div class="container-title">Country Container</div>
+      <div class="button-container">
+          <button>Country 1</button>
+          <button>Country 2</button>
+          <button>Country 3</button>
+          <button>Country 4</button>
+          <button>Country 5</button>
+          <button>Country 6</button>
+          <button>Country 7</button>
+          <button>Country 8</button>
+          <button>Country 9</button>
+          <button>Country 10</button>
+          <!-- 必要に応じてボタンを追加 -->
+      </div>
+  </div>
+
+      
       <ul>
         <li><a href="#option1" tabindex="0">Option 1</a></li>
         <li><a href="#option2" tabindex="0">Option 2</a></li>
