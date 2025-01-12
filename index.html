@@ -164,11 +164,28 @@
 
     /* top-bar の入力欄（info-iconなし） */
     #top-bar .search-container input {
-        padding: 6px 35px 6px 10px; /* 右側のみclear-iconのスペース */
+        padding: 6px 35px 6px 35px; /* 両側にアイコンのスペース */
         border: 1px solid grey;
         border-radius: 15px;
         font-size: 16px;
     }
+
+    .union-icon {
+      position: absolute;
+      left: 8px;
+      top: 18%;
+      transform: translateY(-0%);
+      width: 20px;
+      height: 20px;
+      cursor: pointer;
+      opacity: 0.7;
+      transition: opacity 0.3s, transform 0.3s;
+    }
+
+    .union-icon:hover {
+      opacity: 1;
+      transform: scale(1.2);
+    }    
 
     /* 検索コンテナ */
     .search-container {
@@ -608,13 +625,6 @@
     <div id="propertySearchHeader">
       <!-- 物件検索ボックス -->
       <div class="search-container" style="position: relative;">
-        <input
-          type="text"
-          id="propertySearchBox"
-          placeholder="Property search"
-          aria-label="Property Search Box"
-          autocomplete="off"
-        />
         <img
           src="https://img.icons8.com/?size=100&id=80585&format=png&color=000000"
           alt="Info"
@@ -622,6 +632,13 @@
           onclick="openInfoModal()"
           aria-label="Show Search Information"
         />          
+        <input
+          type="text"
+          id="propertySearchBox"
+          placeholder="Property search"
+          aria-label="Property Search Box"
+          autocomplete="off"
+        />
         <img
           src="https://img.icons8.com/?size=100&id=121477&format=png&color=75750399"
           alt="Clear"
@@ -708,6 +725,13 @@
       <div id="top-bar">
         <!-- 地域検索ボックス -->
         <div class="search-container">
+          <img
+          src="https://img.icons8.com/?size=100&id=WcnHaBUQCoOw&format=png&color=000000"
+          alt="Unions"
+          class="union-icon"
+          onclick="openUnionList()"
+          aria-label="Show Union List"
+          />                    
           <input
             type="text"
             id="geoSearchBox"
@@ -722,6 +746,38 @@
             aria-label="Clear Geographical Search"
           />
         </div>
+
+        <!-- ▼ このドロップダウン部分を追加 -->
+        <div id="unionDropdown" style="
+            display:none; 
+            position:absolute; 
+            top:50px;  /* 親要素の位置に応じ調整 */
+            left:10px; /* 親要素の位置に応じ調整 */
+            background:#fff; 
+            border:1px solid #ccc;
+            z-index: 3002;
+            width: 180px; 
+          "
+        >
+          <div style="padding:5px; cursor:pointer;" class="union-item" data-group="ASIA">ASIA</div>
+          <div style="padding:5px; cursor:pointer;" class="union-item" data-group="Oceania">Oceania</div>
+          <div style="padding:5px; cursor:pointer;" class="union-item" data-group="NorthAmerica">NorthAmerica</div>
+          <div style="padding:5px; cursor:pointer;" class="union-item" data-group="CentralSouthAmerica">CentralSouthAmerica</div>
+          <div style="padding:5px; cursor:pointer;" class="union-item" data-group="Europe">Europe</div>
+          <div style="padding:5px; cursor:pointer;" class="union-item" data-group="Africa">Africa</div>
+          <div style="padding:5px; cursor:pointer;" class="union-item" data-group="MiddleEast">MiddleEast</div>
+          <hr>
+          <div style="padding:5px; cursor:pointer;" class="union-item" data-group="ASEAN">ASEAN</div>
+          <div style="padding:5px; cursor:pointer;" class="union-item" data-group="EU">EU</div>
+          <div style="padding:5px; cursor:pointer;" class="union-item" data-group="G7">G7</div>
+          <div style="padding:5px; cursor:pointer;" class="union-item" data-group="G20">G20</div>
+          <div style="padding:5px; cursor:pointer;" class="union-item" data-group="NATO">NATO</div>
+          <div style="padding:5px; cursor:pointer;" class="union-item" data-group="OECD">OECD</div>
+          <div style="padding:5px; cursor:pointer;" class="union-item" data-group="BRICS">BRICS</div>
+          <div style="padding:5px; cursor:pointer;" class="union-item" data-group="MERCOSUR">MERCOSUR</div>
+        </div>
+        <!-- ▲ 追加ここまで -->
+        
         <!-- ファイル入力 -->
         <label for="fileInput" class="custom-file-input" tabindex="0" aria-label="Upload Excel File">
           <i class="fa-solid fa-file-arrow-down"></i>
