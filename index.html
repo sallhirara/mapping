@@ -765,6 +765,14 @@
       });      
 
 
+      // ダブルクリックズームを無効化
+      map.doubleClickZoom.disable();
+
+      // ダブルクリック時にパン
+      map.on('dblclick', (e) => {
+        map.panTo(e.latlng, { animate: true });
+      });
+
 
       // OSMの標準タイルレイヤーを追加
       const streetLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
