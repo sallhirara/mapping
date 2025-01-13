@@ -341,7 +341,7 @@
       background-color: rgba(255, 255, 255, 0.9);
       border-radius: 10px;
       box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-      max-width: 600px;
+      max-width: 769px;
       margin: 10px auto;
       overflow-x: auto;
       overflow-y: auto; /* 縦方向スクロールを追加 */
@@ -378,38 +378,6 @@
         margin: 5px auto;
       }
     }    
-    
-/* 選択された地域の表示スタイル */
-.selected-region {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 8px 12px;
-  border-bottom: 1px solid #ccc;
-  background-color: #f0f0f0;
-  border-radius: 10px;
-  margin-bottom: 10px;
-}
-
-.selected-region span {
-  font-size: 16px;
-  color: #333;
-}
-
-.selected-region button {
-  background: none;
-  border: none;
-  font-size: 18px;
-  cursor: pointer;
-  color: #ff0000;
-}
-
-.selected-region button:hover {
-  color: #cc0000;
-}
-   
-    
-    
 
     /* 検索コンテナ */
     .search-container {
@@ -2377,7 +2345,11 @@
        * 地理検索ボックスをクリアする関数
        */
       function clearGeoSearch() {
-        geoSearchBox.value = '';
+        // geoSearchBox をクリア
+        const geoSearchBox = document.getElementById('geoSearchBox');
+        if (geoSearchBox) {
+          geoSearchBox.value = '';
+        }
 
         // 検索結果をクリアする（既存の地理検索結果レイヤーを削除）
         if (boundaryLayer) {
@@ -2396,17 +2368,38 @@
         propertyPolygons.forEach(polygon => map.removeLayer(polygon));
         propertyPolygons.length = 0;
 
+        // プロパティ検索結果のリストをクリア
         const ul = document.getElementById('propertyResultUl');
-        ul.innerHTML = "";
+        if (ul) {
+          ul.innerHTML = "";
+        }
 
         // オートコンプリート候補もクリア
         const autocompleteList = document.getElementById('autocompleteList');
-        autocompleteList.innerHTML = "";
-        autocompleteList.style.display = 'none';
+        if (autocompleteList) {
+          autocompleteList.innerHTML = "";
+          autocompleteList.style.display = 'none';
+        }
 
         // 選択された地域をクリアする
         clearRegionSelection();
+
+        // Infobox をクリアする
+        clearInfobox();
       }
+
+      /**
+       * Infobox をクリアする関数
+       */
+      function clearInfobox() {
+        const infoboxContainer = document.getElementById('infobox-container');
+        if (infoboxContainer) {
+          infoboxContainer.innerHTML = ""; // またはデフォルトのメッセージを設定
+          infoboxContainer.setAttribute('aria-hidden', 'true'); // アクセシビリティ対応
+        }
+      }
+
+
 
       /**
        * 地域ハイライトをクリアし、geoSearchBox をリセットする関数
@@ -2504,14 +2497,15 @@
           // 検索リクエストを送信
           const searchRes = await fetch(searchUrl);
           if (!searchRes.ok) {
-            throw new Error("API request failed."); // APIリクエストが失敗した場合のエラー
+            throw new Error("API request failed."); // エラー処理
           }
 
           const searchData = await searchRes.json();
 
           // 検索結果が存在するか確認
           if (searchData.query.search.length === 0) {
-            document.getElementById("infobox-container").innerHTML = "No results found for your search term."; // 検索結果がない場合のメッセージ
+            document.getElementById("infobox-container").innerHTML = "No results found for your search term.";
+            document.getElementById("infobox-container").setAttribute('aria-hidden', 'true');
             return;
           }
 
@@ -2524,14 +2518,15 @@
           // Infoboxのリクエストを送信
           const infoboxRes = await fetch(infoboxUrl);
           if (!infoboxRes.ok) {
-            throw new Error("API request failed."); // APIリクエストが失敗した場合のエラー
+            throw new Error("API request failed."); // エラー処理
           }
 
           const infoboxData = await infoboxRes.json();
 
           // ページが存在しない場合やエラー時は data.error とか data.parse が無いことがある
           if (!infoboxData.parse || !infoboxData.parse.text) {
-            document.getElementById("infobox-container").innerHTML = "Page not found or parse error occurred."; // ページが見つからない場合や解析エラー時のメッセージ
+            document.getElementById("infobox-container").innerHTML = "Page not found or parse error occurred.";
+            document.getElementById("infobox-container").setAttribute('aria-hidden', 'true');
             return;
           }
 
@@ -2548,16 +2543,29 @@
 
           if (infobox) {
             // 必要に応じてこのまま表示、あるいは内部をさらに解析
-            document.getElementById("infobox-container").innerHTML = infobox.outerHTML;
+            const infoboxContainer = document.getElementById("infobox-container");
+            if (infoboxContainer) {
+              infoboxContainer.innerHTML = infobox.outerHTML;
+              infoboxContainer.setAttribute('aria-hidden', 'false');
+            }
           } else {
-            document.getElementById("infobox-container").innerHTML = "No infobox found."; // Infoboxが見つからない場合のメッセージ
+            const infoboxContainer = document.getElementById("infobox-container");
+            if (infoboxContainer) {
+              infoboxContainer.innerHTML = "No infobox found.";
+              infoboxContainer.setAttribute('aria-hidden', 'true');
+            }
           }
 
         } catch (error) {
           console.error(error);
-          document.getElementById("infobox-container").innerHTML = "An error occurred while fetching the data."; // データ取得中のエラー時のメッセージ
+          const infoboxContainer = document.getElementById("infobox-container");
+          if (infoboxContainer) {
+            infoboxContainer.innerHTML = "An error occurred while fetching the data.";
+            infoboxContainer.setAttribute('aria-hidden', 'true');
+          }
         }
       }
+
 
       
       // -------------------------------------------------------
