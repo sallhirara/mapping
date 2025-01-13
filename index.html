@@ -52,23 +52,6 @@
       font-size: 16px;
     }
 
-    .region-select-container button {
-      width: 100%;
-      padding: 8px;
-      margin-top: 5px;
-      background-color: #007bff;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      font-size: 16px;
-    }
-
-    .region-select-container button:hover {
-      background-color: #0056b3;
-    }    
-
-
     /* メディアクエリ: モバイル */
     @media screen and (max-width: 768px) {
       /* メニューコンテナのスタイル */
@@ -183,7 +166,7 @@
     #top-bar {
       background: #f8f9fa;
       margin-left: 5px;
-      padding: 5px 15px;
+      padding: 5px 5px;
       display: flex;
       gap: 10px;
       align-items: center;
@@ -191,10 +174,64 @@
 
     /* top-bar の入力欄（info-iconなし） */
     #top-bar .search-container input {
-        padding: 6px 35px 6px 10px; /* 右側のみclear-iconのスペース */
+        padding: 6px 35px 6px 35px; /* 右側のみclear-iconのスペース */
         border: 1px solid grey;
         border-radius: 15px;
         font-size: 16px;
+    }
+    
+    .union-icon {
+      position: absolute;
+      left: 8px;
+      top: 18%;
+      transform: translateY(-0%);
+      width: 20px;
+      height: 20px;
+      cursor: pointer;
+      opacity: 0.7;
+      transition: opacity 0.3s, transform 0.3s;
+    }
+
+    .union-icon:hover {
+      opacity: 1;
+      transform: scale(1.2);
+    }        
+    
+    /* ドロップダウンリストのスタイル */
+    .region-dropdown {
+      position: absolute;
+      top: 50px; /* union-iconの位置に応じて調整 */
+      left: 8px;
+      background: white;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+      width: 200px;
+      max-height: 300px;
+      overflow-y: auto;
+      display: none; /* 初期状態では非表示 */
+      z-index: 3004;
+    }
+
+    .region-dropdown.show {
+      display: block;
+    }
+
+    .region-dropdown ul {
+      list-style: none;
+      padding: 10px;
+      margin: 0;
+    }
+
+    .region-dropdown li {
+      padding: 8px 12px;
+      cursor: pointer;
+      border-bottom: 1px solid #eee;
+    }
+
+    .region-dropdown li:hover,
+    .region-dropdown li:focus {
+      background-color: #f0f0f0;
     }
     
     /* Wikipedia Infobox Parser Styles (追加) */
@@ -876,7 +913,7 @@
   </div>  
 
   <!-- メニューコンテナ -->
-  <div id="menuContainer" class="menu" role="navigation" aria-label="Main Menu">
+  <div id="menuContainer" class="menu closed" role="navigation" aria-label="Main Menu">
     <div class="menu-header" id="menuDragHandle">
       <div class="drag-handle" aria-hidden="true"></div>
     </div>
@@ -884,6 +921,13 @@
       <div id="top-bar">
         <!-- 地域検索ボックス -->
         <div class="search-container">
+          <img
+            src="https://img.icons8.com/?size=100&id=MkFMsOJRAJYW&format=png&color=000000"
+            alt="Unions"
+            class="union-icon"
+            onclick="openUnionList()"
+            aria-label="Show Union List"
+          />              
           <input
             type="text"
             id="geoSearchBox"
@@ -897,6 +941,29 @@
             onclick="clearGeoSearch()"
             aria-label="Clear Geographical Search"
           />
+
+          <!-- ドロップダウンリストを追加 -->
+          <div id="regionDropdown" class="region-dropdown" role="menu" aria-label="Region and Union List">
+            <ul>
+              <li tabindex="0" data-value="ASIA">Asia</li>
+              <li tabindex="0" data-value="Oceania">Oceania</li>
+              <li tabindex="0" data-value="NorthAmerica">North America</li>
+              <li tabindex="0" data-value="CentralSouthAmerica">Central & South America</li>
+              <li tabindex="0" data-value="Europe">Europe</li>
+              <li tabindex="0" data-value="Africa">Africa</li>
+              <li tabindex="0" data-value="MiddleEast">Middle East</li>
+              <li tabindex="0" data-value="ASEAN">ASEAN</li>
+              <li tabindex="0" data-value="EU">EU</li>
+              <li tabindex="0" data-value="G7">G7</li>
+              <li tabindex="0" data-value="G20">G20</li>
+              <li tabindex="0" data-value="NATO">NATO</li>
+              <li tabindex="0" data-value="OECD">OECD</li>
+              <li tabindex="0" data-value="BRICS">BRICS</li>
+              <li tabindex="0" data-value="MERCOSUR">MERCOSUR</li>
+              <!-- 必要に応じて他の地域も追加 -->
+            </ul>
+          </div>         
+          
         </div>
         <!-- ファイル入力 -->
         <label for="fileInput" class="custom-file-input" tabindex="0" aria-label="Upload Excel File">
@@ -905,34 +972,6 @@
         <input type="file" id="fileInput" accept=".xls,.xlsx,.xlsm" aria-hidden="true" />
       </div>      
 
-      <!-- 地域選択ドロップダウンを追加 -->
-      <div class="region-select-container" style="padding: 10px;">
-        <label for="regionSelect" style="display: block; margin-bottom: 5px;">Select Region or Union:</label>
-        <select id="regionSelect" aria-label="Select Region">
-          <option value="">-- Select a Region --</option>
-          <option value="ASIA">Asia</option>
-          <option value="Oceania">Oceania</option>
-          <option value="NorthAmerica">North America</option>
-          <option value="CentralSouthAmerica">Central & South America</option>
-          <option value="Europe">Europe</option>
-          <option value="Africa">Africa</option>
-          <option value="MiddleEast">Middle East</option>
-          <option value="">-- Select a Union --</option>
-          <option value="ASEAN">ASEAN</option>
-          <option value="EU">EU</option>
-          <option value="G7">G7</option>
-          <option value="G20">G20</option>
-          <option value="NATO">NATO</option>
-          <option value="OECD">OECD</option>
-          <option value="BRICS">BRICS</option>
-          <option value="MERCOSUR">MERCOSUR</option>
-          <!-- 必要に応じて他の地域も追加 -->
-        </select>
-        <button onclick="handleRegionSearch()" aria-label="Search Region" title="Search Region" style="margin-top: 10px;">
-          Search
-        </button>   
-        
-      </div>
       <!-- Wikipedia Infobox 表示コンテナ（追加） -->
       <div id="infobox-container" aria-live="polite"></div>
 
@@ -2219,11 +2258,9 @@
 
       /**
        * 地域検索を処理する関数
+       * @param {String} selectedRegion - 選択された地域またはユニオン
        */
-      async function handleRegionSearch() {
-        const regionSelect = document.getElementById('regionSelect');
-        const selectedRegion = regionSelect.value;
-
+      async function handleRegionSearch(selectedRegion) {
         // 既存のハイライトをクリア
         clearRegionHighlights();
 
@@ -2275,7 +2312,7 @@
           // 地図の表示範囲を調整
           const bounds = countriesLayer.getBounds();
           map.fitBounds(bounds, { padding: [50, 50] });
-          
+
           // Infobox検索を実行
           await searchWiki(selectedRegion);
 
@@ -2287,6 +2324,7 @@
           hideLoadingSpinner('propertyLoadingSpinner');
         }
       }
+
 
       /**
        * GeoJSONデータを取得する関数
@@ -2582,11 +2620,79 @@
         // Accessibility: ARIA roles are already set in the HTML and JavaScript above
       }
 
+    // -------------------------------------------------------
+    // **) Additional Enhancements
+    // -------------------------------------------------------      
+    /**
+     * Define openUnionList function to toggle the regionDropdown
+     */
+    function openUnionList() {
+      const dropdown = document.getElementById('regionDropdown');
+      if (dropdown) {
+        dropdown.classList.toggle('show');
+      }
+    }
 
-      // -------------------------------------------------------
-      // **) Additional Enhancements
-      // -------------------------------------------------------
-      // 既存のコードを尊重し、オートコンプリート機能の追加以外の機能やデザインは一切変更していません。
+    // Expose openUnionList to global scope
+    window.openUnionList = openUnionList;
+
+    // -------------------------------------------------------
+    // 19) Handle Dropdown Item Selection
+    // -------------------------------------------------------
+    /**
+     * ドロップダウンリスト内の項目をクリックした際のイベントリスナーを追加
+     */
+    function initializeDropdownEvents() {
+      const dropdownItems = document.querySelectorAll('#regionDropdown li');
+      dropdownItems.forEach(item => {
+        item.addEventListener('click', () => {
+          const value = item.getAttribute('data-value');
+          if (value) {
+            handleRegionSearch(value);
+            document.getElementById('regionDropdown').classList.remove('show');
+          }
+        });
+
+        // キーボードでの操作を可能にする
+        item.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            const value = item.getAttribute('data-value');
+            if (value) {
+              handleRegionSearch(value);
+              document.getElementById('regionDropdown').classList.remove('show');
+            }
+          }
+        });
+      });
+    }
+
+    // ドロップダウンリスト外をクリックした際にリストを閉じる
+    function initializeDropdownOutsideClick() {
+      document.addEventListener('click', (e) => {
+        const dropdown = document.getElementById('regionDropdown');
+        const unionIcon = document.querySelector('.union-icon');
+        if (dropdown && !dropdown.contains(e.target) && e.target !== unionIcon) {
+          dropdown.classList.remove('show');
+        }
+      });
+    }
+
+    // -------------------------------------------------------
+    // 16) Initialize Functions on DOM Content Loaded
+    // -------------------------------------------------------
+    document.addEventListener('DOMContentLoaded', () => {
+      // Initialize other functionalities if needed
+
+      // Initialize Dropdown Events
+      initializeDropdownEvents();
+      initializeDropdownOutsideClick();
+    });
+
+    // -------------------------------------------------------
+    // **) Additional Enhancements
+    // -------------------------------------------------------
+    // 既存のコードを尊重し、オートコンプリート機能の追加以外の機能やデザインは一切変更していません。
 
     })();
   </script>
