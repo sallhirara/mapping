@@ -42,6 +42,33 @@
       z-index: 3002;
     }
 
+
+    /* 地域選択ドロップダウンのスタイル */
+    .region-select-container select {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid grey;
+      border-radius: 15px;
+      font-size: 16px;
+    }
+
+    .region-select-container button {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    .region-select-container button:hover {
+      background-color: #0056b3;
+    }    
+
+
     /* メディアクエリ: モバイル */
     @media screen and (max-width: 768px) {
       /* メニューコンテナのスタイル */
@@ -164,28 +191,129 @@
 
     /* top-bar の入力欄（info-iconなし） */
     #top-bar .search-container input {
-        padding: 6px 35px 6px 35px; /* 両側にアイコンのスペース */
+        padding: 6px 35px 6px 10px; /* 右側のみclear-iconのスペース */
         border: 1px solid grey;
         border-radius: 15px;
         font-size: 16px;
     }
+    
+/* Wikipedia Infobox Parser Styles (追加) */
+/* Infobox全体のスタイル */
+table.infobox {
+  width: 100%;
+  max-width: 600px;
+  border: 1px solid #aaa;
+  border-collapse: collapse;
+  background-color: #f9f9f9;
+  font-family: Arial, sans-serif;
+  margin-top: 20px;
+}
 
-    .union-icon {
-      position: absolute;
-      left: 8px;
-      top: 18%;
-      transform: translateY(-0%);
-      width: 20px;
-      height: 20px;
-      cursor: pointer;
-      opacity: 0.7;
-      transition: opacity 0.3s, transform 0.3s;
-    }
+/* 見出しセル（th）のスタイル */
+table.infobox th {
+  background-color: #e9ecef;
+  color: #333;
+  padding: 8px;
+  text-align: left;
+  vertical-align: top;
+  width: 30%;
+  border-bottom: 1px solid #ddd;
+  font-size: 1em;
+}
 
-    .union-icon:hover {
-      opacity: 1;
-      transform: scale(1.2);
-    }    
+/* データセル（td）のスタイル */
+table.infobox td {
+  padding: 8px;
+  border-bottom: 1px solid #ddd;
+  font-size: 0.95em;
+  color: #555;
+}
+
+/* 最後の行のボーダーを除去 */
+table.infobox tr:last-child td,
+table.infobox tr:last-child th {
+  border-bottom: none;
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 769px) {
+  table.infobox th, table.infobox td {
+    display: block;
+    width: 100%;
+  }
+  table.infobox th {
+    background-color: #f1f1f1;
+  }
+}
+
+/* その他のスタイル調整（必要に応じて追加） */
+/* リンクの色を変更 */
+table.infobox a {
+  color: #007bff;
+  text-decoration: none;
+}
+table.infobox a:hover {
+  text-decoration: underline;
+}
+
+/* 画像を中央に配置 */
+table.infobox img {
+  display: block;
+  margin: 0 auto;
+  max-width: 100%;
+  height: auto;
+}
+
+/* Infobox検索コンテナのスタイル */
+.infobox-search-container {
+  padding: 10px;
+  background-color: rgba(255, 255, 255, 0.8);
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+  margin: 10px;
+  z-index: 3003;
+}
+
+.infobox-search-container input {
+  width: calc(100% - 100px);
+  padding: 8px;
+  border: 1px solid grey;
+  border-radius: 5px;
+  font-size: 16px;
+}
+
+.infobox-search-container button {
+  width: 80px;
+  padding: 8px;
+  margin-left: 10px;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.infobox-search-container button:hover {
+  background-color: #218838;
+}
+
+/* Infobox表示コンテナのスタイル */
+#infobox-container {
+  padding: 10px;
+  background-color: rgba(255, 255, 255, 0.9);
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+  max-width: 600px;
+  margin: 10px auto;
+  overflow-x: auto;
+}
+    
+    
+    
+    
+    
+    
 
     /* 検索コンテナ */
     .search-container {
@@ -625,13 +753,6 @@
     <div id="propertySearchHeader">
       <!-- 物件検索ボックス -->
       <div class="search-container" style="position: relative;">
-        <img
-          src="https://img.icons8.com/?size=100&id=80585&format=png&color=000000"
-          alt="Info"
-          class="info-icon"
-          onclick="openInfoModal()"
-          aria-label="Show Search Information"
-        />          
         <input
           type="text"
           id="propertySearchBox"
@@ -639,6 +760,13 @@
           aria-label="Property Search Box"
           autocomplete="off"
         />
+        <img
+          src="https://img.icons8.com/?size=100&id=80585&format=png&color=000000"
+          alt="Info"
+          class="info-icon"
+          onclick="openInfoModal()"
+          aria-label="Show Search Information"
+        />          
         <img
           src="https://img.icons8.com/?size=100&id=121477&format=png&color=75750399"
           alt="Clear"
@@ -678,7 +806,7 @@
       <div class="tab-content">
         <div id="searchResult" class="tab-panel active">
           <!-- searchResult情報がここに表示されます -->
-          <p>
+          <p></p>
   
         </div>
         <div id="searchTips" class="tab-panel">
@@ -725,13 +853,6 @@
       <div id="top-bar">
         <!-- 地域検索ボックス -->
         <div class="search-container">
-          <img
-          src="https://img.icons8.com/?size=100&id=WcnHaBUQCoOw&format=png&color=000000"
-          alt="Unions"
-          class="union-icon"
-          onclick="openUnionList()"
-          aria-label="Show Union List"
-          />                    
           <input
             type="text"
             id="geoSearchBox"
@@ -746,44 +867,51 @@
             aria-label="Clear Geographical Search"
           />
         </div>
-
-        <!-- ▼ このドロップダウン部分を追加 -->
-        <div id="unionDropdown" style="
-            display:none; 
-            position:absolute; 
-            top:50px;  /* 親要素の位置に応じ調整 */
-            left:10px; /* 親要素の位置に応じ調整 */
-            background:#fff; 
-            border:1px solid #ccc;
-            z-index: 3002;
-            width: 180px; 
-          "
-        >
-          <div style="padding:5px; cursor:pointer;" class="union-item" data-group="ASIA">ASIA</div>
-          <div style="padding:5px; cursor:pointer;" class="union-item" data-group="Oceania">Oceania</div>
-          <div style="padding:5px; cursor:pointer;" class="union-item" data-group="NorthAmerica">NorthAmerica</div>
-          <div style="padding:5px; cursor:pointer;" class="union-item" data-group="CentralSouthAmerica">CentralSouthAmerica</div>
-          <div style="padding:5px; cursor:pointer;" class="union-item" data-group="Europe">Europe</div>
-          <div style="padding:5px; cursor:pointer;" class="union-item" data-group="Africa">Africa</div>
-          <div style="padding:5px; cursor:pointer;" class="union-item" data-group="MiddleEast">MiddleEast</div>
-          <hr>
-          <div style="padding:5px; cursor:pointer;" class="union-item" data-group="ASEAN">ASEAN</div>
-          <div style="padding:5px; cursor:pointer;" class="union-item" data-group="EU">EU</div>
-          <div style="padding:5px; cursor:pointer;" class="union-item" data-group="G7">G7</div>
-          <div style="padding:5px; cursor:pointer;" class="union-item" data-group="G20">G20</div>
-          <div style="padding:5px; cursor:pointer;" class="union-item" data-group="NATO">NATO</div>
-          <div style="padding:5px; cursor:pointer;" class="union-item" data-group="OECD">OECD</div>
-          <div style="padding:5px; cursor:pointer;" class="union-item" data-group="BRICS">BRICS</div>
-          <div style="padding:5px; cursor:pointer;" class="union-item" data-group="MERCOSUR">MERCOSUR</div>
-        </div>
-        <!-- ▲ 追加ここまで -->
-        
         <!-- ファイル入力 -->
         <label for="fileInput" class="custom-file-input" tabindex="0" aria-label="Upload Excel File">
           <i class="fa-solid fa-file-arrow-down"></i>
         </label>
         <input type="file" id="fileInput" accept=".xls,.xlsx,.xlsm" aria-hidden="true" />
       </div>      
+
+      <!-- 地域選択ドロップダウンを追加 -->
+      <div class="region-select-container" style="padding: 10px;">
+        <label for="regionSelect" style="display: block; margin-bottom: 5px;">Select Region or Union:</label>
+        <select id="regionSelect" aria-label="Select Region">
+          <option value="">-- Select a Region --</option>
+          <option value="ASIA">Asia</option>
+          <option value="Oceania">Oceania</option>
+          <option value="NorthAmerica">North America</option>
+          <option value="CentralSouthAmerica">Central & South America</option>
+          <option value="Europe">Europe</option>
+          <option value="Africa">Africa</option>
+          <option value="MiddleEast">Middle East</option>
+          <option value="">-- Select a Union --</option>
+          <option value="ASEAN">ASEAN</option>
+          <option value="EU">EU</option>
+          <option value="G7">G7</option>
+          <option value="G20">G20</option>
+          <option value="NATO">NATO</option>
+          <option value="OECD">OECD</option>
+          <option value="BRICS">BRICS</option>
+          <option value="MERCOSUR">MERCOSUR</option>
+          <!-- 必要に応じて他の地域も追加 -->
+        </select>
+        <button onclick="handleRegionSearch()" aria-label="Search Region" title="Search Region" style="margin-top: 10px;">
+          Search
+        </button>
+
+        <!-- Wikipedia Infobox Parser 検索インターフェース（追加） -->
+        <div class="infobox-search-container" aria-label="Wikipedia Infobox Search">
+          <input id="infoboxSearchTerm" type="text" placeholder="Enter country or region" value="Asia" aria-label="Infobox Search Input"/>
+          <button onclick="searchWiki()" aria-label="Get Infobox" title="Get Infobox">Search</button>
+        </div>
+        
+        
+      </div>
+      <!-- Wikipedia Infobox 表示コンテナ（追加） -->
+      <div id="infobox-container" aria-live="polite"></div>
+
       <ul>
         <li><a href="#option1" tabindex="0">Option 1</a></li>
         <li><a href="#option2" tabindex="0">Option 2</a></li>
@@ -2010,8 +2138,243 @@
       // Initialize modal functionalities when DOM is fully loaded
       document.addEventListener('DOMContentLoaded', initializeModal);      
 
+
+
       // -------------------------------------------------------
-      // 15) Autocomplete Functionality
+      // 15) Region Search Functionality
+      // -------------------------------------------------------
+
+      // 地域と国のマッピング
+      const regionCountryMap = {
+        // Resions
+        "ASIA": ["Japan", "China", "India", "South Korea", "North Korea", "Indonesia", "Malaysia", "Thailand", "Vietnam", "Philippines", "Singapore", "Taiwan", "Hong Kong"],
+        "Oceania": ["Australia", "New Zealand", "Fiji", "Papua New Guinea", "Samoa", "Solomon Islands", "Vanuatu", "Kiribati", "Micronesia", "Marshall Islands", "Palau", "Tuvalu", "Nauru", "Cook Islands", "Niue"],
+        "NorthAmerica": ["United States", "Canada", "Mexico", "Belize", "Costa Rica", "Panama", "El Salvador", "Honduras", "Guatemala", "Cuba", "Bahamas", "Barbados", "Antigua and Barbuda", "Dominica", "Grenada", "Saint Kitts and Nevis", "Saint Lucia", "Saint Vincent and the Grenadines", "Trinidad and Tobago"],
+        "CentralSouthAmerica": ["Argentina", "Bolivia", "Brazil", "Chile", "Colombia", "Ecuador", "Peru", "Venezuela", "Paraguay", "Uruguay", "Suriname"],
+        "Europe": ["Albania", "Andorra", "Austria", "Belarus", "Belgium", "Bosnia and Herzegovina", "Bulgaria", "Croatia", "Czech Republic", "Denmark", "Estonia", "Finland", "France", "Germany", "Greece", "Hungary", "Iceland", "Ireland", "Italy", "Latvia", "Lithuania", "Luxembourg", "Malta", "Moldova", "Monaco", "Montenegro", "Netherlands", "Norway", "Poland", "Portugal", "Romania", "Russia", "San Marino", "Serbia", "Slovakia", "Slovenia", "Spain", "Sweden", "Switzerland", "Ukraine", "United Kingdom", "Vatican City"],
+        "Africa": ["Algeria", "Angola", "Benin", "Botswana", "Burkina Faso", "Burundi", "Cameroon", "Central African Republic", "Chad", "Comoros", "Congo", "Côte d'Ivoire", "Djibouti", "Egypt", "Eritrea", "Eswatini", "Ethiopia", "Gabon", "Gambia", "Ghana", "Guinea", "Guinea-Bissau", "Kenya", "Lesotho", "Liberia", "Libya", "Madagascar", "Malawi", "Mali", "Mauritania", "Mauritius", "Morocco", "Mozambique", "Namibia", "Niger", "Nigeria", "Rwanda", "Senegal", "Seychelles", "Sierra Leone", "Somalia", "South Africa", "Sudan", "South Sudan", "Tanzania", "Togo", "Uganda", "Zambia", "Zimbabwe"],
+        "MiddleEast": ["Bahrain", "Iran", "Iraq", "Israel", "Jordan", "Kuwait", "Lebanon", "Oman", "Qatar", "Saudi Arabia", "Syria", "Turkey", "United Arab Emirates"],
+        // Unions
+        "ASEAN": ["Brunei Darussalam", "Cambodia", "Indonesia", "Laos", "Malaysia", "Myanmar", "Philippines", "Singapore", "Thailand", "Vietnam"],
+        "EU": ["Austria", "Belgium", "Bulgaria", "Croatia", "Cyprus", "Czech Republic", "Denmark", "Estonia", "Finland", "France", "Germany", "Greece", "Hungary", "Ireland", "Italy", "Latvia", "Lithuania", "Luxembourg", "Malta", "Netherlands", "Poland", "Portugal", "Romania", "Slovakia", "Slovenia", "Spain", "Sweden"],
+        "G7": ["Canada", "France", "Germany", "Italy", "Japan", "United Kingdom", "United States"],
+        "G20": ["Argentina", "Australia", "Brazil", "Canada", "China", "France", "Germany", "India", "Indonesia", "Italy", "Japan", "Mexico", "Russia", "Saudi Arabia", "South Africa", "South Korea", "Turkey", "United Kingdom", "United States", "European Union"],
+        "NATO": ["Albania", "Belgium", "Bulgaria", "Canada", "Croatia", "Czech Republic", "Denmark", "Estonia", "Finland", "France", "Germany", "Greece", "Hungary", "Iceland", "Italy", "Latvia", "Lithuania", "Luxembourg", "Montenegro", "Netherlands", "North Macedonia", "Norway", "Poland", "Portugal", "Romania", "Slovakia", "Slovenia", "Spain", "Turkey", "United Kingdom", "United States"],
+        "OECD": ["Australia", "Austria", "Belgium", "Canada", "Chile", "Colombia", "Costa Rica", "Czech Republic", "Denmark", "Estonia", "Finland", "France", "Germany", "Greece", "Hungary", "Iceland", "Ireland", "Israel", "Italy", "Japan", "South Korea", "Latvia", "Lithuania", "Luxembourg", "Mexico", "Netherlands", "New Zealand", "Norway", "Poland", "Portugal", "Slovak Republic", "Slovenia", "Spain", "Sweden", "Switzerland", "Turkey", "United Kingdom", "United States"],
+        "BRICS": ["Brazil", "Russia", "India", "China", "South Africa"],
+        "MERCOSUR": ["Argentina", "Brazil", "Paraguay", "Uruguay", "Venezuela"]
+      };
+
+      // 地域ごとの色設定
+      const regionColors = {
+        // Resions
+        "ASIA": "#1f78b4",
+        "Oceania": "#1f78b4",
+        "NorthAmerica": "#1f78b4",
+        "CentralSouthAmerica": "#1f78b4",
+        "Europe": "#1f78b4",
+        "Africa": "#1f78b4",
+        "MiddleEast": "#1f78b4",
+        // Unions
+        "ASEAN": "#33a02c",
+        "EU": "#33a02c",
+        "G7": "#33a02c",
+        "G20": "#33a02c",
+        "NATO": "#33a02c",
+        "OECD": "#33a02c",
+        "BRICS": "#33a02c",
+        "MERCOSUR": "#33a02c",
+      };
+
+      // 地域検索用のレイヤー
+      let countriesLayer = null;
+      let currentHighlightedRegions = [];
+
+      /**
+       * 地域検索を処理する関数
+       */
+      async function handleRegionSearch() {
+        const regionSelect = document.getElementById('regionSelect');
+        const selectedRegion = regionSelect.value;
+
+        // 既存のハイライトをクリア
+        clearRegionHighlights();
+
+        if (!selectedRegion) {
+          alert("Please select a region.");
+          return;
+        }
+
+        const countries = regionCountryMap[selectedRegion];
+        if (!countries || countries.length === 0) {
+          alert("No countries found for the selected region.");
+          return;
+        }
+
+        try {
+          // ローディングスピナーを表示
+          showLoadingSpinner('propertyLoadingSpinner');
+
+          // GeoJSONデータをロード
+          const geoData = await fetchCountriesGeoJSON();
+
+          // 地域に属する国々をフィルタリング
+          const selectedCountriesGeoJSON = {
+            type: "FeatureCollection",
+            features: geoData.features.filter(feature => {
+              const countryName = feature.properties.ADMIN || feature.properties.NAME;
+              return countries.includes(countryName);
+            })
+          };
+
+          // レイヤーを作成
+          if (countriesLayer) {
+            map.removeLayer(countriesLayer);
+          }
+
+          countriesLayer = L.geoJSON(selectedCountriesGeoJSON, {
+            style: {
+              color: regionColors[selectedRegion] || '#000000',
+              weight: 1,
+              fillOpacity: 0.3
+            },
+            onEachFeature: function (feature, layer) {
+              layer.bindPopup(`<strong>${feature.properties.ADMIN || feature.properties.NAME}</strong>`);
+            }
+          }).addTo(map);
+
+          currentHighlightedRegions.push(selectedRegion);
+
+          // 地図の表示範囲を調整
+          const bounds = countriesLayer.getBounds();
+          map.fitBounds(bounds, { padding: [50, 50] });
+
+        } catch (error) {
+          console.error("Error during region search:", error);
+          alert("An error occurred during the region search. Please try again.");
+        } finally {
+          // ローディングスピナーを非表示
+          hideLoadingSpinner('propertyLoadingSpinner');
+        }
+      }
+
+      /**
+       * GeoJSONデータを取得する関数
+       * @returns {Promise<Object>} - GeoJSONデータ
+       */
+      async function fetchCountriesGeoJSON() {
+        const response = await fetch('https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson');
+        if (!response.ok) {
+          throw new Error("Failed to fetch GeoJSON data.");
+        }
+        const data = await response.json();
+        return data;
+      }
+
+      /**
+       * 地域ハイライトをクリアする関数
+       */
+      function clearRegionHighlights() {
+        if (countriesLayer) {
+          map.removeLayer(countriesLayer);
+          countriesLayer = null;
+        }
+        currentHighlightedRegions = [];
+      }
+
+      // -------------------------------------------------------
+      // 17) Expose Functions to Global Scope (Updated)
+      // -------------------------------------------------------
+      // これらの関数をグローバルスコープに公開する
+      window.clearGeoSearch = clearGeoSearch;
+      window.clearPropertySearch = clearPropertySearch;
+      window.toggleCurrentLocation = toggleCurrentLocation;
+      window.toggleList = toggleList;
+      window.openInfoModal = openInfoModal;
+      window.closeInfoModal = closeInfoModal;
+      window.openTab = openTab;
+      window.handleRegionSearch = handleRegionSearch;
+      window.clearRegionHighlights = clearRegionHighlights;
+      window.searchWiki = searchWiki;
+
+
+      // -------------------------------------------------------
+      // 18) Wikipedia Infobox Parser (追加)
+      // -------------------------------------------------------
+      /**
+       * Wikipedia Infoboxを検索・表示する関数
+       */
+      async function searchWiki() {
+        let term = document.getElementById("infoboxSearchTerm").value.trim();
+        if (!term) {
+          alert("Please enter a search term."); // 検索語が入力されていない場合のアラート
+          return;
+        }
+
+        // Wikipediaの検索APIエンドポイント
+        const searchUrl = `https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(term)}&format=json&origin=*`;
+
+        try {
+          // 検索リクエストを送信
+          const searchRes = await fetch(searchUrl);
+          if (!searchRes.ok) {
+            throw new Error("API request failed."); // APIリクエストが失敗した場合のエラー
+          }
+
+          const searchData = await searchRes.json();
+
+          // 検索結果が存在するか確認
+          if (searchData.query.search.length === 0) {
+            document.getElementById("infobox-container").innerHTML = "No results found for your search term."; // 検索結果がない場合のメッセージ
+            return;
+          }
+
+          // 最初の検索結果を取得
+          const pageTitle = searchData.query.search[0].title;
+
+          // Infoboxを取得するためのAPIエンドポイント
+          const infoboxUrl = `https://en.wikipedia.org/w/api.php?action=parse&page=${encodeURIComponent(pageTitle)}&format=json&prop=text&origin=*`;
+
+          // Infoboxのリクエストを送信
+          const infoboxRes = await fetch(infoboxUrl);
+          if (!infoboxRes.ok) {
+            throw new Error("API request failed."); // APIリクエストが失敗した場合のエラー
+          }
+
+          const infoboxData = await infoboxRes.json();
+
+          // ページが存在しない場合やエラー時は data.error とか data.parse が無いことがある
+          if (!infoboxData.parse || !infoboxData.parse.text) {
+            document.getElementById("infobox-container").innerHTML = "Page not found or parse error occurred."; // ページが見つからない場合や解析エラー時のメッセージ
+            return;
+          }
+
+          // Wikipedia HTML (ページ全体) を取得
+          const htmlString = infoboxData.parse.text["*"];
+
+          // HTML文字列をDOMに変換
+          const parser = new DOMParser();
+          const doc = parser.parseFromString(htmlString, "text/html");
+
+          // infoboxっぽいtableを探す
+          // en.wikipedia の場合、class="infobox" になっていることが多い
+          const infobox = doc.querySelector("table.infobox");
+
+          if (infobox) {
+            // 必要に応じてこのまま表示、あるいは内部をさらに解析
+            document.getElementById("infobox-container").innerHTML = infobox.outerHTML;
+          } else {
+            document.getElementById("infobox-container").innerHTML = "No infobox found."; // Infoboxが見つからない場合のメッセージ
+          }
+
+        } catch (error) {
+          console.error(error);
+          document.getElementById("infobox-container").innerHTML = "An error occurred while fetching the data."; // データ取得中のエラー時のメッセージ
+        }
+      }      
+      
+      // -------------------------------------------------------
+      // 17) Autocomplete Functionality Initialization
       // -------------------------------------------------------
       let autocompleteData = []; // Array to hold unique searchable terms
 
@@ -2188,22 +2551,6 @@
         // Accessibility: ARIA roles are already set in the HTML and JavaScript above
       }
 
-      // -------------------------------------------------------
-      // 16) Expose Functions to Global Scope (Updated)
-      // -------------------------------------------------------
-      // これらの関数をグローバルスコープに公開する
-      window.clearGeoSearch = clearGeoSearch;
-      window.clearPropertySearch = clearPropertySearch;
-      window.toggleCurrentLocation = toggleCurrentLocation;
-      window.toggleList = toggleList;
-      window.openInfoModal = openInfoModal;
-      window.closeInfoModal = closeInfoModal;
-      window.openTab = openTab;
-      
-      // -------------------------------------------------------
-      // 17) Autocomplete Functionality Initialization
-      // -------------------------------------------------------
-      // Autocomplete is initialized after the Excel data is loaded in the file input change event
 
       // -------------------------------------------------------
       // **) Additional Enhancements
