@@ -1583,6 +1583,9 @@
             map.setView([result.lat, result.lon], 13);
           }
 
+          // Nominatim検索後にWikipedia Infoboxを呼び出す
+          await searchWiki(q);
+          
         } catch(e) {
           console.error(e);
           alert("Search failed. Please try again.");
