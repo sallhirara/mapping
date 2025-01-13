@@ -46,7 +46,7 @@
     /* 地域選択ドロップダウンのスタイル */
     .region-select-container select {
       width: 100%;
-      padding: 8px;
+      padding: 0px;
       border: 1px solid grey;
       border-radius: 15px;
       font-size: 16px;
@@ -111,10 +111,10 @@
       #menuContainer {
         top: 0;
         left: 0;
-        width: 320px;
+        width: 400px;
         height: 100%;
         border-radius: 0 15px 15px 0;
-        transform: translateX(-320px);
+        transform: translateX(-400px);
         transition: transform 0.3s ease-out;
       }
 
@@ -174,7 +174,7 @@
 
     /* top-bar の入力欄（info-iconなし） */
     #top-bar .search-container input {
-        padding: 6px 35px 6px 35px; /* 右側のみclear-iconのスペース */
+        padding: 6px 35px 6px 35px;
         border: 1px solid grey;
         border-radius: 15px;
         font-size: 16px;
@@ -200,13 +200,13 @@
     /* ドロップダウンリストのスタイル */
     .region-dropdown {
       position: absolute;
-      top: 50px; /* union-iconの位置に応じて調整 */
-      left: 8px;
+      top: 40px; /* union-iconの位置に応じて調整 */
+      left: 0px;
       background: white;
       border: 1px solid #ccc;
       border-radius: 10px;
       box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-      width: 200px;
+      width: 100%;
       max-height: 300px;
       overflow-y: auto;
       display: none; /* 初期状態では非表示 */
@@ -232,18 +232,20 @@
     .region-dropdown li:hover,
     .region-dropdown li:focus {
       background-color: #f0f0f0;
+      border: none;
+      border-radius: 10px;
     }
     
     /* Wikipedia Infobox Parser Styles (追加) */
     /* Infobox全体のスタイル */
     table.infobox {
       width: 100%;
-      max-width: 769px;
+      max-width: 100%;
       border: 1px solid #aaa;
       border-collapse: collapse;
       background-color: #f9f9f9;
       font-family: Arial, sans-serif;
-      margin-top: 20px;
+      margin-top: 10px;
     }
 
     /* 見出しセル（th）のスタイル */
@@ -301,9 +303,10 @@
       height: auto;
     }
 
-    /* Infobox検索コンテナのスタイル まだいる？
+    /* 
+    Infobox検索コンテナのスタイル まだ必要？
       .infobox-search-container {
-        padding: 0 10px;
+        padding: 10px;
         background-color: rgba(255, 255, 255, 0.8);
         border-radius: 10px;
         box-shadow: 0 2px 6px rgba(0,0,0,0.3);
@@ -341,9 +344,8 @@
       padding: 10px;
       background-color: transparent;
       border-radius: 10px;
-      max-width: 769px;
+      max-width: 100%;
       margin: 10px auto;
-      overflow-x: auto;
       overflow-y: auto; /* 縦方向スクロールを追加 */
       z-index: 3003; /* 他の要素より高いz-indexを設定 */
 
@@ -372,7 +374,7 @@
     /* モバイルビュー用のスタイル */
     @media screen and (max-width: 768px) {
       #infobox-container {
-        max-height: 60vh; /* ビューポートの高さの60%に設定 */
+        max-height: 50vh; /* ビューポートの高さの60%に設定 */
         /* 必要に応じてパディングやマージンを調整 */
         padding: 8px;
         margin: 5px auto;
@@ -1833,7 +1835,7 @@
           if (isPCView()) {
             e.stopPropagation();
             isMenuOpen = !isMenuOpen;
-            updateMenuPosition(isMenuOpen ? 0 : -320); /* default -320 */
+            updateMenuPosition(isMenuOpen ? 0 : -400); /* default -320 */
             menuToggleBtn.innerHTML = isMenuOpen ? '&times;' : '☰';
             menuToggleBtn.setAttribute('aria-pressed', isMenuOpen);
           }
@@ -1848,7 +1850,7 @@
               !menuContainer.contains(e.target) && 
               e.target !== menuToggleBtn) {
             isMenuOpen = false;
-            updateMenuPosition(-320); /* default -320 */
+            updateMenuPosition(-400); /* default -320 */
             menuToggleBtn.innerHTML = '☰';
             menuToggleBtn.setAttribute('aria-pressed', isMenuOpen);
           }
@@ -1870,7 +1872,7 @@
         function handleMenuHoverEnd() {
           if (isPCView() && !isMenuOpen) {
             isHovering = false;
-            updateMenuPosition(-320); /* default -320 */
+            updateMenuPosition(-400); /* default -320 */
           }
         }
 
@@ -1984,7 +1986,7 @@
         // リサイズイベントに対応
         window.addEventListener('resize', () => {
           if (isPCView()) {
-            updateMenuPosition(isMenuOpen ? 0 : -320); /* default -320 */
+            updateMenuPosition(isMenuOpen ? 0 : -400); /* default -320 */
             menuContainer.classList.remove('closed', 'half', 'full');
           } else {
             menuContainer.style.transform = '';
