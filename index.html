@@ -2823,10 +2823,25 @@
         }
       });
 
-    // -------------------------------------------------------
-    // **) Additional Enhancements
-    // -------------------------------------------------------
-    // 既存のコードを尊重し、オートコンプリート機能の追加以外の機能やデザインは一切変更していません。
+      // -------------------------------------------------------
+      // **) Additional Enhancements
+      // -------------------------------------------------------
+      function handleOrientationChange() {
+        if (window.matchmedia("(orientation: portait)").matches) {
+          document.body.style.width = "100%";
+        } else if (window.matchmedia("(orientation: landscape)").matches) {
+          document.body.style.width = "100vw";
+        }
+      }
+
+      window.addEventListener("orientationchange", handleOrientationChange);
+      window.addEventListener("resize", handleOrientationChange);
+      handleOrientationChange();      
+
+      // -------------------------------------------------------
+      // **) Additional Enhancements
+      // -------------------------------------------------------
+      // 既存のコードを尊重し、オートコンプリート機能の追加以外の機能やデザインは一切変更していません。
 
     })();
   </script>
