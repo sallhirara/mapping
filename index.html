@@ -379,7 +379,35 @@
       }
     }    
     
-    
+/* 選択された地域の表示スタイル */
+.selected-region {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  border-bottom: 1px solid #ccc;
+  background-color: #f0f0f0;
+  border-radius: 10px;
+  margin-bottom: 10px;
+}
+
+.selected-region span {
+  font-size: 16px;
+  color: #333;
+}
+
+.selected-region button {
+  background: none;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  color: #ff0000;
+}
+
+.selected-region button:hover {
+  color: #cc0000;
+}
+   
     
     
 
@@ -2255,6 +2283,9 @@
       // 地域検索用のレイヤー
       let countriesLayer = null;
       let currentHighlightedRegions = [];
+      
+      // オリジナルの regionDropdown の HTML を保持する変数
+      let originalRegionDropdownHTML = '';
 
       /**
        * 地域検索を処理する関数
@@ -2313,6 +2344,9 @@
           const bounds = countriesLayer.getBounds();
           map.fitBounds(bounds, { padding: [50, 50] });
 
+          // 選択した地域を geoSearchBox に表示
+          displaySelectedRegion(selectedRegion);
+
           // Infobox検索を実行
           await searchWiki(selectedRegion);
 
@@ -2327,6 +2361,89 @@
 
 
       /**
+       * 選択された地域を geoSearchBox に表示する関数
+       * @param {String} selectedRegion - 選択された地域名
+       */
+      function displaySelectedRegion(selectedRegion) {
+        const searchBox = document.getElementById('geoSearchBox');
+        if (searchBox) {
+          searchBox.value = selectedRegion;
+
+          // 地図のハイライトは既に handleRegionSearch 内で行われているため、ここでは追加の処理は不要
+        }
+      }
+      
+      /**
+       * 地理検索ボックスをクリアする関数
+       */
+      function clearGeoSearch() {
+        geoSearchBox.value = '';
+
+        // 検索結果をクリアする（既存の地理検索結果レイヤーを削除）
+        if (boundaryLayer) {
+          map.removeLayer(boundaryLayer);
+          boundaryLayer = null;
+        }
+        if (maskLayer) {
+          map.removeLayer(maskLayer);
+          maskLayer = null;
+        }
+
+        // 地物マーカーとポリゴンをクリアする
+        propertyMarkers.forEach(marker => map.removeLayer(marker));
+        propertyMarkers.length = 0;
+
+        propertyPolygons.forEach(polygon => map.removeLayer(polygon));
+        propertyPolygons.length = 0;
+
+        const ul = document.getElementById('propertyResultUl');
+        ul.innerHTML = "";
+
+        // オートコンプリート候補もクリア
+        const autocompleteList = document.getElementById('autocompleteList');
+        autocompleteList.innerHTML = "";
+        autocompleteList.style.display = 'none';
+
+        // 選択された地域をクリアする
+        clearRegionSelection();
+      }
+
+      /**
+       * 地域ハイライトをクリアし、geoSearchBox をリセットする関数
+       */
+      function clearRegionSelection() {
+        // 地図上のハイライトをクリア
+        clearRegionHighlights();
+
+        const regionDropdown = document.getElementById('regionDropdown');
+        if (regionDropdown && originalRegionDropdownHTML) {
+          // regionDropdown の内容をオリジナルに戻す
+          regionDropdown.innerHTML = originalRegionDropdownHTML;
+
+          // 再度イベントリスナーを初期化
+          initializeDropdownEvents();
+        }
+      }
+
+      
+      /**
+       * 地域ハイライトをクリアし、regionDropdown をリセットする関数
+       */
+      function clearRegionSelection() {
+        // 地図上のハイライトをクリア
+        clearRegionHighlights();
+
+        const regionDropdown = document.getElementById('regionDropdown');
+        if (regionDropdown && originalRegionDropdownHTML) {
+          // regionDropdown の内容をオリジナルに戻す
+          regionDropdown.innerHTML = originalRegionDropdownHTML;
+
+          // 再度イベントリスナーを初期化
+          initializeDropdownEvents();
+        }
+      }      
+      
+      /**
        * GeoJSONデータを取得する関数
        * @returns {Promise<Object>} - GeoJSONデータ
        */
@@ -2338,7 +2455,7 @@
         const data = await response.json();
         return data;
       }
-
+      
       /**
        * 地域ハイライトをクリアする関数
        */
@@ -2348,7 +2465,8 @@
           countriesLayer = null;
         }
         currentHighlightedRegions = [];
-      }
+      }      
+      
 
       // -------------------------------------------------------
       // 17) Expose Functions to Global Scope (Updated)
@@ -2363,7 +2481,7 @@
       window.openTab = openTab;
       window.handleRegionSearch = handleRegionSearch;
       window.clearRegionHighlights = clearRegionHighlights;
-
+      window.clearRegionSelection = clearRegionSelection; // 新たに追加
 
       // -------------------------------------------------------
       // 18) Wikipedia Infobox Parser (追加)
@@ -2620,74 +2738,80 @@
         // Accessibility: ARIA roles are already set in the HTML and JavaScript above
       }
 
-    // -------------------------------------------------------
-    // **) Additional Enhancements
-    // -------------------------------------------------------      
-    /**
-     * Define openUnionList function to toggle the regionDropdown
-     */
-    function openUnionList() {
-      const dropdown = document.getElementById('regionDropdown');
-      if (dropdown) {
-        dropdown.classList.toggle('show');
+      // -------------------------------------------------------
+      // **) Additional Enhancements
+      // -------------------------------------------------------      
+      /**
+       * Define openUnionList function to toggle the regionDropdown
+       */
+      function openUnionList() {
+        const dropdown = document.getElementById('regionDropdown');
+        if (dropdown) {
+          dropdown.classList.toggle('show');
+        }
       }
-    }
 
-    // Expose openUnionList to global scope
-    window.openUnionList = openUnionList;
+      // Expose openUnionList to global scope
+      window.openUnionList = openUnionList;
 
-    // -------------------------------------------------------
-    // 19) Handle Dropdown Item Selection
-    // -------------------------------------------------------
-    /**
-     * ドロップダウンリスト内の項目をクリックした際のイベントリスナーを追加
-     */
-    function initializeDropdownEvents() {
-      const dropdownItems = document.querySelectorAll('#regionDropdown li');
-      dropdownItems.forEach(item => {
-        item.addEventListener('click', () => {
-          const value = item.getAttribute('data-value');
-          if (value) {
-            handleRegionSearch(value);
-            document.getElementById('regionDropdown').classList.remove('show');
-          }
-        });
-
-        // キーボードでの操作を可能にする
-        item.addEventListener('keydown', (e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault();
+      // -------------------------------------------------------
+      // 19) Handle Dropdown Item Selection
+      // -------------------------------------------------------
+      /**
+       * ドロップダウンリスト内の項目をクリックした際のイベントリスナーを追加
+       */
+      function initializeDropdownEvents() {
+        const dropdownItems = document.querySelectorAll('#regionDropdown li');
+        dropdownItems.forEach(item => {
+          item.addEventListener('click', () => {
             const value = item.getAttribute('data-value');
             if (value) {
               handleRegionSearch(value);
               document.getElementById('regionDropdown').classList.remove('show');
             }
+          });
+
+          // キーボードでの操作を可能にする
+          item.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              const value = item.getAttribute('data-value');
+              if (value) {
+                handleRegionSearch(value);
+                document.getElementById('regionDropdown').classList.remove('show');
+              }
+            }
+          });
+        });
+      }
+
+
+
+      // ドロップダウンリスト外をクリックした際にリストを閉じる
+      function initializeDropdownOutsideClick() {
+        document.addEventListener('click', (e) => {
+          const dropdown = document.getElementById('regionDropdown');
+          const unionIcon = document.querySelector('.union-icon');
+          if (dropdown && !dropdown.contains(e.target) && e.target !== unionIcon) {
+            dropdown.classList.remove('show');
           }
         });
-      });
-    }
+      }
 
-    // ドロップダウンリスト外をクリックした際にリストを閉じる
-    function initializeDropdownOutsideClick() {
-      document.addEventListener('click', (e) => {
-        const dropdown = document.getElementById('regionDropdown');
-        const unionIcon = document.querySelector('.union-icon');
-        if (dropdown && !dropdown.contains(e.target) && e.target !== unionIcon) {
-          dropdown.classList.remove('show');
+      // -------------------------------------------------------
+      // 16) Initialize Functions on DOM Content Loaded
+      // -------------------------------------------------------
+      document.addEventListener('DOMContentLoaded', () => {
+        // Initialize Dropdown Events
+        initializeDropdownEvents();
+        initializeDropdownOutsideClick();
+
+        // オリジナルの regionDropdown の HTML を保持
+        const regionDropdown = document.getElementById('regionDropdown');
+        if (regionDropdown) {
+          originalRegionDropdownHTML = regionDropdown.innerHTML;
         }
       });
-    }
-
-    // -------------------------------------------------------
-    // 16) Initialize Functions on DOM Content Loaded
-    // -------------------------------------------------------
-    document.addEventListener('DOMContentLoaded', () => {
-      // Initialize other functionalities if needed
-
-      // Initialize Dropdown Events
-      initializeDropdownEvents();
-      initializeDropdownOutsideClick();
-    });
 
     // -------------------------------------------------------
     // **) Additional Enhancements
