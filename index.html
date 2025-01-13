@@ -899,14 +899,7 @@ table.infobox img {
         </select>
         <button onclick="handleRegionSearch()" aria-label="Search Region" title="Search Region" style="margin-top: 10px;">
           Search
-        </button>
-
-        <!-- Wikipedia Infobox Parser 検索インターフェース（追加） -->
-        <div class="infobox-search-container" aria-label="Wikipedia Infobox Search">
-          <input id="infoboxSearchTerm" type="text" placeholder="Enter country or region" value="Asia" aria-label="Infobox Search Input"/>
-          <button onclick="searchWiki()" aria-label="Get Infobox" title="Get Infobox">Search</button>
-        </div>
-        
+        </button>   
         
       </div>
       <!-- Wikipedia Infobox 表示コンテナ（追加） -->
@@ -2248,6 +2241,9 @@ table.infobox img {
           // 地図の表示範囲を調整
           const bounds = countriesLayer.getBounds();
           map.fitBounds(bounds, { padding: [50, 50] });
+          
+          // Infobox検索を実行
+          await searchWiki(selectedRegion);
 
         } catch (error) {
           console.error("Error during region search:", error);
@@ -2295,7 +2291,6 @@ table.infobox img {
       window.openTab = openTab;
       window.handleRegionSearch = handleRegionSearch;
       window.clearRegionHighlights = clearRegionHighlights;
-      window.searchWiki = searchWiki;
 
 
       // -------------------------------------------------------
@@ -2303,11 +2298,12 @@ table.infobox img {
       // -------------------------------------------------------
       /**
        * Wikipedia Infoboxを検索・表示する関数
+       * @param {String} term - 検索語
        */
-      async function searchWiki() {
-        let term = document.getElementById("infoboxSearchTerm").value.trim();
+      async function searchWiki(term) {
+        term = term.trim();
         if (!term) {
-          alert("Please enter a search term."); // 検索語が入力されていない場合のアラート
+          alert("Please enter a search term.");
           return;
         }
 
@@ -2371,7 +2367,8 @@ table.infobox img {
           console.error(error);
           document.getElementById("infobox-container").innerHTML = "An error occurred while fetching the data."; // データ取得中のエラー時のメッセージ
         }
-      }      
+      }
+
       
       // -------------------------------------------------------
       // 17) Autocomplete Functionality Initialization
