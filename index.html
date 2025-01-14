@@ -1148,7 +1148,7 @@
           };
           reader.readAsArrayBuffer(file);
         });
-      }
+      } 
 
       /**
        * Excelデータをパースして物件データ配列を作成する関数
@@ -1177,9 +1177,22 @@
           dataName:               row["Data Name"]               || "",
           administrativeDivision: row["Administrative Division"] || "",
           localAuthority:         row["Local Authority"]         || "",
-          street:                 row["Street"]                  || ""
-        }));
-      }
+          street:                 row["Street"]                  || "",
+
+          // 新たに追加されたカラム
+          tower:                  row["Tower"]                   || "",
+          units:                  row["Units"]                   || "",
+          scale:                  row["Scale"]                   || "",
+          unitPrice:              row["Unit Price"]              || "",
+          launch:                 row["Launch"]                  || "",
+          soldOut:                row["Sold Out"]                || "",
+          description:            row["Description"]             || "",
+          googleMap:              row["Google Map"]              || "",
+          link1:                  row["Link 1"]                  || "",
+          link2:                  row["Link 2"]                  || "",
+          link3:                  row["Link 3"]                  || ""
+        })); 
+      } 
 
       // -------------------------------------------------------
       // 3) Arrays for markers & polygons
@@ -1410,18 +1423,43 @@
        * @returns {String} - HTMLコンテンツ
        */
       function buildPopup(item) {
-        return `
-          <strong>${item.pjName}</strong><br>
-          Address: ${item.address}<br>
-          Category1: ${item.category1}<br>
-          Category2: ${item.category2}<br>
-          Developer: ${item.developer}<br>
-          Architect: ${item.architect}<br>
-          Contractor: ${item.contractor}<br>
-          Sales Company: ${item.salesCompany}<br>
-          Status: ${item.status}<br>
-        `;
+        const popupContent = [];
+
+        if (item.pjName) {
+          popupContent.push(`<strong>${item.pjName}</strong>`);
+        } else {
+          popupContent.push(`<strong>No Name</strong>`);
+        }
+
+        if (item.address) popupContent.push(`Address: ${item.address}`);
+        if (item.category1) popupContent.push(`Category1: ${item.category1}`);
+        if (item.category2) popupContent.push(`Category2: ${item.category2}`);
+        if (item.developer) popupContent.push(`Developer: ${item.developer}`);
+        if (item.architect) popupContent.push(`Architect: ${item.architect}`);
+        if (item.contractor) popupContent.push(`Contractor: ${item.contractor}`);
+        if (item.salesCompany) popupContent.push(`Sales Company: ${item.salesCompany}`);
+        if (item.status) popupContent.push(`Status: ${item.status}`);
+        if (item.scale) popupContent.push(`Scale: ${item.scale}`);
+        if (item.unitPrice) popupContent.push(`Unit Price: ${item.unitPrice}`);
+        if (item.launch) popupContent.push(`Launch: ${item.launch}`);
+        if (item.soldOut) popupContent.push(`Sold Out: ${item.soldOut}`);
+        if (item.description) popupContent.push(`Description: ${item.description}`);
+        if (item.googleMap) {
+          popupContent.push(`Google Map: <a href="${item.googleMap}" target="_blank">View on Google Map</a>`);
+        }
+        if (item.link1) {
+          popupContent.push(`Link 1: <a href="${item.link1}" target="_blank">Link 1</a>`);
+        }
+        if (item.link2) {
+          popupContent.push(`Link 2: <a href="${item.link2}" target="_blank">Link 2</a>`);
+        }
+        if (item.link3) {
+          popupContent.push(`Link 3: <a href="${item.link3}" target="_blank">Link 3</a>`);
+        }
+
+        return popupContent.join('<br>');
       }
+
 
       // -------------------------------------------------------
       // 5) Show/Hide List
@@ -1497,10 +1535,14 @@
             item.dataName,
             item.administrativeDivision,
             item.localAuthority,
-            item.street
+            item.street,
+
+            // 新たに追加されたカラム
+            item.unitPrice,
+            item.launch
           ].join(" ").toLowerCase().replace(/\s+/g, " ");
           return combined;
-        }
+        } 
 
         let idxSet = new Set(data.map((_, i) => i));
         // AND条件
@@ -2809,14 +2851,14 @@
           originalRegionDropdownHTML = regionDropdown.innerHTML;
         }
       });
-
+ 
       // -------------------------------------------------------
       // **) Additional Enhancements
       // -------------------------------------------------------
       function handleOrientationChange() {
-        if (window.matchmedia("(orientation: portait)").matches) {
+        if (window.matchMedia("(orientation: portrait)").matches) {
           document.body.style.width = "100%";
-        } else if (window.matchmedia("(orientation: landscape)").matches) {
+        } else if (window.matchMedia("(orientation: landscape)").matches) {
           document.body.style.width = "100vw";
         }
       }
