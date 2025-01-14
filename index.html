@@ -660,226 +660,228 @@
       font-weight: bold;
       cursor: pointer;
     }
+        
+    /* Analytics Container */
+    .analytics-container {
+      padding: 20px;
+      background-color: #f8f9fa;
+    }
+
+    /* Overview Section */
+    .overview-section {
+      margin-bottom: 30px;
+    }
+
+    .overview-card {
+      background: white;
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+
+    .overview-card h3 {
+      margin: 0 0 20px 0;
+      font-size: 18px;
+      color: #333;
+    }
+
+    .overview-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+    }
+
+    .overview-item {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .overview-item .label {
+      font-size: 14px;
+      color: #666;
+    }
+
+    .overview-item .value {
+      font-size: 24px;
+      font-weight: 600;
+      color: #2c3e50;
+    }
+
+    /* Category Section */
+    .category-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      gap: 20px;
+    }
+
+    .category-card {
+        background: white;
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        margin-bottom: 20px;
+        display: block; /* display: none を削除 */
+    }
+
+    .category-card .card-content {
+        display: block;
+    }
+
+    .chart-container {
+        min-height: 200px;
+        margin: 15px 0;
+    }
+
+    .category-card.has-data {
+      display: block;
+    }
+
+    .card-title {
+      margin: 0 0 20px 0;
+      font-size: 16px;
+      color: #333;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #eee;
+    }
+
+    /* Metric Groups */
+    .metric-group,
+    .price-group,
+    .company-group {
+      margin-bottom: 20px;
+    }
+
+    .metric-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    .metric-item:last-child {
+      border-bottom: none;
+    }
+
+    .metric-item .label {
+      font-size: 14px;
+      color: #666;
+    }
+
+    .metric-item .value {
+      font-size: 14px;
+      font-weight: 500;
+      color: #2c3e50;
+    }
+
+    /* Chart Group */
+    .chart-group {
+      margin-top: 20px;
+    }
+
+    .chart-item {
+      margin-bottom: 20px;
+    }
+
+    .chart-item .label {
+      display: block;
+      margin-bottom: 10px;
+      font-size: 14px;
+      color: #666;
+    }
+
+    .timeline-chart {
+      width: 100%;
+      height: 200px;
+    }
+
+    /* Status Group */
+    .status-group {
+      margin-top: 20px;
+    }
+
+    .status-group h4 {
+      margin: 0 0 15px 0;
+      font-size: 14px;
+      color: #666;
+    }
+
+    .status-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 10px;
+    }
+
+    .status-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 10px;
+      background: #f8f9fa;
+      border-radius: 6px;
+    }
+
+    .status-item .label {
+      font-size: 12px;
+      color: #666;
+      margin-bottom: 5px;
+    }
+
+    .status-item .value {
+      font-size: 16px;
+      font-weight: 500;
+      color: #2c3e50;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .category-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .overview-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .status-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .metric-item .label,
+      .metric-item .value {
+        font-size: 13px;
+      }
+
+      .timeline-chart {
+        height: 150px;
+      }
+    }
+
     
-/* Analytics Container */
-.analytics-container {
-  padding: 20px;
-  background-color: #f8f9fa;
-}
 
-/* Overview Section */
-.overview-section {
-  margin-bottom: 30px;
-}
+    /* Hide Empty Elements */
+    .metric-item[data-value="0"],
+    .metric-item[data-value=""],
+    .metric-item[data-value="-"] {
+      display: none;
+    }
 
-.overview-card {
-  background: white;
-  border-radius: 10px;
-  padding: 20px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-}
+    /* Price Formatting */
+    .price-group .value::before {
+      content: "$";
+    }
 
-.overview-card h3 {
-  margin: 0 0 20px 0;
-  font-size: 18px;
-  color: #333;
-}
+    /* Number Formatting */
+    .metric-item[data-type="number"] .value {
+      font-family: monospace;
+    }
 
-.overview-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 20px;
-}
-
-.overview-item {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.overview-item .label {
-  font-size: 14px;
-  color: #666;
-}
-
-.overview-item .value {
-  font-size: 24px;
-  font-weight: 600;
-  color: #2c3e50;
-}
-
-/* Category Section */
-.category-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-  gap: 20px;
-}
-
-.category-card {
-    background: white;
-    border-radius: 10px;
-    padding: 20px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-    margin-bottom: 20px;
-    display: block; /* display: none を削除 */
-}
-
-.category-card .card-content {
-    display: block;
-}
-
-.chart-container {
-    min-height: 200px;
-    margin: 15px 0;
-}
-
-.category-card.has-data {
-  display: block;
-}
-
-.card-title {
-  margin: 0 0 20px 0;
-  font-size: 16px;
-  color: #333;
-  padding-bottom: 10px;
-  border-bottom: 2px solid #eee;
-}
-
-/* Metric Groups */
-.metric-group,
-.price-group,
-.company-group {
-  margin-bottom: 20px;
-}
-
-.metric-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 8px 0;
-  border-bottom: 1px solid #f0f0f0;
-}
-
-.metric-item:last-child {
-  border-bottom: none;
-}
-
-.metric-item .label {
-  font-size: 14px;
-  color: #666;
-}
-
-.metric-item .value {
-  font-size: 14px;
-  font-weight: 500;
-  color: #2c3e50;
-}　
-
-/* Chart Group */
-.chart-group {
-  margin-top: 20px;
-}
-
-.chart-item {
-  margin-bottom: 20px;
-}
-
-.chart-item .label {
-  display: block;
-  margin-bottom: 10px;
-  font-size: 14px;
-  color: #666;
-}
-
-.timeline-chart {
-  width: 100%;
-  height: 200px;
-}
-
-/* Status Group */
-.status-group {
-  margin-top: 20px;
-}
-
-.status-group h4 {
-  margin: 0 0 15px 0;
-  font-size: 14px;
-  color: #666;
-}
-
-.status-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-  gap: 10px;
-}
-
-.status-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 10px;
-  background: #f8f9fa;
-  border-radius: 6px;
-}
-
-.status-item .label {
-  font-size: 12px;
-  color: #666;
-  margin-bottom: 5px;
-}
-
-.status-item .value {
-  font-size: 16px;
-  font-weight: 500;
-  color: #2c3e50;
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-  .category-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .overview-grid {
-    grid-template-columns: 1fr 1fr;
-  }
-
-  .status-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .metric-item .label,
-  .metric-item .value {
-    font-size: 13px;
-  }
-
-  .timeline-chart {
-    height: 150px;
-  }
-}
-
-/* Hide Empty Elements */
-.metric-item[data-value="0"],
-.metric-item[data-value=""],
-.metric-item[data-value="-"] {
-  display: none;
-}
-
-/* Price Formatting */
-.price-group .value::before {
-  content: "$";
-}
-
-/* Number Formatting */
-.metric-item[data-type="number"] .value {
-  font-family: monospace;
-}
-
-/* Chart Containers */
-.chart-container {
-  position: relative;
-  width: 100%;
-}
+    /* Chart Containers */
+    .chart-container {
+      position: relative;
+      width: 100%;
+    }
 
     .close-button:hover,
     .close-button:focus {
@@ -1096,138 +1098,138 @@
         <div id="searchResult" class="tab-panel active">
           <!-- searchResult情報がここに表示されます -->
           
-<div class="analytics-container">
-  <!-- Projects Overview -->
-  <div class="overview-section">
-    <div class="overview-card">
-      <h3>Projects Overview</h3>
-      <div class="overview-grid">
-        <div class="overview-item">
-          <span class="label">Total Projects</span>
-          <span class="value" id="totalProjects">-</span>
-        </div>
-        <div class="overview-item">
-          <span class="label">Total Categories</span>
-          <span class="value" id="totalCategories">-</span>
-        </div>
-        <div class="overview-item">
-          <span class="label">Total Countries</span>
-          <span class="value" id="totalCountries">-</span>
-        </div>
-        <div class="overview-item">
-          <span class="label">Total Regions</span>
-          <span class="value" id="totalRegions">-</span>
-        </div>
-        <div class="overview-item">
-          <span class="label">Total Developers</span>
-          <span class="value" id="totalDevelopers">-</span>
-        </div>
-      </div>
-    </div>
-  </div>
+            <div class="analytics-container">
+              <!-- Projects Overview -->
+              <div class="overview-section">
+                <div class="overview-card">
+                  <h3>Projects Overview</h3>
+                  <div class="overview-grid">
+                    <div class="overview-item">
+                      <span class="label">Total Projects</span>
+                      <span class="value" id="totalProjects">-</span>
+                    </div>
+                    <div class="overview-item">
+                      <span class="label">Total Categories</span>
+                      <span class="value" id="totalCategories">-</span>
+                    </div>
+                    <div class="overview-item">
+                      <span class="label">Total Countries</span>
+                      <span class="value" id="totalCountries">-</span>
+                    </div>
+                    <div class="overview-item">
+                      <span class="label">Total Regions</span>
+                      <span class="value" id="totalRegions">-</span>
+                    </div>
+                    <div class="overview-item">
+                      <span class="label">Total Developers</span>
+                      <span class="value" id="totalDevelopers">-</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
 
-  <!-- Category Analysis -->
-  <div class="category-section">
-    <div class="category-grid" id="categoryContainer">
-      <!-- Category cards will be dynamically inserted here -->
-      <template id="categoryCardTemplate">
-        <div class="category-card">
-          <h3 class="card-title"></h3>
-          <div class="card-content">
-            <div class="metric-group">
-              <div class="metric-item" data-metric="categories">
-                <span class="label">Categories</span>
-                <span class="value">-</span>
-              </div>
-              <div class="metric-item" data-metric="subCategories">
-                <span class="label">Sub-Categories</span>
-                <span class="value">-</span>
-              </div>
-              <div class="metric-item" data-metric="projects">
-                <span class="label">Projects</span>
-                <span class="value">-</span>
-              </div>
-              <div class="metric-item" data-metric="siteNames">
-                <span class="label">Site Names</span>
-                <span class="value">-</span>
-              </div>
-              <div class="metric-item" data-metric="countries">
-                <span class="label">Countries</span>
-                <span class="value">-</span>
-              </div>
-              <div class="metric-item" data-metric="regions">
-                <span class="label">Regions</span>
-                <span class="value">-</span>
-              </div>
-              <div class="metric-item" data-metric="siteArea">
-                <span class="label">Site Area</span>
-                <span class="value">-</span>
-              </div>
-              <div class="metric-item" data-metric="developers">
-                <span class="label">Developers</span>
-                <span class="value">-</span>
-              </div>
-              <div class="metric-item" data-metric="towers">
-                <span class="label">Towers</span>
-                <span class="value">-</span>
-              </div>
-              <div class="metric-item" data-metric="units">
-                <span class="label">Units</span>
-                <span class="value">-</span>
+              <!-- Category Analysis -->
+              <div class="category-section">
+                <div class="category-grid" id="categoryContainer">
+                  <!-- Category cards will be dynamically inserted here -->
+                  <template id="categoryCardTemplate">
+                    <div class="category-card">
+                      <h3 class="card-title"></h3>
+                      <div class="card-content">
+                        <div class="metric-group">
+                          <div class="metric-item" data-metric="categories">
+                            <span class="label">Categories</span>
+                            <span class="value">-</span>
+                          </div>
+                          <div class="metric-item" data-metric="subCategories">
+                            <span class="label">Sub-Categories</span>
+                            <span class="value">-</span>
+                          </div>
+                          <div class="metric-item" data-metric="projects">
+                            <span class="label">Projects</span>
+                            <span class="value">-</span>
+                          </div>
+                          <div class="metric-item" data-metric="siteNames">
+                            <span class="label">Site Names</span>
+                            <span class="value">-</span>
+                          </div>
+                          <div class="metric-item" data-metric="countries">
+                            <span class="label">Countries</span>
+                            <span class="value">-</span>
+                          </div>
+                          <div class="metric-item" data-metric="regions">
+                            <span class="label">Regions</span>
+                            <span class="value">-</span>
+                          </div>
+                          <div class="metric-item" data-metric="siteArea">
+                            <span class="label">Site Area</span>
+                            <span class="value">-</span>
+                          </div>
+                          <div class="metric-item" data-metric="developers">
+                            <span class="label">Developers</span>
+                            <span class="value">-</span>
+                          </div>
+                          <div class="metric-item" data-metric="towers">
+                            <span class="label">Towers</span>
+                            <span class="value">-</span>
+                          </div>
+                          <div class="metric-item" data-metric="units">
+                            <span class="label">Units</span>
+                            <span class="value">-</span>
+                          </div>
+                        </div>
+
+                        <div class="price-group">
+                          <div class="metric-item" data-metric="priceHigh">
+                            <span class="label">Highest Unit Price</span>
+                            <span class="value">-</span>
+                          </div>
+                          <div class="metric-item" data-metric="priceMid">
+                            <span class="label">Middle Unit Price</span>
+                            <span class="value">-</span>
+                          </div>
+                          <div class="metric-item" data-metric="priceLow">
+                            <span class="label">Lowest Unit Price</span>
+                            <span class="value">-</span>
+                          </div>
+                        </div>
+
+                        <div class="company-group">
+                          <div class="metric-item" data-metric="architects">
+                            <span class="label">Architects</span>
+                            <span class="value">-</span>
+                          </div>
+                          <div class="metric-item" data-metric="contractors">
+                            <span class="label">Contractors</span>
+                            <span class="value">-</span>
+                          </div>
+                          <div class="metric-item" data-metric="salesCompanies">
+                            <span class="label">Sales Companies</span>
+                            <span class="value">-</span>
+                          </div>
+                        </div>
+
+                        <div class="chart-group">
+                          <div class="chart-item">
+                            <span class="label">Launch Timeline</span>
+                            <canvas class="timeline-chart launch-chart"></canvas>
+                          </div>
+                          <div class="chart-item">
+                            <span class="label">Sold Out Timeline</span>
+                            <canvas class="timeline-chart soldout-chart"></canvas>
+                          </div>
+                        </div>
+
+                        <div class="status-group">
+                          <h4>Status</h4>
+                          <div class="status-grid"></div>
+                        </div>
+                      </div>
+                    </div>
+                  </template>
+                </div>
               </div>
             </div>
-
-            <div class="price-group">
-              <div class="metric-item" data-metric="priceHigh">
-                <span class="label">Highest Unit Price</span>
-                <span class="value">-</span>
-              </div>
-              <div class="metric-item" data-metric="priceMid">
-                <span class="label">Middle Unit Price</span>
-                <span class="value">-</span>
-              </div>
-              <div class="metric-item" data-metric="priceLow">
-                <span class="label">Lowest Unit Price</span>
-                <span class="value">-</span>
-              </div>
-            </div>
-
-            <div class="company-group">
-              <div class="metric-item" data-metric="architects">
-                <span class="label">Architects</span>
-                <span class="value">-</span>
-              </div>
-              <div class="metric-item" data-metric="contractors">
-                <span class="label">Contractors</span>
-                <span class="value">-</span>
-              </div>
-              <div class="metric-item" data-metric="salesCompanies">
-                <span class="label">Sales Companies</span>
-                <span class="value">-</span>
-              </div>
-            </div>
-
-            <div class="chart-group">
-              <div class="chart-item">
-                <span class="label">Launch Timeline</span>
-                <canvas class="timeline-chart launch-chart"></canvas>
-              </div>
-              <div class="chart-item">
-                <span class="label">Sold Out Timeline</span>
-                <canvas class="timeline-chart soldout-chart"></canvas>
-              </div>
-            </div>
-
-            <div class="status-group">
-              <h4>Status</h4>
-              <div class="status-grid"></div>
-            </div>
-          </div>
-        </div>
-      </template>
-    </div>
-  </div>
-</div>
   
         </div>
         <div id="searchTips" class="tab-panel">
@@ -1452,96 +1454,89 @@
       let propertyData = [];
       const fileInput = document.getElementById('fileInput');
 
-fileInput.addEventListener('change', async (event) => {
-    const file = event.target.files[0];
-    if (!file) return;
-    
-    closeUIElements();
+      fileInput.addEventListener('change', async (event) => {
+          const file = event.target.files[0];
+          if (!file) return;
+          
+          closeUIElements();
 
-    try {
-        // ローディングスピナーを表示
-        showLoadingSpinner('propertyLoadingSpinner');
+          try {
+              // ローディングスピナーを表示
+              showLoadingSpinner('propertyLoadingSpinner');
 
-        const data = await readExcelFile(file);
-        console.log("Raw Excel data:", data); // データの確認
+              const data = await readExcelFile(file);
+              console.log("Raw Excel data:", data); // データの確認
 
-        propertyData = parseExcelData(data);
-        console.log("Parsed property data:", propertyData); // パースされたデータの確認
+              propertyData = parseExcelData(data);
+              console.log("Parsed property data:", propertyData); // パースされたデータの確認
 
-        // Overview Statistics の更新
-        updateOverviewStats(propertyData);
-        console.log("Overview stats updated");
+              // Category Analysis の更新
+              const categories = ['Primary', 'Area', 'Haseko', 'Ecoba', 'Condominium', 'Others', 'PJ Site'];
+              const categorizedData = {};
+              categories.forEach(cat => {
+                  const filteredData = propertyData.filter(item => 
+                      item.category1.toLowerCase() === cat.toLowerCase()
+                  );
+                  if (filteredData.length > 0) {
+                      categorizedData[cat] = filteredData;
+                      console.log(`${cat} projects:`, filteredData.length); // カテゴリごとのデータ数を確認
+                  }
+              });
 
-        // Category Analysis の更新
-        const categories = ['Primary', 'Area', 'Haseko', 'Ecoba', 'Condominium', 'Others', 'PJ Site'];
-        const categorizedData = {};
-        categories.forEach(cat => {
-            const filteredData = propertyData.filter(item => 
-                item.category1.toLowerCase() === cat.toLowerCase()
-            );
-            if (filteredData.length > 0) {
-                categorizedData[cat] = filteredData;
-                console.log(`${cat} projects:`, filteredData.length); // カテゴリごとのデータ数を確認
-            }
-        });
+              console.log("Excel loaded:", propertyData.length, "rows");
+              alert("Excel loaded: " + propertyData.length + " properties found.");
 
-        updateCategoryAnalysis(propertyData);
-        console.log("Category analysis updated");
+              // オートコンプリートのデータを更新
+              initializeAutocomplete();
 
-        console.log("Excel loaded:", propertyData.length, "rows");
-        alert("Excel loaded: " + propertyData.length + " properties found.");
-
-        // オートコンプリートのデータを更新
-        initializeAutocomplete();
-
-    } catch (error) {
-        console.error("Error details:", error);
-        console.error("Error stack:", error.stack);
-        alert("Failed to load Excel file. Error: " + error.message);
-    } finally {
-        // ローディングスピナーを非表示
-        hideLoadingSpinner('propertyLoadingSpinner');
-    }
-});
+          } catch (error) {
+              console.error("Error details:", error);
+              console.error("Error stack:", error.stack);
+              alert("Failed to load Excel file. Error: " + error.message);
+          } finally {
+              // ローディングスピナーを非表示
+              hideLoadingSpinner('propertyLoadingSpinner');
+          }
+      });
 
       /**
        * Excelファイルを読み込む非同期関数
        * @param {File} file - ユーザーがアップロードしたファイル
        * @returns {Promise} - Excelデータの配列
        */
-async function readExcelFile(file) {
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            try {
-                console.log("File read successful"); // ファイル読み込み成功を確認
-                const data = new Uint8Array(e.target.result);
-                const workbook = XLSX.read(data, { type: 'array' });
-                
-                console.log("Available sheets:", workbook.SheetNames); // 利用可能なシート名を確認
-                
-                // Masterシートを探す
-                const masterSheet = workbook.Sheets['Master'];
-                if (!masterSheet) {
-                    throw new Error("Master sheet not found. Available sheets: " + workbook.SheetNames.join(", "));
-                }
+      async function readExcelFile(file) {
+          return new Promise((resolve, reject) => {
+              const reader = new FileReader();
+              reader.onload = (e) => {
+                  try {
+                      console.log("File read successful"); // ファイル読み込み成功を確認
+                      const data = new Uint8Array(e.target.result);
+                      const workbook = XLSX.read(data, { type: 'array' });
+                      
+                      console.log("Available sheets:", workbook.SheetNames); // 利用可能なシート名を確認
+                      
+                      // Masterシートを探す
+                      const masterSheet = workbook.Sheets['Master'];
+                      if (!masterSheet) {
+                          throw new Error("Master sheet not found. Available sheets: " + workbook.SheetNames.join(", "));
+                      }
 
-                const jsonData = XLSX.utils.sheet_to_json(masterSheet);
-                console.log("Sheet to JSON successful:", jsonData.length, "rows"); // 変換結果を確認
-                
-                resolve(jsonData);
-            } catch (error) {
-                console.error("Error in readExcelFile:", error);
-                reject(error);
-            }
-        };
-        reader.onerror = (error) => {
-            console.error("FileReader error:", error);
-            reject(new Error("Failed to read the file: " + error.message));
-        };
-        reader.readAsArrayBuffer(file);
-    });
-}
+                      const jsonData = XLSX.utils.sheet_to_json(masterSheet);
+                      console.log("Sheet to JSON successful:", jsonData.length, "rows"); // 変換結果を確認
+                      
+                      resolve(jsonData);
+                  } catch (error) {
+                      console.error("Error in readExcelFile:", error);
+                      reject(error);
+                  }
+              };
+              reader.onerror = (error) => {
+                  console.error("FileReader error:", error);
+                  reject(new Error("Failed to read the file: " + error.message));
+              };
+              reader.readAsArrayBuffer(file);
+          });
+      }
 
       /**
        * Excelデータをパースして物件データ配列を作成する関数
@@ -1584,337 +1579,348 @@ async function readExcelFile(file) {
         })); 
       } 
       
-/**
- * 分析結果を更新する関数
- * @param {Array} data - 解析されたエクセルデータ
- */
-function updateAnalytics(data) {
-  // Overview Statistics の更新
-  updateOverviewStats(data);
-  // Category Analysis の更新
-  updateCategoryAnalysis(data);
-}
+      /**
+       * 分析結果を更新する関数
+       * @param {Array} data - 解析されたエクセルデータ
+       */
+      function updateAnalytics(data) {
+        // Overview Statistics の更新
+        updateOverviewStats(data);
+        // Category Analysis の更新
+        updateCategoryAnalysis(data);
+      }
 
-/**
- * Overview Statistics を更新する関数
- * @param {Array} data - 解析されたエクセルデータ
- */
-function updateOverviewStats(data) {
-  // 総プロジェクト数
-  document.getElementById('totalProjects').textContent = data.length.toLocaleString();
-  
-  // ユニークなカテゴリー数
-  const uniqueCategories = new Set(data.map(item => item.category1)).size;
-  document.getElementById('totalCategories').textContent = uniqueCategories.toLocaleString();
-  
-  // ユニークな国の数
-  const uniqueCountries = new Set(data.map(item => item.country)).size;
-  document.getElementById('totalCountries').textContent = uniqueCountries.toLocaleString();
-  
-  // ユニークな地域の数
-  const uniqueRegions = new Set(data.map(item => item.region)).size;
-  document.getElementById('totalRegions').textContent = uniqueRegions.toLocaleString();
-  
-  // ユニークなデベロッパーの数
-  const uniqueDevelopers = new Set(data.filter(item => item.developer).map(item => item.developer)).size;
-  document.getElementById('totalDevelopers').textContent = uniqueDevelopers.toLocaleString();
-}
+      /**
+       * Overview Statistics を更新する関数
+       * @param {Array} data - 解析されたエクセルデータ
+       */
+      function updateOverviewStats(data) {
+        // 総プロジェクト数
+        document.getElementById('totalProjects').textContent = data.length.toLocaleString();
+        
+        // ユニークなカテゴリー数
+        const uniqueCategories = new Set(data.map(item => item.category1)).size;
+        document.getElementById('totalCategories').textContent = uniqueCategories.toLocaleString();
+        
+        // ユニークな国の数
+        const uniqueCountries = new Set(data.map(item => item.country)).size;
+        document.getElementById('totalCountries').textContent = uniqueCountries.toLocaleString();
+        
+        // ユニークな地域の数
+        const uniqueRegions = new Set(data.map(item => item.region)).size;
+        document.getElementById('totalRegions').textContent = uniqueRegions.toLocaleString();
+        
+        // ユニークなデベロッパーの数
+        const uniqueDevelopers = new Set(data.filter(item => item.developer).map(item => item.developer)).size;
+        document.getElementById('totalDevelopers').textContent = uniqueDevelopers.toLocaleString();
+      }
 
-/**
- * Category Analysis を更新する関数
- * @param {Array} data - 解析されたエクセルデータ
- */
-function updateCategoryAnalysis(data) {
-    // カテゴリー定義
-    const categories = ['Primary', 'Area', 'Haseko', 'Ecoba', 'Condominium', 'Others', 'PJ Site'];
-    const container = document.getElementById('categoryContainer');
-    console.log("Category container found:", !!container); // コンテナの存在確認
+      /**
+       * Category Analysis を更新する関数
+       * @param {Array} data - 解析されたエクセルデータ
+       */
+      function updateCategoryAnalysis(data) {
+          // カテゴリー定義
+          const categories = ['Primary', 'Area', 'Haseko', 'Ecoba', 'Condominium', 'Others', 'PJ Site'];
+          const container = document.getElementById('categoryContainer');
+          console.log("Category container found:", !!container); // コンテナの存在確認
 
-    // テンプレートを取得
-    const template = document.getElementById('categoryCardTemplate');
-    console.log("Template found:", !!template); // テンプレートの存在確認
+          // テンプレートを取得
+          const template = document.getElementById('categoryCardTemplate');
+          console.log("Template found:", !!template); // テンプレートの存在確認
 
-    container.innerHTML = ''; // コンテナをクリア
+          container.innerHTML = ''; // コンテナをクリア
 
-    // カテゴリーごとのデータを集計
-    const categoryStats = categories.map(category => {
-        const categoryData = data.filter(item => 
-            item.category1.toLowerCase() === category.toLowerCase()
-        );
-        console.log(`${category} data:`, categoryData.length); // カテゴリごとのデータ数を確認
-　
-        if (categoryData.length === 0) return null;
+          // カテゴリーごとのデータを集計
+          const categoryStats = categories.map(category => {
+              const categoryData = data.filter(item => 
+                  item.category1.toLowerCase() === category.toLowerCase()
+              );
+              console.log(`${category} data:`, categoryData.length); // カテゴリごとのデータ数を確認
+      
+              if (categoryData.length === 0) return null;
 
+              return {
+                  name: category,
+                  data: categoryData,
+                  stats: calculateCategoryStats(categoryData)
+              };
+          }).filter(Boolean);
+
+          console.log("Calculated category stats:", categoryStats); // 統計情報の確認
+
+          // プロジェクト数でソート
+          categoryStats.sort((a, b) => b.data.length - a.data.length);
+
+          // 各カテゴリーのカードを作成
+          categoryStats.forEach(category => {
+              const card = template.content.cloneNode(true);
+              console.log(`Creating card for ${category.name}`); // カード作成の確認
+              populateCategoryCard(card, category);
+              container.appendChild(card);
+          });
+
+          console.log("Category cards created:", container.children.length); // 作成されたカードの数を確認
+      }
+
+      /**
+       * カテゴリーの統計を計算する関数
+       * @param {Array} data - カテゴリーのデータ
+       * @returns {Object} - 統計情報
+       */
+      function calculateCategoryStats(data) {
         return {
-            name: category,
-            data: categoryData,
-            stats: calculateCategoryStats(categoryData)
+          totalProjects: data.length,
+          subCategories: new Set(data.map(item => item.category2)).size,
+          countries: new Set(data.map(item => item.country)).size,
+          regions: new Set(data.map(item => item.region)).size,
+          developers: new Set(data.map(item => item.developer)).size,
+          totalUnits: data.reduce((sum, item) => sum + (parseInt(item.units) || 0), 0),
+          totalTowers: data.reduce((sum, item) => sum + (parseInt(item.tower) || 0), 0),
+          priceStats: calculatePriceStats(data),
+          architects: new Set(data.map(item => item.architect).filter(Boolean)).size,
+          contractors: new Set(data.map(item => item.contractor).filter(Boolean)).size,
+          salesCompanies: new Set(data.map(item => item.salesCompany).filter(Boolean)).size,
+          launchTimeline: calculateTimeline(data, 'launch'),
+          soldOutTimeline: calculateTimeline(data, 'soldOut'),
+          statusDistribution: calculateStatusDistribution(data)
         };
-    }).filter(Boolean);
-
-    console.log("Calculated category stats:", categoryStats); // 統計情報の確認
-
-    // プロジェクト数でソート
-    categoryStats.sort((a, b) => b.data.length - a.data.length);
-
-    // 各カテゴリーのカードを作成
-    categoryStats.forEach(category => {
-        const card = template.content.cloneNode(true);
-        console.log(`Creating card for ${category.name}`); // カード作成の確認
-        populateCategoryCard(card, category);
-        container.appendChild(card);
-    });
-
-    console.log("Category cards created:", container.children.length); // 作成されたカードの数を確認
-}
-
-/**
- * カテゴリーの統計を計算する関数
- * @param {Array} data - カテゴリーのデータ
- * @returns {Object} - 統計情報
- */
-function calculateCategoryStats(data) {
-  return {
-    totalProjects: data.length,
-    subCategories: new Set(data.map(item => item.category2)).size,
-    countries: new Set(data.map(item => item.country)).size,
-    regions: new Set(data.map(item => item.region)).size,
-    developers: new Set(data.map(item => item.developer)).size,
-    totalUnits: data.reduce((sum, item) => sum + (parseInt(item.units) || 0), 0),
-    totalTowers: data.reduce((sum, item) => sum + (parseInt(item.tower) || 0), 0),
-    priceStats: calculatePriceStats(data),
-    architects: new Set(data.map(item => item.architect).filter(Boolean)).size,
-    contractors: new Set(data.map(item => item.contractor).filter(Boolean)).size,
-    salesCompanies: new Set(data.map(item => item.salesCompany).filter(Boolean)).size,
-    launchTimeline: calculateTimeline(data, 'launch'),
-    soldOutTimeline: calculateTimeline(data, 'soldOut'),
-    statusDistribution: calculateStatusDistribution(data)
-  };
-}
-
-/**
- * 価格統計を計算する関数
- * @param {Array} data - カテゴリーのデータ
- * @returns {Object} - 価格統計
- */
-function calculatePriceStats(data) {
-  const prices = data
-    .map(item => parsePriceString(item.unitPrice))
-    .filter(price => price !== null);
-  
-  return {
-    highest: prices.length ? Math.max(...prices) : null,
-    lowest: prices.length ? Math.min(...prices) : null,
-    average: prices.length ? 
-      prices.reduce((sum, price) => sum + price, 0) / prices.length : null
-  };
-}
-
-/**
- * タイムラインデータを計算する関数
- * @param {Array} data - カテゴリーのデータ
- * @param {String} field - フィールド名（'launch' or 'soldOut'）
- * @returns {Object} - タイムラインデータ
- */
-function calculateTimeline(data, field) {
-  const timeline = {};
-  data.forEach(item => {
-    const date = item[field];
-    if (date && typeof date === 'string') {
-      // Q1/2018 形式の場合
-      const match = date.match(/Q(\d)\/(\d{4})/);
-      if (match) {
-        const year = match[2];
-        timeline[year] = (timeline[year] || 0) + 1;
       }
-      // 2018 形式の場合
-      else if (date.match(/^\d{4}$/)) {
-        const year = date;
-        timeline[year] = (timeline[year] || 0) + 1;
+
+      /**
+       * 価格統計を計算する関数
+       * @param {Array} data - カテゴリーのデータ
+       * @returns {Object} - 価格統計
+       */
+      function calculatePriceStats(data) {
+        const prices = data
+          .map(item => parsePriceString(item.unitPrice))
+          .filter(price => price !== null);
+        
+        return {
+          highest: prices.length ? Math.max(...prices) : null,
+          lowest: prices.length ? Math.min(...prices) : null,
+          average: prices.length ? 
+            prices.reduce((sum, price) => sum + price, 0) / prices.length : null
+        };
       }
-      // その他の形式の場合（必要に応じて追加）
-      else {
-        try {
-          const dateObj = new Date(date);
-          if (!isNaN(dateObj.getTime())) {
-            const year = dateObj.getFullYear().toString();
-            timeline[year] = (timeline[year] || 0) + 1;
+
+      /**
+       * タイムラインデータを計算する関数
+       * @param {Array} data - カテゴリーのデータ
+       * @param {String} field - フィールド名（'launch' or 'soldOut'）
+       * @returns {Object} - タイムラインデータ
+       */
+      function calculateTimeline(data, field) {
+        const timeline = {};
+        data.forEach(item => {
+          const date = item[field];
+          if (date && typeof date === 'string') {
+            // Q1/2018 形式の場合
+            const match = date.match(/Q(\d)\/(\d{4})/);
+            if (match) {
+              const year = match[2];
+              timeline[year] = (timeline[year] || 0) + 1;
+            }
+            // 2018 形式の場合
+            else if (date.match(/^\d{4}$/)) {
+              const year = date;
+              timeline[year] = (timeline[year] || 0) + 1;
+            }
+            // その他の形式の場合（必要に応じて追加）
+            else {
+              try {
+                const dateObj = new Date(date);
+                if (!isNaN(dateObj.getTime())) {
+                  const year = dateObj.getFullYear().toString();
+                  timeline[year] = (timeline[year] || 0) + 1;
+                }
+              } catch (e) {
+                console.warn(`Invalid date format for ${field}:`, date);
+              }
+            }
           }
-        } catch (e) {
-          console.warn(`Invalid date format for ${field}:`, date);
-        }
+        });
+        return timeline;
       }
-    }
-  });
-  return timeline;
-}
 
-/**
- * ステータス分布を計算する関数
- * @param {Array} data - カテゴリーのデータ
- * @returns {Object} - ステータス分布
- */
-function calculateStatusDistribution(data) {
-  const distribution = {};
-  data.forEach(item => {
-    const status = item.status || 'Unknown';
-    distribution[status] = (distribution[status] || 0) + 1;
-  });
-  return distribution;
-}
+      /**
+       * ステータス分布を計算する関数
+       * @param {Array} data - カテゴリーのデータ
+       * @returns {Object} - ステータス分布
+       */
+      function calculateStatusDistribution(data) {
+        const distribution = {};
+        data.forEach(item => {
+          const status = item.status || 'Unknown';
+          distribution[status] = (distribution[status] || 0) + 1;
+        });
+        return distribution;
+      }
 
-/**
- * 価格文字列をパースする関数
- * @param {String} priceString - 価格文字列
- * @returns {Number|null} - パースされた価格
- */
-function parsePriceString(priceString) {
-  if (!priceString) return null;
-  // 価格文字列のパースロジックを実装
-  // 例: "21-23 trieu" → 22 (平均値を取る)
-  return null; // 実装が必要
-}
+      /**
+       * 価格文字列をパースする関数
+       * @param {String} priceString - 価格文字列
+       * @returns {Number|null} - パースされた価格
+       */
+      function parsePriceString(priceString) {
+        if (!priceString) return null;
+        // 価格文字列のパースロジックを実装
+        // 例: "21-23 trieu" → 22 (平均値を取る)
+        return null; // 実装が必要
+      }
 
-/**
- * カテゴリーカードを更新する関数
- * @param {Node} card - カードのDOM要素
- * @param {Object} category - カテゴリー情報
- */
-function populateCategoryCard(card, category) {
-  // カードタイトルを設定
-  card.querySelector('.card-title').textContent = category.name;
+      /**
+       * カテゴリーカードを更新する関数
+       * @param {Node} card - カードのDOM要素
+       * @param {Object} category - カテゴリー情報
+       */
+      function populateCategoryCard(card, category) {
+        // カードタイトルを設定
+        card.querySelector('.card-title').textContent = category.name;
 
-  // メトリクス値を更新
-  const metrics = {
-    categories: category.stats.totalProjects,
-    subCategories: category.stats.subCategories,
-    projects: category.stats.totalProjects,
-    countries: category.stats.countries,
-    regions: category.stats.regions,
-    developers: category.stats.developers,
-    towers: category.stats.totalTowers,
-    units: category.stats.totalUnits
-  };
+        // メトリクス値を更新
+        const metrics = {
+          categories: category.stats.totalProjects,
+          subCategories: category.stats.subCategories,
+          projects: category.stats.totalProjects,
+          countries: category.stats.countries,
+          regions: category.stats.regions,
+          developers: category.stats.developers,
+          towers: category.stats.totalTowers,
+          units: category.stats.totalUnits
+        };
 
-  Object.entries(metrics).forEach(([metric, value]) => {
-    const element = card.querySelector(`[data-metric="${metric}"] .value`);
-    if (element) {
-      element.textContent = value.toLocaleString();
-    }
-  });
-
-  // チャートを更新
-  updateCharts(card, category);
-}
-
-/**
- * チャートを更新する関数
- * @param {Node} card - カードのDOM要素
- * @param {Object} category - カテゴリー情報
- */
-function updateCharts(card, category) {
-    try {
-        if (!card || !category || !category.stats) {
-            console.warn('Invalid card or category data');
-            return;
-        }
-
-        // 既存のチャートを破棄
-        destroyExistingCharts(card);
-
-        // Launch Timeline
-        const launchCanvas = card.querySelector('.launch-chart');
-        if (launchCanvas && category.stats.launchTimeline) {
-            const labels = Object.keys(category.stats.launchTimeline).sort();
-            const data = labels.map(label => category.stats.launchTimeline[label] || 0);
+        Object.entries(metrics).forEach(([metric, value]) => {
+          const element = card.querySelector(`[data-metric="${metric}"]`);
+          if (element) {
+            // data-value属性を設定
+            element.setAttribute('data-value', value);
             
-            new Chart(launchCanvas.getContext('2d'), {
-                type: 'line',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Projects Launched',
-                        data: data,
-                        borderColor: '#0088FE',
-                        tension: 0.1,
-                        fill: false
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
-                    }
-                }
-            });
-        }
+            const valueElement = element.querySelector('.value');
+            if (valueElement) {
+              valueElement.textContent = value.toLocaleString();
+            }
 
-        // Sold Out Timeline
-        const soldOutCanvas = card.querySelector('.soldout-chart');
-        if (soldOutCanvas && category.stats.soldOutTimeline) {
-            const labels = Object.keys(category.stats.soldOutTimeline).sort();
-            const data = labels.map(label => category.stats.soldOutTimeline[label] || 0);
-            
-            new Chart(soldOutCanvas.getContext('2d'), {
-                type: 'line',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Projects Sold Out',
-                        data: data,
-                        borderColor: '#00C49F',
-                        tension: 0.1,
-                        fill: false
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
-                    }
-                }
-            });
-        }
+            // Projects が 0 の場合、カード全体を非表示
+            if (metric === 'projects' && value === 0) {
+              card.style.display = 'none';
+            }
+          }
+        });
 
-        // Status Distribution
-        const statusGrid = card.querySelector('.status-grid');
-        if (statusGrid && category.stats.statusDistribution) {
-            const statusHTML = Object.entries(category.stats.statusDistribution)
-                .map(([status, count]) => `
-                    <div class="status-item">
-                        <span class="label">${status || 'Unknown'}</span>
-                        <span class="value">${count.toLocaleString()}</span>
-                    </div>
-                `)
-                .join('');
-            statusGrid.innerHTML = statusHTML;
-        }
+        // チャートを更新
+        updateCharts(card, category);
+      }
 
-    } catch (error) {
-        console.error('Error updating charts:', error);
-        console.error('Error details:', error.stack);
-    }
-}
+      /**
+       * チャートを更新する関数
+       * @param {Node} card - カードのDOM要素
+       * @param {Object} category - カテゴリー情報
+       */
+      function updateCharts(card, category) {
+          try {
+              if (!card || !category || !category.stats) {
+                  console.warn('Invalid card or category data');
+                  return;
+              }
 
-/**
- * 既存のチャートを破棄する関数
- * @param {Node} card - カードのDOM要素
- */
-function destroyExistingCharts(card) {
-    const canvases = card.querySelectorAll('canvas');
-    canvases.forEach(canvas => {
-        const chartInstance = Chart.getChart(canvas);
-        if (chartInstance) {
-            chartInstance.destroy();
-        }
-    });
-}  
+              // 既存のチャートを破棄
+              destroyExistingCharts(card);
+
+              // Launch Timeline
+              const launchCanvas = card.querySelector('.launch-chart');
+              if (launchCanvas && category.stats.launchTimeline) {
+                  const labels = Object.keys(category.stats.launchTimeline).sort();
+                  const data = labels.map(label => category.stats.launchTimeline[label] || 0);
+                  
+                  new Chart(launchCanvas.getContext('2d'), {
+                      type: 'line',
+                      data: {
+                          labels: labels,
+                          datasets: [{
+                              label: 'Projects Launched',
+                              data: data,
+                              borderColor: '#0088FE',
+                              tension: 0.1,
+                              fill: false
+                          }]
+                      },
+                      options: {
+                          responsive: true,
+                          maintainAspectRatio: false,
+                          scales: {
+                              y: {
+                                  beginAtZero: true
+                              }
+                          }
+                      }
+                  });
+              }
+
+              // Sold Out Timeline
+              const soldOutCanvas = card.querySelector('.soldout-chart');
+              if (soldOutCanvas && category.stats.soldOutTimeline) {
+                  const labels = Object.keys(category.stats.soldOutTimeline).sort();
+                  const data = labels.map(label => category.stats.soldOutTimeline[label] || 0);
+                  
+                  new Chart(soldOutCanvas.getContext('2d'), {
+                      type: 'line',
+                      data: {
+                          labels: labels,
+                          datasets: [{
+                              label: 'Projects Sold Out',
+                              data: data,
+                              borderColor: '#00C49F',
+                              tension: 0.1,
+                              fill: false
+                          }]
+                      },
+                      options: {
+                          responsive: true,
+                          maintainAspectRatio: false,
+                          scales: {
+                              y: {
+                                  beginAtZero: true
+                              }
+                          }
+                      }
+                  });
+              }
+
+              // Status Distribution
+              const statusGrid = card.querySelector('.status-grid');
+              if (statusGrid && category.stats.statusDistribution) {
+                  const statusHTML = Object.entries(category.stats.statusDistribution)
+                      .map(([status, count]) => `
+                          <div class="status-item">
+                              <span class="label">${status || 'Unknown'}</span>
+                              <span class="value">${count.toLocaleString()}</span>
+                          </div>
+                      `)
+                      .join('');
+                  statusGrid.innerHTML = statusHTML;
+              }
+
+          } catch (error) {
+              console.error('Error updating charts:', error);
+              console.error('Error details:', error.stack);
+          }
+      }
+
+      /**
+       * 既存のチャートを破棄する関数
+       * @param {Node} card - カードのDOM要素
+       */
+      function destroyExistingCharts(card) {
+          const canvases = card.querySelectorAll('canvas');
+          canvases.forEach(canvas => {
+              const chartInstance = Chart.getChart(canvas);
+              if (chartInstance) {
+                  chartInstance.destroy();
+              }
+          });
+      }  
       
       
       // -------------------------------------------------------
@@ -1965,6 +1971,10 @@ function destroyExistingCharts(card) {
             alert("No matching properties found.");
             return;
           }
+
+          // 検索結果の分析を更新
+          updateOverviewStats(results);
+          updateCategoryAnalysis(results);          
 
           const searchBounds = L.latLngBounds();
 
