@@ -2363,13 +2363,6 @@
           maskLayer = null;
         }
 
-        // 地物マーカーとポリゴンをクリアする
-        propertyMarkers.forEach(marker => map.removeLayer(marker));
-        propertyMarkers.length = 0;
-
-        propertyPolygons.forEach(polygon => map.removeLayer(polygon));
-        propertyPolygons.length = 0;
-
         // プロパティ検索結果のリストをクリア
         const ul = document.getElementById('propertyResultUl');
         if (ul) {
