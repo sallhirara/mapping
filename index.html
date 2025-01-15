@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover, minimal-ui">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <title>Project Map</title>
 
@@ -31,6 +31,9 @@
       overflow: hidden; 
       display: flex;
       flex-direction: column;
+      /* Safe Area対応 */
+      padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+
     }
 
     /* 共通メニュースタイル */
@@ -50,6 +53,15 @@
       border: 1px solid grey;
       border-radius: 15px;
       font-size: 16px;
+    }
+    
+    /* メニューコンテナの調整 */
+    #menuContainer {
+      /* モバイル表示時の調整 */
+      @media screen and (max-width: 768px) {
+        padding-bottom: env(safe-area-inset-bottom);
+        height: calc(70% + env(safe-area-inset-bottom));
+      }
     }
 
     /* メディアクエリ: モバイル */
@@ -302,42 +314,7 @@
       max-width: 100%;
       height: auto;
     }
-
-    /* 
-    Infobox検索コンテナのスタイル まだ必要？
-      .infobox-search-container {
-        padding: 10px;
-        background-color: rgba(255, 255, 255, 0.8);
-        border-radius: 10px;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-        margin: 10px;
-        z-index: 3003;
-      }
-
-      .infobox-search-container input {
-        width: calc(100% - 100px);
-        padding: 8px;
-        border: 1px solid grey;
-        border-radius: 5px;
-        font-size: 16px;
-      }
-
-      .infobox-search-container button {
-        width: 80px;
-        padding: 8px;
-        margin-left: 10px;
-        background-color: #28a745;
-        color: white;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-        font-size: 16px;
-      }
-
-      .infobox-search-container button:hover {
-        background-color: #218838;
-      }
-    */
+    
 
     /* Infobox表示コンテナのスタイル */
     #infobox-container {
@@ -460,6 +437,9 @@
       height: calc(var(--vh, 1svh) * 100);
       width: 100%;
       z-index: 0;
+      /* ノッチ等のある端末での表示調整 */
+      margin-left: env(safe-area-inset-left);
+      margin-right: env(safe-area-inset-right);
     }
 
     /* ボタンスタイル */
@@ -511,6 +491,10 @@
       /* border-radius: 15px; */
       padding: 5px;
       /* box-shadow: 0 2px 6px rgba(0,0,0,0.3); */
+      
+      /* Safe Area対応を追加 */
+      padding-bottom: env(safe-area-inset-bottom);
+      padding-right: env(safe-area-inset-right);
     }
 
     /* Zoom Buttons */
@@ -549,6 +533,11 @@
       top: 15px; 
       width: 320px;
       max-height: 70vh; 
+      
+      /* Safe Area対応を追加 */
+      padding-top: env(safe-area-inset-top);
+      padding-left: env(safe-area-inset-left);
+      
       background-color: transparent;
       z-index: 3001;
       border: 0px solid #ccc;
@@ -625,7 +614,7 @@
 
     /* モーダルウィンドウのスタイル */
     .modal {
-      display: none;
+      /* display: none; */
       position: fixed; 
       z-index: 3000; /* 既存のz-indexより上 */
       left: 0;
@@ -643,7 +632,7 @@
       padding: 20px;
       border: 1px solid #888;
       width: 90%; /* 幅を調整 */
-      max-width: 800px; /* 最大幅を設定 */
+      max-width: 900px; /* 最大幅を設定 */
       border-radius: 10px;
       position: relative;
     }
@@ -700,6 +689,16 @@
     .tab-panel.active {
       display: block;
     }
+    
+
+    /* Analytics Container */
+    .analytics-container {
+      padding: 0px;
+      background-color: #f8f9fa;
+    }
+    
+    
+    
 
     #propertyListArea {
       flex: 1;
@@ -872,7 +871,139 @@
       <div class="tab-content">
         <div id="searchResult" class="tab-panel active">
           <!-- searchResult情報がここに表示されます -->
-          <p></p>
+          
+            <div class="analytics-container">
+              <!-- Projects Overview -->
+              <div class="overview-section">
+                <div class="overview-card">
+                  <h3>Projects Overview</h3>
+                  <div class="overview-grid">
+                    <div class="overview-item">
+                      <span class="label">Total Projects</span>
+                      <span class="value" id="totalProjects">-</span>
+                    </div>
+                    <div class="overview-item">
+                      <span class="label">Total Categories</span>
+                      <span class="value" id="totalCategories">-</span>
+                    </div>
+                    <div class="overview-item">
+                      <span class="label">Total Countries</span>
+                      <span class="value" id="totalCountries">-</span>
+                    </div>
+                    <div class="overview-item">
+                      <span class="label">Total Regions</span>
+                      <span class="value" id="totalRegions">-</span>
+                    </div>
+                    <div class="overview-item">
+                      <span class="label">Total Developers</span>
+                      <span class="value" id="totalDevelopers">-</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Category Analysis -->
+              <div class="category-section">
+                <div class="category-grid" id="categoryContainer">
+                  <!-- Category cards will be dynamically inserted here -->
+                  <template id="categoryCardTemplate">
+                    <div class="category-card">
+                      <h3 class="card-title"></h3>
+                      <div class="card-content">
+                        <div class="metric-group">
+                          <div class="metric-item" data-metric="categories">
+                            <span class="label">Categories</span>
+                            <span class="value">-</span>
+                          </div>
+                          <div class="metric-item" data-metric="subCategories">
+                            <span class="label">Sub-Categories</span>
+                            <span class="value">-</span>
+                          </div>
+                          <div class="metric-item" data-metric="projects">
+                            <span class="label">Projects</span>
+                            <span class="value">-</span>
+                          </div>
+                          <div class="metric-item" data-metric="siteNames">
+                            <span class="label">Site Names</span>
+                            <span class="value">-</span>
+                          </div>
+                          <div class="metric-item" data-metric="countries">
+                            <span class="label">Countries</span>
+                            <span class="value">-</span>
+                          </div>
+                          <div class="metric-item" data-metric="regions">
+                            <span class="label">Regions</span>
+                            <span class="value">-</span>
+                          </div>
+                          <div class="metric-item" data-metric="siteArea">
+                            <span class="label">Site Area</span>
+                            <span class="value">-</span>
+                          </div>
+                          <div class="metric-item" data-metric="developers">
+                            <span class="label">Developers</span>
+                            <span class="value">-</span>
+                          </div>
+                          <div class="metric-item" data-metric="towers">
+                            <span class="label">Towers</span>
+                            <span class="value">-</span>
+                          </div>
+                          <div class="metric-item" data-metric="units">
+                            <span class="label">Units</span>
+                            <span class="value">-</span>
+                          </div>
+                        </div>
+
+                        <div class="price-group">
+                          <div class="metric-item" data-metric="priceHigh">
+                            <span class="label">Highest Unit Price</span>
+                            <span class="value">-</span>
+                          </div>
+                          <div class="metric-item" data-metric="priceMid">
+                            <span class="label">Middle Unit Price</span>
+                            <span class="value">-</span>
+                          </div>
+                          <div class="metric-item" data-metric="priceLow">
+                            <span class="label">Lowest Unit Price</span>
+                            <span class="value">-</span>
+                          </div>
+                        </div>
+
+                        <div class="company-group">
+                          <div class="metric-item" data-metric="architects">
+                            <span class="label">Architects</span>
+                            <span class="value">-</span>
+                          </div>
+                          <div class="metric-item" data-metric="contractors">
+                            <span class="label">Contractors</span>
+                            <span class="value">-</span>
+                          </div>
+                          <div class="metric-item" data-metric="salesCompanies">
+                            <span class="label">Sales Companies</span>
+                            <span class="value">-</span>
+                          </div>
+                        </div>
+
+                        <div class="chart-group">
+                          <div class="chart-item">
+                            <span class="label">Launch Timeline</span>
+                            <canvas class="timeline-chart launch-chart"></canvas>
+                          </div>
+                          <div class="chart-item">
+                            <span class="label">Sold Out Timeline</span>
+                            <canvas class="timeline-chart soldout-chart"></canvas>
+                          </div>
+                        </div>
+
+                        <div class="status-group">
+                          <h4>Status</h4>
+                          <div class="status-grid"></div>
+                        </div>
+                      </div>
+                    </div>
+                  </template>
+                </div>
+              </div>
+            </div>
   
         </div>
         <div id="searchTips" class="tab-panel">
@@ -2867,6 +2998,26 @@
       window.addEventListener("resize", handleOrientationChange);
       handleOrientationChange();      
 
+      
+// ビューポートの高さを正しく設定
+function setVhVariable() {
+  const vh = window.innerHeight * 0.01;
+  document.documentElement.style.setProperty('--vh', `${vh}px`);
+}
+
+// 初期設定
+setVhVariable();
+
+// リサイズ時に更新
+window.addEventListener('resize', () => {
+  setVhVariable();
+});
+
+// 向き変更時に更新
+window.addEventListener('orientationchange', () => {
+  setTimeout(setVhVariable, 100);
+});      
+      
       // -------------------------------------------------------
       // **) Additional Enhancements
       // -------------------------------------------------------
