@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover, minimal-ui">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <title>Project Map</title>
 
@@ -31,9 +31,6 @@
       overflow: hidden; 
       display: flex;
       flex-direction: column;
-      /* Safe Area対応 */
-      padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
-
     }
 
     /* 共通メニュースタイル */
@@ -53,15 +50,6 @@
       border: 1px solid grey;
       border-radius: 15px;
       font-size: 16px;
-    }
-    
-    /* メニューコンテナの調整 */
-    #menuContainer {
-      /* モバイル表示時の調整 */
-      @media screen and (max-width: 768px) {
-        padding-bottom: env(safe-area-inset-bottom);
-        height: calc(70% + env(safe-area-inset-bottom));
-      }
     }
 
     /* メディアクエリ: モバイル */
@@ -314,7 +302,42 @@
       max-width: 100%;
       height: auto;
     }
-    
+
+    /* 
+    Infobox検索コンテナのスタイル まだ必要？
+      .infobox-search-container {
+        padding: 10px;
+        background-color: rgba(255, 255, 255, 0.8);
+        border-radius: 10px;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+        margin: 10px;
+        z-index: 3003;
+      }
+
+      .infobox-search-container input {
+        width: calc(100% - 100px);
+        padding: 8px;
+        border: 1px solid grey;
+        border-radius: 5px;
+        font-size: 16px;
+      }
+
+      .infobox-search-container button {
+        width: 80px;
+        padding: 8px;
+        margin-left: 10px;
+        background-color: #28a745;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+      }
+
+      .infobox-search-container button:hover {
+        background-color: #218838;
+      }
+    */
 
     /* Infobox表示コンテナのスタイル */
     #infobox-container {
@@ -437,9 +460,6 @@
       height: calc(var(--vh, 1svh) * 100);
       width: 100%;
       z-index: 0;
-      /* ノッチ等のある端末での表示調整 */
-      margin-left: env(safe-area-inset-left);
-      margin-right: env(safe-area-inset-right);
     }
 
     /* ボタンスタイル */
@@ -491,10 +511,6 @@
       /* border-radius: 15px; */
       padding: 5px;
       /* box-shadow: 0 2px 6px rgba(0,0,0,0.3); */
-      
-      /* Safe Area対応を追加 */
-      padding-bottom: env(safe-area-inset-bottom);
-      padding-right: env(safe-area-inset-right);
     }
 
     /* Zoom Buttons */
@@ -533,11 +549,6 @@
       top: 15px; 
       width: 320px;
       max-height: 70vh; 
-      
-      /* Safe Area対応を追加 */
-      padding-top: env(safe-area-inset-top);
-      padding-left: env(safe-area-inset-left);
-      
       background-color: transparent;
       z-index: 3001;
       border: 0px solid #ccc;
@@ -614,7 +625,7 @@
 
     /* モーダルウィンドウのスタイル */
     .modal {
-      /* display: none; */
+      display: none;
       position: fixed; 
       z-index: 3000; /* 既存のz-indexより上 */
       left: 0;
@@ -632,7 +643,7 @@
       padding: 20px;
       border: 1px solid #888;
       width: 90%; /* 幅を調整 */
-      max-width: 900px; /* 最大幅を設定 */
+      max-width: 800px; /* 最大幅を設定 */
       border-radius: 10px;
       position: relative;
     }
@@ -690,12 +701,230 @@
       display: block;
     }
     
-
+    
+    
     /* Analytics Container */
     .analytics-container {
-      padding: 0px;
+      padding: 20px;
       background-color: #f8f9fa;
     }
+
+    /* Overview Section */
+    .overview-section {
+      margin-bottom: 30px;
+    }
+
+    .overview-card {
+      background: white;
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+
+    .overview-card h3 {
+      margin: 0 0 20px 0;
+      font-size: 18px;
+      color: #333;
+    }
+
+    .overview-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+    }
+
+    .overview-item {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .overview-item .label {
+      font-size: 14px;
+      color: #666;
+    }
+
+    .overview-item .value {
+      font-size: 24px;
+      font-weight: 600;
+      color: #2c3e50;
+    }
+
+    /* Category Section */
+    .category-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      gap: 20px;
+    }
+
+    .category-card {
+        background: white;
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        margin-bottom: 20px;
+        display: block; /* display: none を削除 */
+    }
+
+    .category-card .card-content {
+        display: block;
+    }
+
+    .chart-container {
+        min-height: 200px;
+        margin: 15px 0;
+    }
+
+    .category-card.has-data {
+      display: block;
+    }
+
+    .card-title {
+      margin: 0 0 20px 0;
+      font-size: 16px;
+      color: #333;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #eee;
+    }
+
+    /* Metric Groups */
+    .metric-group,
+    .price-group,
+    .company-group {
+      margin-bottom: 20px;
+    }
+
+    .metric-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    .metric-item:last-child {
+      border-bottom: none;
+    }
+
+    .metric-item .label {
+      font-size: 14px;
+      color: #666;
+    }
+
+    .metric-item .value {
+      font-size: 14px;
+      font-weight: 500;
+      color: #2c3e50;
+    }
+
+    /* Chart Group */
+    .chart-group {
+      margin-top: 20px;
+    }
+
+    .chart-item {
+      margin-bottom: 20px;
+    }
+
+    .chart-item .label {
+      display: block;
+      margin-bottom: 10px;
+      font-size: 14px;
+      color: #666;
+    }
+
+    .timeline-chart {
+      width: 100%;
+      height: 200px;
+    }
+
+    /* Status Group */
+    .status-group {
+      margin-top: 20px;
+    }
+
+    .status-group h4 {
+      margin: 0 0 15px 0;
+      font-size: 14px;
+      color: #666;
+    }
+
+    .status-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 10px;
+    }
+
+    .status-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 10px;
+      background: #f8f9fa;
+      border-radius: 6px;
+    }
+
+    .status-item .label {
+      font-size: 12px;
+      color: #666;
+      margin-bottom: 5px;
+    }
+
+    .status-item .value {
+      font-size: 16px;
+      font-weight: 500;
+      color: #2c3e50;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .category-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .overview-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .status-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .metric-item .label,
+      .metric-item .value {
+        font-size: 13px;
+      }
+
+      .timeline-chart {
+        height: 150px;
+      }
+    }
+
+    
+
+    /* Hide Empty Elements */
+    .metric-item[data-value="0"],
+    .metric-item[data-value=""],
+    .metric-item[data-value="-"] {
+      display: none;
+    }
+
+    /* Price Formatting */
+    .price-group .value::before {
+      content: "$";
+    }
+
+    /* Number Formatting */
+    .metric-item[data-type="number"] .value {
+      font-family: monospace;
+    }
+
+    /* Chart Containers */
+    .chart-container {
+      position: relative;
+      width: 100%;
+    }    
+    
     
     
     
@@ -872,7 +1101,6 @@
         <div id="searchResult" class="tab-panel active">
           <!-- searchResult情報がここに表示されます -->
           
-            <div class="analytics-container">
               <!-- Projects Overview -->
               <div class="overview-section">
                 <div class="overview-card">
@@ -2998,26 +3226,6 @@
       window.addEventListener("resize", handleOrientationChange);
       handleOrientationChange();      
 
-      
-// ビューポートの高さを正しく設定
-function setVhVariable() {
-  const vh = window.innerHeight * 0.01;
-  document.documentElement.style.setProperty('--vh', `${vh}px`);
-}
-
-// 初期設定
-setVhVariable();
-
-// リサイズ時に更新
-window.addEventListener('resize', () => {
-  setVhVariable();
-});
-
-// 向き変更時に更新
-window.addEventListener('orientationchange', () => {
-  setTimeout(setVhVariable, 100);
-});      
-      
       // -------------------------------------------------------
       // **) Additional Enhancements
       // -------------------------------------------------------
