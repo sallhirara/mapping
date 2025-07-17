@@ -1429,6 +1429,18 @@ function excelDateToJSDate(serial) {
        * @param {Object} item - 物件データ
        * @returns {String} - HTMLコンテンツ
        */
+      
+/**
+　Unit Price用
+*/
+function formatUnitPrice(value) {
+  const num = parseFloat(value.toString().replace(/[^0-9.]/g, ''));
+  if (isNaN(num)) return value;
+  return `$${num.toLocaleString()}`;
+}
+      
+      
+      
       function buildPopup(item) {
         const popupContent = [];
 
@@ -1447,7 +1459,10 @@ function excelDateToJSDate(serial) {
         if (item.salesCompany) popupContent.push(`Sales Company: ${item.salesCompany}`);
         if (item.status) popupContent.push(`Status: ${item.status}`);
         if (item.scale) popupContent.push(`Scale: ${item.scale}`);
-        if (item.unitPrice) popupContent.push(`Unit Price: ${item.unitPrice}`);
+        if (item.unitPrice) {
+          const formattedPrice = formatUnitPrice(item.unitPrice);
+          popupContent.push(`Unit Price: ${formattedPrice}`);
+        }
         if (item.launch) popupContent.push(`Launch: ${item.launch}`);
         if (item.soldOut) popupContent.push(`Sold Out: ${item.soldOut}`);
         if (item.description) popupContent.push(`Description: ${item.description}`);
