@@ -1151,6 +1151,18 @@
        * @param {Array} data - Excelから読み込まれたデータ
        * @returns {Array} - パースされた物件データ
        */
+      
+/**
+　* 日付用
+*/
+function excelDateToJSDate(serial) {
+  const utc_days  = Math.floor(serial - 25569);
+  const utc_value = utc_days * 86400; // 秒数
+  const date_info = new Date(utc_value * 1000);
+  return date_info.toISOString().split('T')[0]; // "YYYY-MM-DD"形式で返す
+}
+      
+      
       function parseExcelData(data) {
         return data.map(row => ({
           pjName:       row["PJ name"]        || "",
@@ -1179,8 +1191,8 @@
           units:                  row["Units"]                   || "",
           scale:                  row["Scale"]                   || "",
           unitPrice:              row["Unit Price"]              || "",
-          launch:                 row["Launch"]                  || "",
-          soldOut:                row["Sold Out"]                || "",
+          launch:          typeof row["Launch"] === "number" ? excelDateToJSDate(row["Launch"]) : (row["Launch"] || ""),
+          soldOut:         typeof row["Sold Out"] === "number" ? excelDateToJSDate(row["Sold Out"]) : (row["Sold Out"] || ""),
           description:            row["Description"]             || "",
           googleMap:              row["Google Map"]              || "",
           link1:                  row["Link 1"]                  || "",
