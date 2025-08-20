@@ -1452,6 +1452,10 @@ function formatUnitPrice(value) {
   return `$${num.toLocaleString()}`;
 }
       
+function isMonthlyRentCategory(cat) {
+  const c = (cat || '').trim().toLowerCase();
+  return c === 'sa' || c === 'senior';
+}
       
       
       function buildPopup(item) {
@@ -1474,7 +1478,8 @@ function formatUnitPrice(value) {
         if (item.scale) popupContent.push(`Scale: ${item.scale}`);
         if (item.unitPrice) {
           const formattedPrice = formatUnitPrice(item.unitPrice);
-          popupContent.push(`Unit Price: ${formattedPrice}`);
+          const suffix = isMonthlyRentCategory(item.category1) ? ' *Monthly Rent' : '';
+          popupContent.push(`Unit Price: ${formattedPrice}${suffix}`);
         }
         if (item.launch) popupContent.push(`Launch: ${item.launch}`);
         if (item.soldOut) popupContent.push(`Sold Out: ${item.soldOut}`);
