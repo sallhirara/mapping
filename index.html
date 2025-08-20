@@ -877,6 +877,140 @@
         </div>
         <div id="searchTips" class="tab-panel">
           <!-- searchTips情報がここに表示されます -->
+
+<style>
+  .legend-block { margin-top: 12px; }
+  .legend-title { font-weight: bold; margin: 12px 0 6px; }
+
+  /* 横並び、幅が足りなければ折返し */
+  .legend-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px 20px;
+  }
+
+  .legend-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 120px;
+  }
+
+  .legend-icon {
+    width: 22px; height: 22px; object-fit: contain;
+  }
+
+  .poly-swatch {
+    display:inline-block; width:22px; height:22px;
+    border: 1px solid #ccc; border-radius: 4px;
+  }
+
+  @media (max-width: 769px){
+    .legend-row { min-width: 100px; }
+    .legend-icon, .poly-swatch { width:20px; height:20px; }
+  }
+</style>
+
+<!-- マーカー凡例 -->
+<div class="legend-block">
+  <div class="legend-title">Marker Legend</div>
+  <div class="legend-container">
+    <div class="legend-row">
+      <img class="legend-icon" src="https://img.icons8.com/?size=100&id=bnfp2fmtrh0g&format=png&color=571601B8" alt="primary">
+      <span>primary</span>
+    </div>
+    <div class="legend-row">
+      <img class="legend-icon" src="https://img.icons8.com/?size=100&id=bnfp2fmtrh0g&format=png&color=1A529300" alt="area">
+      <span>area</span>
+    </div>
+    <div class="legend-row">
+      <img class="legend-icon" src="https://img.icons8.com/?size=100&id=uRRFz0DH6uYw&format=png&color=000000" alt="haseko">
+      <span>haseko</span>
+    </div>
+    <div class="legend-row">
+      <img class="legend-icon" src="https://img.icons8.com/?size=100&id=59830&format=png&color=4BAA8EA8" alt="ecoba">
+      <span>ecoba</span>
+    </div>
+    <div class="legend-row">
+      <img class="legend-icon" src="https://img.icons8.com/?size=30&id=24801&format=png&color=FF2E1754" alt="condominium">
+      <span>condominium</span>
+    </div>
+    <div class="legend-row">
+      <img class="legend-icon" src="https://img.icons8.com/?size=100&id=bnfp2fmtrh0g&format=png&color=0046b099" alt="others">
+      <span>others</span>
+    </div>
+    <div class="legend-row">
+      <img class="legend-icon" src="https://img.icons8.com/?size=100&id=ipgAkdE46kxu&format=png&color=000000" alt="pj site">
+      <span>pj site</span>
+    </div>
+    <div class="legend-row">
+      <img class="legend-icon" src="https://img.icons8.com/?size=100&id=bnfp2fmtrh0g&format=png&color=4D6AAC" alt="sa">
+      <span>sa</span>
+    </div>
+    <div class="legend-row">
+      <img class="legend-icon" src="https://img.icons8.com/?size=100&id=bnfp2fmtrh0g&format=png&color=688C79" alt="senior">
+      <span>senior</span>
+    </div>
+    <div class="legend-row">
+      <img class="legend-icon" src="https://img.icons8.com/?size=100&id=bnfp2fmtrh0g&format=png&color=3C312C" alt="default">
+      <span>default</span>
+    </div>
+  </div>
+
+
+＜<br>
+
+
+  <!-- ポリゴン凡例 -->
+  <div class="legend-title">Polygon Legend</div>
+  <div class="legend-container">
+    <div class="legend-row">
+      <span class="poly-swatch" style="background: blue; opacity:0.2;"></span>
+      <span>primary</span>
+    </div>
+    <div class="legend-row">
+      <span class="poly-swatch" style="background: gold; opacity:0.2;"></span>
+      <span>area</span>
+    </div>
+    <div class="legend-row">
+      <span class="poly-swatch" style="background: orange; opacity:0.2;"></span>
+      <span>haseko</span>
+    </div>
+    <div class="legend-row">
+      <span class="poly-swatch" style="background: purple; opacity:0.2;"></span>
+      <span>ecoba</span>
+    </div>
+    <div class="legend-row">
+      <span class="poly-swatch" style="background: red; opacity:0.2;"></span>
+      <span>condominium</span>
+    </div>
+    <div class="legend-row">
+      <span class="poly-swatch" style="background: yellow; opacity:0.2;"></span>
+      <span>others</span>
+    </div>
+    <div class="legend-row">
+      <span class="poly-swatch" style="background: grey; opacity:0.2;"></span>
+      <span>pj site</span>
+    </div>
+    <div class="legend-row">
+      <span class="poly-swatch" style="background: #7c3aed; opacity:0.2;"></span>
+      <span>sa</span>
+    </div>
+    <div class="legend-row">
+      <span class="poly-swatch" style="background: #0ea5e9; opacity:0.2;"></span>
+      <span>senior</span>
+    </div>
+    <div class="legend-row">
+      <span class="poly-swatch" style="background: black; opacity:0.2;"></span>
+      <span>default</span>
+    </div>
+  </div>
+</div>
+
+
+<br>
+
+
           <p>
             1. Simple Search<br>
 
@@ -1363,10 +1497,10 @@ function excelDateToJSDate(serial) {
               case 'condominium':  return 'https://img.icons8.com/?size=30&id=24801&format=png&color=FF2E1754';
               case 'others':       return 'https://img.icons8.com/?size=100&id=bnfp2fmtrh0g&format=png&color=0046b099';
               case 'pj site':      return 'https://img.icons8.com/?size=100&id=ipgAkdE46kxu&format=png&color=000000';
-              case 'sa':           return 'https://img.icons8.com/?size=100&id=bnfp2fmtrh0g&format=png&color=7C3AEDCC';
-              case 'senior':       return 'https://img.icons8.com/?size=100&id=bnfp2fmtrh0g&format=png&color=0EA5E9CC';
+              case 'sa':           return 'https://img.icons8.com/?size=100&id=bnfp2fmtrh0g&format=png&color=4D6AAC';
+              case 'senior':       return 'https://img.icons8.com/?size=100&id=bnfp2fmtrh0g&format=png&color=688C79';
              
-              default:             return 'https://maps.google.com/mapfiles/ms/icons/black-dot.png';
+              default:             return 'https://img.icons8.com/?size=100&id=bnfp2fmtrh0g&format=png&color=3C312C';
           }
       }
 
